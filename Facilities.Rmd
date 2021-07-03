@@ -140,7 +140,13 @@ utl <- utl %>%
     Cat = i_nfads_naf_category,
     adq = i_nfads_adq_area_measure,
     sub = i_nfads_sub_area_measure,
-    iadq = i_nfads_iadq_area_measure
+    iadq = i_nfads_iadq_area_measure,
+    adq_alt = i_nfads_adq_alternate_measure,
+    sub_alt = i_nfads_sub_alternate_measure,
+    iadq_alt = i_nfads_iadq_alternate_measure,
+    adq_other = i_nfads_adq_other_measure,
+    sub_other = i_nfads_sub_other_measure,
+    iadq_other = i_nfads_iadq_other_measure
   ) %>%
   separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
   mutate(use_code = use_code %>% as.numeric()) %>%
@@ -154,14 +160,29 @@ utl <- utl %>%
     adq = adq %>% replace_na(0),
     sub = sub %>% replace_na(0),
     iadq = iadq %>% replace_na(0),
+    adq_other = adq_other %>% replace_na(0),
+    sub_other = sub_other %>% replace_na(0),
+    iadq_other = iadq_other %>% replace_na(0),
+    adq_alt = adq_alt %>% replace_na(0),
+    sub_alt = sub_alt %>% replace_na(0),
+    iadq_alt = iadq_alt %>% replace_na(0),
     FY2022 = FY2022 %>% replace_na(0)
   ) %>%
-  mutate(total_measure = adq + sub + iadq) %>%
+  mutate(total_measure = adq + sub + iadq,
+         alt_total_measure = adq_alt + sub_alt + iadq_alt,
+         other_total_measure = adq_other + sub_other + iadq_other) %>%
   group_by(RPUID) %>%
-  mutate(use_pct_area = total_measure / sum(total_measure)) %>%
+
+  mutate(use_pct_area = total_measure / sum(total_measure),
+         use_pct_other = other_total_measure / sum(other_total_measure),
+         use_pct_alt = alt_total_measure / sum(alt_total_measure),
+         use_pct_area = use_pct_area %>% replace_na(0),
+         use_pct_alt = use_pct_alt %>% replace_na(0),
+         use_pct_other = use_pct_other %>% replace_na(0)) %>%
+  
+  mutate(fac_use_pct = if_else(use_pct_area > 0, use_pct_area, 
+                               if_else(use_pct_alt > 0, use_pct_alt, use_pct_other))) %>% 
   ungroup() %>%
-  mutate(use_pct_area = use_pct_area %>% replace_na(0)) %>%
-  mutate(use_pct_other = if_else(use_pct_area == 0, 1, use_pct_area)) %>%
   mutate(region = case_when(
     installation %in% c(
       "M00146 MCAS CHERRY POINT NC",
@@ -205,19 +226,20 @@ utl <- utl %>%
   )) %>%
   mutate(RPUID = RPUID %>% as.character())
 
-fac_mapped <- fac %>%
-  inner_join(cat_codes, by = c("usecode" = "use_code")) %>%
+fac_mapped <- utl %>%
+  inner_join(cat_codes, by = c("use_code" = "use_code")) 
+ 
+
+fac_mapped <- fac_mapped %>%
+  left_join(fac, by = "RPUID") %>% 
   filter(naf_cat %in% c("A", "B", "C", "L"))
 
-fac_mapped <- fac_mapped %>%
-  inner_join(utl, by = "RPUID")
-
-RPUID_count <- fac_mapped %>%
-  group_by(RPUID) %>%
-  count(RPUID)
-
-fac_mapped <- fac_mapped %>%
-  inner_join((RPUID_count))
+# RPUID_count <- fac_mapped %>%
+#   group_by(RPUID) %>%
+#   count(RPUID)
+# 
+# fac_mapped <- fac_mapped %>%
+#   inner_join((RPUID_count))
 
 
 df_clean <- fac_mapped %>%
@@ -225,16 +247,14 @@ df_clean <- fac_mapped %>%
     sus = if_else(naf_cat == "C", FY2022 * 2, FY2022),
     sus = sus %>% replace_na(0)
   ) %>%
-  mutate(RM_corrected = if_else(total_measure == 0,
-    (RM * use_pct_other) / n,
-    RM * use_pct_other
-  ))
+  mutate(
+    RM_corrected = RM * fac_use_pct) 
 
 
 df_final <- df_clean %>%
-  select(region, installation = installation.x, RPUID, usecode, usedesc, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, use_pct_area, prv, RM, use_pct_other, RM_corrected, sus)
+  select(region, installation = installation.x, RPUID, use_code, use_desc, usedesc, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
 
-write_xlsx(df_final, path = "Data/df_finalv2.xlsx")
+write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/df_finalv3.xlsx")
 
 
 ```
@@ -245,8 +265,6 @@ write_xlsx(df_final, path = "Data/df_finalv2.xlsx")
 
 ```{r}
 category <- df_final %>%
-  group_by(RPUID) %>%
-  mutate(RM_corrected = RM * use_pct_other) %>%
   group_by(naf_cat) %>%
   summarise(
     total_sus = sum(sus),
@@ -257,12 +275,11 @@ category <- df_final %>%
   janitor::adorn_totals()
 
 category
+
 ```
 <br><br>
 ```{r}
 region <- df_final %>%
-  group_by(RPUID) %>%
-  mutate(RM_corrected = RM * use_pct_other) %>%
   group_by(region) %>%
   summarise(
     total_sus = sum(sus),
@@ -278,8 +295,6 @@ region
 ```{r}
 
 program <- df_final %>%
-  group_by(RPUID) %>%
-  mutate(RM_corrected = RM * use_pct_other) %>%
   group_by(op_activity) %>%
   summarise(
     total_sus = sum(sus),
@@ -307,7 +322,7 @@ program_decade_sqft <- df_final %>%
   geom_line() +
   # geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~op_activity, scales = "free_y") +
-  theme_tq() +
+  theme_clean() +
   scale_y_continuous(labels = scales::number) +
   labs(
     y = "Total Measure (SqFt)",
@@ -481,11 +496,13 @@ total_sq_by_installation
 
 <br><br>
 ```{r}
-op_activity_q <- df_final %>% 
+
+q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
+
+op_activity_q <- q_group %>% 
   group_by(op_activity) %>% 
   count(q_rating) %>% 
   mutate(q_rating_pct = n / sum(n))
-
 
 op_activity_q
 
@@ -493,7 +510,7 @@ op_activity_q
 <br><br>
 
 ```{r}
-cat_q <- df_final %>% 
+cat_q <- q_group %>% 
   group_by(naf_cat) %>% 
   count(q_rating) %>% 
   mutate(q_rating_pct = n / sum(n))
@@ -504,7 +521,7 @@ cat_q
 <br><br>
 
 ```{r}
-region_q <- df_final %>% 
+region_q <- q_group %>% 
   group_by(region) %>% 
   count(q_rating) %>% 
   mutate(q_rating_pct = n / sum(n))  
@@ -519,7 +536,7 @@ region_q
 <br><br>
 
 ```{r}
-installation_q <- df_final %>% 
+installation_q <- q_group %>% 
   group_by(installation) %>% 
   count(q_rating) %>% 
   mutate(q_rating_pct = n / sum(n)) 
