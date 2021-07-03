@@ -8,12 +8,12 @@ output:
     toc_float: true
     collapsed: false
     number_sections: false
-    toc_depth: 1
-    code_folding: show
+    toc_depth: 2
+    code_folding: none
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE, echo=FALSE)
 ```
 
 ```{r}
@@ -114,8 +114,6 @@ fac <- fac %>%
   )) %>%
   mutate(RPUID = RPUID %>% as.character()) %>%
   mutate(RM = prv * 0.025)
-
-
 
 
 `%notin%` <- Negate(`%in%`)
@@ -255,7 +253,9 @@ write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization
 ```
 <br><br>
 
-#### Exploring Costs
+# Exploring Costs
+
+## Costs by Category
 
 ```{r}
 category <- df_final %>%
@@ -265,13 +265,70 @@ category <- df_final %>%
     total_rm = sum(RM_corrected),
     total = sum(sus) + sum(RM_corrected)
   ) %>%
-  arrange(desc(total)) %>%
-  janitor::adorn_totals()
+  arrange(naf_cat) %>%
+  gt() %>% 
+   tab_header(
+  title = md("*Annual* MCCS FSRM Costs by Category"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD", 
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_title(groups = "title")
+) %>% 
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric)", 
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+) %>% 
+  tab_footnote(
+    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    locations = cells_column_labels(
+      columns = total_sus)
+) %>% 
+    tab_footnote(
+    footnote = "Nominal dollars", 
+    locations = cells_title(groups = "title")
+)  %>% 
+  tab_footnote(
+    footnote = "Category L= Lodging", 
+    locations = cells_body(
+      columns = naf_cat,
+      rows = 4)
+) %>%
+  grand_summary_rows(
+  columns = c(total_sus, total_rm, total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "FSRM",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    naf_cat = "Categroy",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+  
+  
 
 category
 
 ```
 <br><br>
+
+## Costs by Region
+
 ```{r}
 region <- df_final %>%
   group_by(region) %>%
@@ -281,11 +338,64 @@ region <- df_final %>%
     total = sum(sus) + sum(RM_corrected)
   ) %>%
   arrange(desc(total)) %>%
-  janitor::adorn_totals()
+  gt() %>% 
+   tab_header(
+  title = md("*Annual* MCCS FSRM Costs by Region"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD", 
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_title(groups = "title")
+) %>% 
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric)", 
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+) %>% 
+  tab_footnote(
+    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    locations = cells_column_labels(
+      columns = total_sus)
+) %>% 
+    tab_footnote(
+    footnote = "Nominal dollars", 
+    locations = cells_title(groups = "title")
+) %>% 
+  tab_footnote(
+    footnote = "Garden City, Camp Elmore, Kansas City, MARFORRES, 4th MARDIV",
+    cells_body(columns = region, rows = 6)
+) %>%
+  grand_summary_rows(
+  columns = c(total_sus, total_rm, total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "FSRM",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    region = "Region",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
 
 region
 ```
 <br><br>
+
+## Costs by Program
+
 ```{r}
 
 program <- df_final %>%
@@ -296,14 +406,60 @@ program <- df_final %>%
     total = sum(sus) + sum(RM_corrected)
   ) %>%
   arrange(desc(total)) %>%
-  janitor::adorn_totals()
+ gt() %>% 
+   tab_header(
+  title = md("*Annual* MCCS FSRM Costs by Program"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD", 
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_title(groups = "title")
+) %>% 
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric)", 
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+) %>% 
+  tab_footnote(
+    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    locations = cells_column_labels(
+      columns = total_sus)
+) %>% 
+    tab_footnote(
+    footnote = "Nominal dollars", 
+    locations = cells_title(groups = "title")
+) %>%
+  grand_summary_rows(
+  columns = c(total_sus, total_rm, total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "FSRM",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    op_activity = "Program",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
 
 program
 
 ```
 <br><br>
 
-##### Exploring Square Footage
+# Exploring Square Footage
 
 <br><br>
 ```{r, fig.width = 10, fig.height=5}
@@ -311,18 +467,19 @@ program_decade_sqft <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade, op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(decade = if_else(is.na(decade), 2020, decade)) %>%
+  filter(!is.na(decade)) %>% 
   ggplot(aes(decade, total)) +
   geom_line() +
-  # geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~op_activity, scales = "free_y") +
-  theme_clean() +
+  theme_tq() +
   scale_y_continuous(labels = scales::number) +
   labs(
     y = "Total Measure (SqFt)",
     x = "Decade",
-    title = "What is the sqft added in each decade by Program?",
-    subtitle = "Decade is based on build date"
+    title = "What is the trend of sqft additions by Program?",
+    subtitle = "Decade is based on iNFADS facility build date*",
+    caption = "*Build dates are grouped by decade (ex. 2010-2019) is decade 2010"
   )
 
 program_decade_sqft

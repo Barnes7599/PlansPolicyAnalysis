@@ -8,13 +8,13 @@ output:
     toc_float: true
     collapsed: false
     number_sections: false
-    toc_depth: 1
-    code_folding: show
+    toc_depth: 2
+    code_folding: none
 ---
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE, echo=FALSE)
 ```
 
 
@@ -35,17 +35,6 @@ library(prettydoc)
 library(kableExtra)
 ```
 
-
-This is a proof of concept report, which includes exploring three recreational programs from FY18 thru FY20. 
-
-Recreation Programs are: 
-
-  1. 5860 Golf Courses
-  
-  2. 5851 Private Berthing (Boat Slips)
-  
-  3. 5852 Boating Program (Rentals / Lessons)
-  
 Terms of Reference: 
 
   1. Active Duty Percent = Active Duty + Family Members / All Patrons
@@ -123,7 +112,7 @@ Utilization <- read_excel(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utiliz
 
 
 
-```{r}
+```{r, echo=FALSE}
 #Financial Data ----
 # Load in Finacial extract data
 extract <- read_excel(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/PL_fiveyear_extract_05282021.xlsx", sheet = "Extract")
@@ -142,13 +131,13 @@ pop <- read_excel(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/Po
 
 ```
 
-```{r scripts}
+```{r scripts, echo=FALSE}
 source("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/functions/quad_plot.R")
 source("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/functions/catc_table.R")
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 font <- list(
   size = 15,
   color = "white",
@@ -166,18 +155,17 @@ label <- list(
 ```
 
 
-## Data Dictionary
+# Data Dictionary
 
-### Cost Center Descriptions 
+## Cost Center Descriptions 
 
 
 ```{r}
-
 datatable(unique(profit[c("Cost_Center", "Cost_Center_Description")]))
 ```
 
 
-### Company Abb & Desc 
+## Company Abb & Desc 
 
 ```{r}
 
@@ -185,10 +173,10 @@ datatable(unique(profit[c("Company", "Company_Description")]))
 
 ```
 
-## Plots and Tables 
+# Golf Courses Plot
 
-### 5860 - Golf Courses Plot
-Recreation Program
+## Quad Plot
+
 
 ```{r}
 
@@ -202,7 +190,7 @@ ggplotly(golf, tooltip = c("text"), height = 500, width = 900) %>%
 *Active duty includes Dependents
 
 
-### 5860 - Golf Course Table 
+## Table 
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program. 
 
 ```{r}
@@ -211,8 +199,10 @@ table("5860 GOLF COURSE")
 
 ```
 
-### 5851 - Private Berthing Plot
-Recreation Program
+# Private Berthing 
+
+## Quad Plot
+
 
 ```{r}
 
@@ -225,7 +215,7 @@ ggplotly(berthing, tooltip = "text", height = 500, width = 900) %>%
 
 *Active duty includes Dependents
 
-### 5851 - Private Berthing Table 
+## Table 
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20)  against all patrons that utilized the program. 
 
 ```{r}
@@ -234,8 +224,10 @@ table("5851 PRIVATE BERTHING")
 
 ```
 
-### 5852 - Boating Program Plot
-Recreation Program
+
+# Boating Program Plot
+
+## Quad Plot
 
 ```{r}
 
@@ -252,7 +244,8 @@ ggplotly(boating, tooltip = c("text"), height = 500, width = 900) %>%
 *Active duty includes Dependents
 
 
-### 5852 - Boating Program Table 
+## Table 
+
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program. 
 
 ```{r}
@@ -261,8 +254,9 @@ table("5852 BOATING PROGRAM")
 
 ```
 
-### 5853 - Vehicle Storage Plot
-Recreation Program
+# Vehicle Storage Plot
+
+## Quad Plot
 
 ```{r}
 veh_stor <- quad_plot("5853 VEHICLE STORAGE")
@@ -277,15 +271,18 @@ ggplotly(veh_stor, tooltip = c("text"), height = 500, width = 900) %>%
 *Active duty includes Dependents
 
 
-### 5853 - Vehicle Storage Table
+## Table
+
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) members against all patrons that utilized the program. 
 
 ```{r}
 table("5853 VEHICLE STORAGE")
 ```
 
-### 5535 Auto Skills Plot
-Recreation Program
+# Auto Skills
+
+## Quad Plot
+
 
 ```{r}
 auto_skills <- quad_plot("5535 AUTO SKILLS")
@@ -296,18 +293,21 @@ ggplotly(auto_skills, tooltip = c("text"), height = 500, width = 900) %>%
  #config(displayModeBar = FALSE)
 
 ```
-
 *Active duty includes Dependents
 
 
-### 5835 - Auto Skills Table
+## Table
+
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program. 
 
 ```{r}
 table("5535 AUTO SKILLS")
 ```
 
-### 5811 / 5812 Bowling Plot
+#  Bowling Plot
+
+## Quad Plot
+
 5811 - Bowling (16 lanes or less)  
 5812 - Bowling (17 lanes or more)
 
@@ -372,7 +372,7 @@ ggplotly(bowling, tooltip = c("text"), height = 500, width = 900) %>%
 ```
 *data does not include Okinawa and SDM includes utilization data fro only (FY19 & FY20)
 
-### 5811 / 5812 Bowling Table*  
+## Table*  
 
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize both 5811 - Bowling (16 lanes or less) and/or 5812 - Bowling (17 lanes or more)
 
@@ -440,7 +440,12 @@ The below table displays Percent Net Profit (FY18-FY20) and Percent use by Activ
 If Net Profit is blank, there is no bowling (< 16 or > 17 Lanes) program for that installation.  
 RecTrac (Utilization) data was not collected for San Diego until FY19
 
-### 5572 / 5573 / 5575 - ITT Ticket / ITT Tours / Direct Leisure Travel Plot
+# ITT / Direct Leisure Travel 
+
+## Quad Plot
+
+The below plot displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize  
+5572 - ITT Ticket, 5573 - ITT Tours and 5575 Direct Leisure Travel 
 
 ```{r}
 
@@ -500,7 +505,7 @@ ggplotly(ITT, tooltip = c("text"), height = 500, width = 900) %>%
  #config(displayModeBar = FALSE)
 ```
 
-### 5572 / 5573 / 5575 - ITT Ticket / ITT Tours / Direct Leisure Travel Table*  
+## Table*  
 
 The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize  
 5572 - ITT Ticket, 5573 - ITT Tours and 5575 Direct Leisure Travel 
@@ -576,251 +581,5 @@ profit %>%
 
 ```{r}
 knitr::knit_exit()
-```
-
-#### Sandbox Code
-
-Utilization for quad plot (Summarises each FY by mean_act_pct)
-
-```{r}
-Utl <- Utilization %>% 
-  pivot_wider(names_from = Category, values_from = Utilization, values_fill = 0) %>% 
-  rename_with(~ tolower(gsub("-", "_", .x, fixed = TRUE))) %>% 
-  rename_with(~ tolower(gsub(",", "_", .x, fixed = TRUE))) %>% 
-  rename_with(~ tolower(gsub(" ", "_", .x, fixed = TRUE))) %>% 
-  rename_with(~ tolower(gsub("(", "_", .x, fixed = TRUE))) %>% 
-  rename_with(~ tolower(gsub(")", "_", .x, fixed = TRUE))) %>% 
-  rename_with(~ tolower(gsub("/", "_", .x, fixed = TRUE))) %>% 
-  
-  mutate(total_non_active = reserve + 
-           retiree + dod_civilian + other_guest + 
-           ret_e1_e5 + ret_e6_e9__o1_o3__w1_wo3 +
-           ret_o4_o10__wo4_wo5 + dod_gs_1_6__nf_1_2 + dod_gs_7_11__nf_3_4 + 
-           dod_gs_12_15__nf_5_6 + youth__8_18_ + guest + general_public  + 
-           patron_expansion + tournament + pre_standard_pass_rounds,
-         total_active =  e1_e5  + e6_e9 + w1_w5 + o1_o3 + o4_o10 + w1_w3 + w4_w5 + family_member,
-         total_act_pct = total_active / (total_active +total_non_active),
-         total = total_active + total_non_active) %>% 
-  
-  select(cost_center, fy, company, total_act_pct) %>% 
-  rename("Cost_Center" = cost_center,
-         "FY" = fy,
-         "Company" = company) %>% 
-  group_by(Cost_Center, Company) %>% 
-  summarise(mean_act_pct = mean(total_act_pct)) %>% 
-  mutate_all(~replace(., is.nan(.), 0))
 
 ```
-
-Utilization for Table (maintains each FY)
-
-```{r}
- utl_table <- Utilization %>% 
-    pivot_wider(names_from = Category, values_from = Utilization, values_fill = 0) %>% 
-    rename_with(~ tolower(gsub("-", "_", .x, fixed = TRUE))) %>% 
-    rename_with(~ tolower(gsub(",", "_", .x, fixed = TRUE))) %>% 
-    rename_with(~ tolower(gsub(" ", "_", .x, fixed = TRUE))) %>% 
-    rename_with(~ tolower(gsub("(", "_", .x, fixed = TRUE))) %>% 
-    rename_with(~ tolower(gsub(")", "_", .x, fixed = TRUE))) %>% 
-    rename_with(~ tolower(gsub("/", "_", .x, fixed = TRUE))) %>% 
-    
-    mutate(total_non_active = reserve + 
-             retiree + dod_civilian + other_guest + 
-             ret_e1_e5 + ret_e6_e9__o1_o3__w1_wo3 +
-             ret_o4_o10__wo4_wo5 + dod_gs_1_6__nf_1_2 + dod_gs_7_11__nf_3_4 + 
-             dod_gs_12_15__nf_5_6 + youth__8_18_ + guest + general_public  + 
-             patron_expansion + tournament + pre_standard_pass_rounds,
-           total_active =  e1_e5  + e6_e9 + w1_w5 + o1_o3 + o4_o10 + w1_w3 + w4_w5 + family_member,
-           total_act_pct = total_active / (total_active +total_non_active),
-           total = total_active + total_non_active) %>% 
-    
-    select(cost_center, fy, company, total_act_pct) %>% 
-    rename("Cost_Center" = cost_center,
-           "FY" = fy,
-           "Company" = company) %>% 
-    mutate_all(~replace(., is.nan(.), 0))
-
-```
-
-Quad_plot code for the Avg Net Profit Percent over the last five years (FY16 - FY20)
-
-```{r}
-
-  profit %>% 
-    
-    filter(!is.na(ORG_Description)) %>% 
-  
-    rename("FY20" = `2020`,
-           "FY19" = `2019`,
-           "FY18" = `2018`,
-           "FY17" = `2017`,
-           "FY16" = `2016`) %>%
-    
-    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description) %>% 
-    summarise(average = sum(FY20+ FY19 + FY18 + FY17 + FY16)/(ncol(profit)-7)) %>% 
-    pivot_wider(names_from = GL_Account_Description, values_from = average, values_fill = 0) %>% 
-    ungroup() %>% 
-    rename(Net_Sales = `NET SALES`,
-           Net_Profit = `NET PROFIT`) %>%
-  
-    mutate(pct = Net_Profit/Net_Sales) %>%
-    
-    filter(Cost_Center_Full %in% c("5811 BOWLING (16 LANES OR LESS)", "5812 BOWLING (17 LANES OR MORE)" )) %>% 
-   
-    inner_join(Utl, by = c("Cost_Center", "Company")) %>%
-    filter(Net_Profit != 0) %>% 
-    group_by(Company, Company_Description) %>% 
-    summarise(Net_Profit= mean(Net_Profit),
-              Net_Sales = mean(Net_Sales), 
-              pct = mean(pct), 
-              mean_act_pct = mean(mean_act_pct)) %>% 
-  
-   
-    ggplot(aes(mean_act_pct, pct, text = paste0("Company: ", Company,
-                                                "\n Percent Active Duty: ", scales::percent(mean_act_pct),
-                                                "\n Percent Net Profit: ", scales::percent(pct)), 
-               color = Company)) + 
-    geom_point() +
-    geom_vline(aes(xintercept = .44)) +
-    geom_hline(aes(yintercept = 0.0)) + 
-    scale_y_continuous(labels = scales::percent) +
-    scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
-    labs( y = "Percent Net Profit (Avg FY16-FY20)",
-          x = "Percent use by Active Duty (Avg FY18-FY20)*",
-      caption = "*Active duty includes Dependents"
-    ) + 
-    theme_tq() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          strip.text =  element_text(
-            face = "bold"),
-          plot.caption = element_text(
-            face = "bold")
-    )
-  
-```
-
-Code for the data table
-```{r}
-  profit %>% 
-    # Remove rows where Org description is missing
-    filter(!is.na(ORG_Description)) %>% 
-    # Cleanup column names
-    rename("FY20" = `2020`,
-           "FY19" = `2019`,
-           "FY18" = `2018`,
-           "FY17" = `2017`,
-           "FY16" = `2016`) %>% 
-    # Pivot FY column names to rows
-    pivot_longer(!Cost_Center:GL_Account_Description, names_to = "FY", values_to = "Utilization") %>%
-    # Group by then summaries total utilization 
-    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description, FY) %>% 
-    summarise(Total = sum(Utilization)) %>% 
-    pivot_wider(names_from = GL_Account_Description, values_from = Total, values_fill = 0) %>% 
-    ungroup() %>% 
-    rename(Net_Sales = `NET SALES`,
-           Net_Profit = `NET PROFIT`) %>%
-    # add column for Net Profit Percent
-    mutate(pct = Net_Profit/Net_Sales) %>% 
-    # filter costs center you want to vicsualize
-     filter(Cost_Center_Full %in% c("5811 BOWLING (16 LANES OR LESS)", "5812 BOWLING (17 LANES OR MORE)" )) %>% 
-    # Join Marinas data using Company and FY
-    inner_join(utl_table, by = c("Cost_Center", "Company", "FY")) %>%
-    # Join the population data
-    inner_join(pop, by = "Company") %>% 
-    select(FY,Cost_Center, Company_Description, Cost_Center_Description, pct, total_act_pct) %>% 
-    rename(
-      "Cost Cener" = Cost_Center, 
-      "Cost Center Desc" = Cost_Center_Description,
-      "Company Desc" = Company_Description, 
-      "FY" = FY, 
-      # "Net Profit" = Net_Profit,
-      # "Net Sales" = Net_Sales,
-      "Percent Net Profit" = pct, 
-      # "Active Duty Patron" = total_active, 
-      # "Total Non Active Patron" = total_non_active, 
-      # "Total Patrons" = Total, 
-      "Percent use by Active Duty" = total_act_pct
-      # "Active Pop" = activepop, 
-      # "Retiree Pop" = retirepop,
-      # "Depn Pop" = deppop,
-      # "Total Eligable Pop" = total_pop
-    ) %>% 
-    mutate(`Percent Net Profit` = scales::percent(`Percent Net Profit`),
-           `Percent use by Active Duty` = scales::percent(`Percent use by Active Duty`)) %>% 
-    datatable(rownames = FALSE, extensions = 'RowGroup',
-              options = list(rowGroup = list(dataSrc = 3,
-                                             buttons = 
-                                               list(
-                                                 "copy",
-                                                 "print",
-                                                 list(extend = "collection", 
-                                                      buttons = c("csv", "excel", "pdf"),
-                                                      text = "download")
-                                               )),
-                             pageLength = 10, autowidth = TRUE),
-              selection = 'none'
-              # caption = htmltools::tags$caption(
-              #   style = 'caption-side: top; text-align: left;',
-              #   'Table 1: ', htmltools::em('Program Grouped by Installation.')
-    ) %>% 
-    formatStyle(columns = "Percent Net Profit", color = styleInterval(0, c("red", "black")))
-```
-
-
-
-# Quad_plot Net Profit Percent over the last five years (FY16-FY20)
-
-```{r}
- profit %>% 
-    
-    filter(!is.na(ORG_Description)) %>% 
-  
-    rename("FY20" = `2020`,
-           "FY19" = `2019`,
-           "FY18" = `2018`,
-           "FY17" = `2017`,
-           "FY16" = `2016`) %>%
-    
-    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description) %>% 
-    summarise(sum = sum(FY20+ FY19 + FY18 + FY17 + FY16)) %>% 
-    pivot_wider(names_from = GL_Account_Description, values_from = sum, values_fill = 0) %>% 
-    ungroup() %>% 
-    rename(Net_Sales = `NET SALES`,
-           Net_Profit = `NET PROFIT`) %>%
-    mutate_all(~replace(., is.nan(.), 0)) %>% 
-    
-    filter(Cost_Center_Full %in% c("5811 BOWLING (16 LANES OR LESS)", "5812 BOWLING (17 LANES OR MORE)")) %>%
-    inner_join(Utl, by = c("Cost_Center","Company")) %>% 
-   
-       group_by(Company, Company_Description) %>% 
-       summarise(Net_Profit= sum(Net_Profit),
-              Net_Sales = sum(Net_Sales),
-              mean_act_pct = mean(mean_act_pct)) %>% 
-       mutate(pct = Net_Profit / Net_Sales) %>% 
-
-
-    ggplot(aes(mean_act_pct, pct, text = paste0("Company: ", Company,
-                                                "\n Percent Active Duty: ", scales::percent(mean_act_pct),
-                                                "\n Percent Net Profit: ", scales::percent(pct)), 
-               color = Company)) + 
-    geom_point() +
-    geom_vline(aes(xintercept = mean(mean_act_pct))) +
-    geom_hline(aes(yintercept = 0.0)) + 
-    scale_y_continuous(labels = scales::percent) +
-    scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
-    labs( y = "Percent Net Profit (Avg FY16-FY20)",
-          x = "Percent use by Active Duty (Avg FY18-FY20)*",
-      caption = "*Active duty includes Dependents"
-    ) + 
-    theme_tq() + 
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          strip.text =  element_text(
-            face = "bold"),
-          plot.caption = element_text(
-            face = "bold")
-    )
-```
-
-
