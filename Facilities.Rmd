@@ -1,9 +1,5 @@
 ---
-title: |
-
-  ![](images/16_MCCSlogo_Comp.png){width=2in}  
-
-  MCCS Facilities Exploratory Analysis  
+title: "MCCS Facilities Exploratory Analysis" 
   
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
@@ -14,7 +10,7 @@ output:
     collapsed: false
     number_sections: false
     toc_depth: 1
-    #code_folding: show
+    code_folding: show
 ---
 
 ```{r setup, include=FALSE}

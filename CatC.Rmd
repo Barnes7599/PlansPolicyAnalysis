@@ -1,13 +1,5 @@
 ---
-title: |
-
-  ![](images/16_MCCSlogo_Comp.png){width=2in}  
-
-  Category C Profit vs Utilization Report  
-
-author: 
-
-  - MCCS PPBEA WG ^[Jason Barnes (MR), Jeff Capellini (MF), Ed Cutshall (MCIOM), Doug Campbell (MCICOM)]
+title: "Category C Profit vs Utilization Report""  
 
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
@@ -18,7 +10,7 @@ output:
     collapsed: false
     number_sections: false
     toc_depth: 1
-    #code_folding: show
+    code_folding: show
 ---
 
 

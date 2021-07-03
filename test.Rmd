@@ -1,5 +1,5 @@
 ---
-title: "Facilities"
+title: "test"
 output:
   html_document:
     theme: flatly
@@ -8,7 +8,7 @@ output:
     collapsed: false
     number_sections: false
     toc_depth: 1
-    #code_folding: show
+    code_folding: show
 ---
 
 ```{r setup, include=FALSE}
