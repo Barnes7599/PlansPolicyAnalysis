@@ -9,11 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="MCCS PPBEA WG" />
 
 <meta name="date" content="2021-07-03" />
 
-<title></title>
+<title>Category C Profit vs Utilization Report</title>
 
 <script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,6 +33,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
@@ -233,6 +233,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -354,14 +357,17 @@ div.tocify {
 
 <div id="header">
 
-
-
-<h1 class="title toc-ignore"><div class="figure">
-<img src="images/16_MCCSlogo_Comp.png" width="192" />
-
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
 </div>
-<p>Category C Profit vs Utilization Report</p></h1>
-<h4 class="author">MCCS PPBEA WG <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h4>
+
+
+
+<h1 class="title toc-ignore">Category C Profit vs Utilization Report</h1>
 <h4 class="date">03 July 2021</h4>
 
 </div>
@@ -854,13 +860,233 @@ ggplotly(ITT, tooltip = c(&quot;text&quot;), height = 500, width = 900) %&gt;%
 <p><div id="htmlwidget-fb7d376de13d4b572232" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-fb7d376de13d4b572232">{"x":{"filter":"none","extensions":["RowGroup"],"data":[["ALM","ALM","ALM","CLM","CLM","CLM","ELM","ELM","ELM","IWM","IWM","IWM","KBM","KBM","KBM","MRM","MRM","MRM","PNM","PNM","PNM","QUM","QUM","QUM","SCM","SCM","SCM","SDM","SDM","SDM","TWM","TWM","TWM","YUM","YUM","YUM"],["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["ALBANY","ALBANY","ALBANY","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","ALLEN","ALLEN","ALLEN","IWAKUNI","IWAKUNI","IWAKUNI","HAWAII","HAWAII","HAWAII","MIRAMAR","MIRAMAR","MIRAMAR","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","SAN DIEGO","SAN DIEGO","SAN DIEGO","TWENTYNINE PALMS","TWENTYNINE PALMS","TWENTYNINE PALMS","YUMA","YUMA","YUMA"],["0.6%","-12.2%","-18.4%","7.3%","5.9%","-14.9%","31%","4%","-27%","16%","41%","-74%","2%","Inf","-Inf","3%","19%","-32%","3.92%","53.94%","4.78%","12.0%","7.4%","4.6%","3.0%","11.5%","50.8%","0%","37%","-503%","-3%","-169%","-2 149%","3%","-Inf","-Inf"],["30.65%","27.89%","27.00%","81.7%","75.7%","78.0%","80.43%","78.26%","79.12%","72%","46%","26%","83.9%","78.8%","42.2%","68.772%","66.391%","66.427%","73.45%","73.96%","68.73%","56.608%","54.048%","56.518%","73.1%","70.4%","79.5%","46.4%","38.5%","48.9%","83.20%","82.28%","83.86%","62.0%","65.3%","67.7%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Company<\/th>\n      <th>FY<\/th>\n      <th>Company Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":0},"columnDefs":[{"className":"dt-center","targets":[1,2,3,4]},{"targets":4,"visible":false}],"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script> *Table combines CCTR's 5575, 5572 and 5573 as one program (Net Profit and Utilization)</p>
 <pre class="r"><code>knitr::knit_exit()</code></pre>
+<div id="sandbox-code" class="section level4">
+<h4>Sandbox Code</h4>
+<p>Utilization for quad plot (Summarises each FY by mean_act_pct)</p>
+<pre class="r"><code>Utl &lt;- Utilization %&gt;% 
+  pivot_wider(names_from = Category, values_from = Utilization, values_fill = 0) %&gt;% 
+  rename_with(~ tolower(gsub(&quot;-&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  rename_with(~ tolower(gsub(&quot;,&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  rename_with(~ tolower(gsub(&quot; &quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  rename_with(~ tolower(gsub(&quot;(&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  rename_with(~ tolower(gsub(&quot;)&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  rename_with(~ tolower(gsub(&quot;/&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+  
+  mutate(total_non_active = reserve + 
+           retiree + dod_civilian + other_guest + 
+           ret_e1_e5 + ret_e6_e9__o1_o3__w1_wo3 +
+           ret_o4_o10__wo4_wo5 + dod_gs_1_6__nf_1_2 + dod_gs_7_11__nf_3_4 + 
+           dod_gs_12_15__nf_5_6 + youth__8_18_ + guest + general_public  + 
+           patron_expansion + tournament + pre_standard_pass_rounds,
+         total_active =  e1_e5  + e6_e9 + w1_w5 + o1_o3 + o4_o10 + w1_w3 + w4_w5 + family_member,
+         total_act_pct = total_active / (total_active +total_non_active),
+         total = total_active + total_non_active) %&gt;% 
+  
+  select(cost_center, fy, company, total_act_pct) %&gt;% 
+  rename(&quot;Cost_Center&quot; = cost_center,
+         &quot;FY&quot; = fy,
+         &quot;Company&quot; = company) %&gt;% 
+  group_by(Cost_Center, Company) %&gt;% 
+  summarise(mean_act_pct = mean(total_act_pct)) %&gt;% 
+  mutate_all(~replace(., is.nan(.), 0))</code></pre>
+<p>Utilization for Table (maintains each FY)</p>
+<pre class="r"><code> utl_table &lt;- Utilization %&gt;% 
+    pivot_wider(names_from = Category, values_from = Utilization, values_fill = 0) %&gt;% 
+    rename_with(~ tolower(gsub(&quot;-&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    rename_with(~ tolower(gsub(&quot;,&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    rename_with(~ tolower(gsub(&quot; &quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    rename_with(~ tolower(gsub(&quot;(&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    rename_with(~ tolower(gsub(&quot;)&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    rename_with(~ tolower(gsub(&quot;/&quot;, &quot;_&quot;, .x, fixed = TRUE))) %&gt;% 
+    
+    mutate(total_non_active = reserve + 
+             retiree + dod_civilian + other_guest + 
+             ret_e1_e5 + ret_e6_e9__o1_o3__w1_wo3 +
+             ret_o4_o10__wo4_wo5 + dod_gs_1_6__nf_1_2 + dod_gs_7_11__nf_3_4 + 
+             dod_gs_12_15__nf_5_6 + youth__8_18_ + guest + general_public  + 
+             patron_expansion + tournament + pre_standard_pass_rounds,
+           total_active =  e1_e5  + e6_e9 + w1_w5 + o1_o3 + o4_o10 + w1_w3 + w4_w5 + family_member,
+           total_act_pct = total_active / (total_active +total_non_active),
+           total = total_active + total_non_active) %&gt;% 
+    
+    select(cost_center, fy, company, total_act_pct) %&gt;% 
+    rename(&quot;Cost_Center&quot; = cost_center,
+           &quot;FY&quot; = fy,
+           &quot;Company&quot; = company) %&gt;% 
+    mutate_all(~replace(., is.nan(.), 0))</code></pre>
+<p>Quad_plot code for the Avg Net Profit Percent over the last five years (FY16 - FY20)</p>
+<pre class="r"><code>  profit %&gt;% 
+    
+    filter(!is.na(ORG_Description)) %&gt;% 
+  
+    rename(&quot;FY20&quot; = `2020`,
+           &quot;FY19&quot; = `2019`,
+           &quot;FY18&quot; = `2018`,
+           &quot;FY17&quot; = `2017`,
+           &quot;FY16&quot; = `2016`) %&gt;%
+    
+    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description) %&gt;% 
+    summarise(average = sum(FY20+ FY19 + FY18 + FY17 + FY16)/(ncol(profit)-7)) %&gt;% 
+    pivot_wider(names_from = GL_Account_Description, values_from = average, values_fill = 0) %&gt;% 
+    ungroup() %&gt;% 
+    rename(Net_Sales = `NET SALES`,
+           Net_Profit = `NET PROFIT`) %&gt;%
+  
+    mutate(pct = Net_Profit/Net_Sales) %&gt;%
+    
+    filter(Cost_Center_Full %in% c(&quot;5811 BOWLING (16 LANES OR LESS)&quot;, &quot;5812 BOWLING (17 LANES OR MORE)&quot; )) %&gt;% 
+   
+    inner_join(Utl, by = c(&quot;Cost_Center&quot;, &quot;Company&quot;)) %&gt;%
+    filter(Net_Profit != 0) %&gt;% 
+    group_by(Company, Company_Description) %&gt;% 
+    summarise(Net_Profit= mean(Net_Profit),
+              Net_Sales = mean(Net_Sales), 
+              pct = mean(pct), 
+              mean_act_pct = mean(mean_act_pct)) %&gt;% 
+  
+   
+    ggplot(aes(mean_act_pct, pct, text = paste0(&quot;Company: &quot;, Company,
+                                                &quot;\n Percent Active Duty: &quot;, scales::percent(mean_act_pct),
+                                                &quot;\n Percent Net Profit: &quot;, scales::percent(pct)), 
+               color = Company)) + 
+    geom_point() +
+    geom_vline(aes(xintercept = .44)) +
+    geom_hline(aes(yintercept = 0.0)) + 
+    scale_y_continuous(labels = scales::percent) +
+    scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+    labs( y = &quot;Percent Net Profit (Avg FY16-FY20)&quot;,
+          x = &quot;Percent use by Active Duty (Avg FY18-FY20)*&quot;,
+      caption = &quot;*Active duty includes Dependents&quot;
+    ) + 
+    theme_tq() + 
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          strip.text =  element_text(
+            face = &quot;bold&quot;),
+          plot.caption = element_text(
+            face = &quot;bold&quot;)
+    )</code></pre>
+<p><img src="CatC_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>Code for the data table</p>
+<pre class="r"><code>  profit %&gt;% 
+    # Remove rows where Org description is missing
+    filter(!is.na(ORG_Description)) %&gt;% 
+    # Cleanup column names
+    rename(&quot;FY20&quot; = `2020`,
+           &quot;FY19&quot; = `2019`,
+           &quot;FY18&quot; = `2018`,
+           &quot;FY17&quot; = `2017`,
+           &quot;FY16&quot; = `2016`) %&gt;% 
+    # Pivot FY column names to rows
+    pivot_longer(!Cost_Center:GL_Account_Description, names_to = &quot;FY&quot;, values_to = &quot;Utilization&quot;) %&gt;%
+    # Group by then summaries total utilization 
+    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description, FY) %&gt;% 
+    summarise(Total = sum(Utilization)) %&gt;% 
+    pivot_wider(names_from = GL_Account_Description, values_from = Total, values_fill = 0) %&gt;% 
+    ungroup() %&gt;% 
+    rename(Net_Sales = `NET SALES`,
+           Net_Profit = `NET PROFIT`) %&gt;%
+    # add column for Net Profit Percent
+    mutate(pct = Net_Profit/Net_Sales) %&gt;% 
+    # filter costs center you want to vicsualize
+     filter(Cost_Center_Full %in% c(&quot;5811 BOWLING (16 LANES OR LESS)&quot;, &quot;5812 BOWLING (17 LANES OR MORE)&quot; )) %&gt;% 
+    # Join Marinas data using Company and FY
+    inner_join(utl_table, by = c(&quot;Cost_Center&quot;, &quot;Company&quot;, &quot;FY&quot;)) %&gt;%
+    # Join the population data
+    inner_join(pop, by = &quot;Company&quot;) %&gt;% 
+    select(FY,Cost_Center, Company_Description, Cost_Center_Description, pct, total_act_pct) %&gt;% 
+    rename(
+      &quot;Cost Cener&quot; = Cost_Center, 
+      &quot;Cost Center Desc&quot; = Cost_Center_Description,
+      &quot;Company Desc&quot; = Company_Description, 
+      &quot;FY&quot; = FY, 
+      # &quot;Net Profit&quot; = Net_Profit,
+      # &quot;Net Sales&quot; = Net_Sales,
+      &quot;Percent Net Profit&quot; = pct, 
+      # &quot;Active Duty Patron&quot; = total_active, 
+      # &quot;Total Non Active Patron&quot; = total_non_active, 
+      # &quot;Total Patrons&quot; = Total, 
+      &quot;Percent use by Active Duty&quot; = total_act_pct
+      # &quot;Active Pop&quot; = activepop, 
+      # &quot;Retiree Pop&quot; = retirepop,
+      # &quot;Depn Pop&quot; = deppop,
+      # &quot;Total Eligable Pop&quot; = total_pop
+    ) %&gt;% 
+    mutate(`Percent Net Profit` = scales::percent(`Percent Net Profit`),
+           `Percent use by Active Duty` = scales::percent(`Percent use by Active Duty`)) %&gt;% 
+    datatable(rownames = FALSE, extensions = &#39;RowGroup&#39;,
+              options = list(rowGroup = list(dataSrc = 3,
+                                             buttons = 
+                                               list(
+                                                 &quot;copy&quot;,
+                                                 &quot;print&quot;,
+                                                 list(extend = &quot;collection&quot;, 
+                                                      buttons = c(&quot;csv&quot;, &quot;excel&quot;, &quot;pdf&quot;),
+                                                      text = &quot;download&quot;)
+                                               )),
+                             pageLength = 10, autowidth = TRUE),
+              selection = &#39;none&#39;
+              # caption = htmltools::tags$caption(
+              #   style = &#39;caption-side: top; text-align: left;&#39;,
+              #   &#39;Table 1: &#39;, htmltools::em(&#39;Program Grouped by Installation.&#39;)
+    ) %&gt;% 
+    formatStyle(columns = &quot;Percent Net Profit&quot;, color = styleInterval(0, c(&quot;red&quot;, &quot;black&quot;)))</code></pre>
+<div id="htmlwidget-1a5e6459c342836373fc" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1a5e6459c342836373fc">{"x":{"filter":"none","extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812"],["MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","SAN DIEGO","SAN DIEGO","SAN DIEGO","YUMA","YUMA","YUMA","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","IWAKUNI","IWAKUNI","IWAKUNI","HAWAII","HAWAII","HAWAII","PENDLETON","PENDLETON","PENDLETON","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA"],["BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)"],["46.50%","50.37%","-24.69%","-274.51%","-177.83%","-585.32%","22.08%","19.60%","-18.38%","7.79%","34.15%","-15.47%","9.96%","7.65%","-120.56%","-8.47%","-95.39%","-539.17%","-7.48%","-29.48%","-45.79%","-22.97%","-5.29%","-190.90%","-37.98%","-39.42%","-270.31%","0.14%","14.95%","-235.25%",null,null,null],["79.742%","75.493%","93.464%","66.339%","42.722%","36.542%","87.830%","87.999%","79.635%","80.212%","68.927%","99.222%","0.000%","59.228%","72.218%","94.783%","94.878%","97.527%","79.742%","75.493%","93.464%","0.979%","42.105%","48.831%","75.549%","89.236%","99.009%","66.339%","42.722%","36.542%","80.212%","68.927%","99.222%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
 </div>
 </div>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>Jason Barnes (MR), Jeff Capellini (MF), Ed Cutshall (MCIOM), Doug Campbell (MCICOM)<a href="#fnref1">↩</a></p></li>
-</ol>
+</div>
+<div id="quad_plot-net-profit-percent-over-the-last-five-years-fy16-fy20" class="section level1">
+<h1>Quad_plot Net Profit Percent over the last five years (FY16-FY20)</h1>
+<pre class="r"><code> profit %&gt;% 
+    
+    filter(!is.na(ORG_Description)) %&gt;% 
+  
+    rename(&quot;FY20&quot; = `2020`,
+           &quot;FY19&quot; = `2019`,
+           &quot;FY18&quot; = `2018`,
+           &quot;FY17&quot; = `2017`,
+           &quot;FY16&quot; = `2016`) %&gt;%
+    
+    group_by(Cost_Center, Cost_Center_Description, Cost_Center_Full, Company, Company_Description, GL_Account_Description) %&gt;% 
+    summarise(sum = sum(FY20+ FY19 + FY18 + FY17 + FY16)) %&gt;% 
+    pivot_wider(names_from = GL_Account_Description, values_from = sum, values_fill = 0) %&gt;% 
+    ungroup() %&gt;% 
+    rename(Net_Sales = `NET SALES`,
+           Net_Profit = `NET PROFIT`) %&gt;%
+    mutate_all(~replace(., is.nan(.), 0)) %&gt;% 
+    
+    filter(Cost_Center_Full %in% c(&quot;5811 BOWLING (16 LANES OR LESS)&quot;, &quot;5812 BOWLING (17 LANES OR MORE)&quot;)) %&gt;%
+    inner_join(Utl, by = c(&quot;Cost_Center&quot;,&quot;Company&quot;)) %&gt;% 
+   
+       group_by(Company, Company_Description) %&gt;% 
+       summarise(Net_Profit= sum(Net_Profit),
+              Net_Sales = sum(Net_Sales),
+              mean_act_pct = mean(mean_act_pct)) %&gt;% 
+       mutate(pct = Net_Profit / Net_Sales) %&gt;% 
+
+    ggplot(aes(mean_act_pct, pct, text = paste0(&quot;Company: &quot;, Company,
+                                                &quot;\n Percent Active Duty: &quot;, scales::percent(mean_act_pct),
+                                                &quot;\n Percent Net Profit: &quot;, scales::percent(pct)), 
+               color = Company)) + 
+    geom_point() +
+    geom_vline(aes(xintercept = mean(mean_act_pct))) +
+    geom_hline(aes(yintercept = 0.0)) + 
+    scale_y_continuous(labels = scales::percent) +
+    scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+    labs( y = &quot;Percent Net Profit (Avg FY16-FY20)&quot;,
+          x = &quot;Percent use by Active Duty (Avg FY18-FY20)*&quot;,
+      caption = &quot;*Active duty includes Dependents&quot;
+    ) + 
+    theme_tq() + 
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          strip.text =  element_text(
+            face = &quot;bold&quot;),
+          plot.caption = element_text(
+            face = &quot;bold&quot;)
+    )</code></pre>
+<p><img src="CatC_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 </div>
 
 
@@ -898,6 +1124,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
