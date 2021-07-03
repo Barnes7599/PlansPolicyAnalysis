@@ -17,25 +17,21 @@ output: html_document
 <div class="row" style="padding-top: 30px;">
 <div class="col-sm-6">
 
-# **Plans, Policy and Analysis**
+# **Plans, Policy and Analysis (MR)**
 
-This is a template example for lab journaling. Students in Matt Crump's Human Cognition and Performance Lab will use this template to learn R, and other things. Students can replace this text with more fun things. People not in my lab can use this too.
+The Plans, Policy and Analysis Directorate is responsible for policy management and compliance, internal controls, public affairs, and conducts staff analysis and coordinates governance meetings of the MCCS Board of Directors. 
 
-## How to use
+## 
 
-1. fork the repo for this website and follow instructions on read me to get set up. [https://github.com/CrumpLab/LabJournalWebsite](https://github.com/CrumpLab/LabJournalWebsite)
+1. Policy SharePoint Site: [Policy](http://crossroads/PPA/default.aspx)
 
-2. Blog/journal what you are doing in R, by editing the Journal.Rmd. See the [Journal page](https://crumplab.github.io/LabJournalWebsite/Journal.html) for an example of what to do to get started learning R.
+2. Microsoft Teams BOD Channel: [Board of Directors](https://teams.microsoft.com/l/team/19%3a6a0d2398ca88485b82fc6caa7293dc55%40thread.tacv2/conversations?groupId=1358750a-30f0-40c1-b575-4816640d5c25&tenantId=6b279138-2d86-4c78-be78-6e6f736281c9)
 
-3. See the [links page](https://crumplab.github.io/LabJournalWebsite/Links.html) for lots of helpful links on learning R.
-
-4. Change everything to make it your own.
+3. Email: [Jason Barnes](jason.barnes@usmc-mccs.mil)
 
 
 </div>
 <div class="col-sm-6">
-
-### [Crump Lab: Human Cognition and Performance](https://crumplab.github.io)
 
 <a href = "http://crossroads/MRG/Pages/HRMS.aspx">
 ![](images/16_MCCSlogo_Comp.png)
