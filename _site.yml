@@ -4,6 +4,8 @@ navbar:
   left:
     - text: "Home"
       href: index.html
+    - text: "test"
+      href: test.html
     - text: "Facilities"
       href: Facilities.html
     - text: "Cat C"

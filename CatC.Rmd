@@ -1,7 +1,7 @@
 ---
 title: |
 
-  ![](images/MCCSlogo_Comp.png){width=2in}  
+  ![](images/16_MCCSlogo_Comp.png){width=2in}  
 
   Category C Profit vs Utilization Report  
 
@@ -12,17 +12,13 @@ author:
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   html_document:
-    df_print: paged
-    toc: yes
-    toc_float: false
-    collapsed: false
-    smooth_scroll: false
     theme: flatly
-    code_folding: none
-    highlight: tango
-    number_sections: no
-
-always_allow_html: yes
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    #code_folding: show
 ---
 
 
