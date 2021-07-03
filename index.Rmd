@@ -31,7 +31,7 @@ The Plans, Policy and Analysis Directorate is responsible for policy management 
 
 
 </div>
-<div class="col-sm-6">
+<div class="col-sm-3">
 
 <a href = "http://crossroads/MRG/Pages/HRMS.aspx">
 ![](images/16_MCCSlogo_Comp.png)

@@ -1,11 +1,11 @@
-name: "MyLabJournal"
+name: "PPBEA"
 navbar:
-  title: "MyLabJournal"
+  title: "PPBEA"
   left:
     - text: "Home"
       href: index.html
-    - text: "Journal"
-      href: Journal.html
-    - text: "Links"
-      href: Links.html
+    - text: "Facilities"
+      href: Facilities.html
+    - text: "Cat C"
+      href: CatC.html
 output_dir: "docs"
