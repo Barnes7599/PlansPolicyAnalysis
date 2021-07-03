@@ -15,7 +15,7 @@ output: html_document
 </style>
 
 <div class="row" style="padding-top: 30px;">
-<div class="col-sm-3">
+<div class="col-sm-9">
 
 # **Plans, Policy and Analysis (MR)**
 
