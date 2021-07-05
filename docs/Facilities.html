@@ -10,7 +10,6 @@
 
 
 
-<meta name="date" content="2021-07-03" />
 
 <title>MCCS Facilities Exploratory Analysis</title>
 
@@ -33,7 +32,6 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -219,9 +217,6 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
 
 
 
@@ -343,487 +338,3590 @@ div.tocify {
 
 <div id="header">
 
-<div class="btn-group pull-right float-right">
-<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
-
 
 
 <h1 class="title toc-ignore">MCCS Facilities Exploratory Analysis</h1>
-<h4 class="date">03 July 2021</h4>
+<h4 class="date">&quot;05 July 2021&quot;</h4>
 
 </div>
 
 
-<pre class="r"><code># File Setup ----
+<style type="text/css">
 
-library(tidyverse)
-library(ggthemes)
-library(ggrepel)
-library(extrafont)
-library(readxl)
-library(DT)
-library(gt)
-library(DataExplorer)
-library(tidyquant)
-library(markdown)
-library(writexl)
+h1 {
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+}
 
+h2 {
+  font-weight: bold;
+  font-size: 22px;
+    text-align: center;
+}
 
-cat_codes &lt;- read_xlsx(&quot;/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX&quot;,
-  sheet = &quot;Cat_code&quot;,
-  col_types = c(&quot;numeric&quot;, &quot;text&quot;, &quot;text&quot;, &quot;text&quot;)
-)
+h3 {
+  font-weight: bold;
+  font-size: 24px;
+}
 
-fac &lt;- read_xlsx(&quot;/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX&quot;,
-  sheet = &quot;Facility&quot;,
-  skip = 1,
-  col_types = c(
-    &quot;text&quot;, &quot;text&quot;, &quot;text&quot;, &quot;text&quot;, &quot;text&quot;,
-    &quot;numeric&quot;, &quot;numeric&quot;, &quot;date&quot;, &quot;text&quot;, &quot;date&quot;,
-    &quot;date&quot;
-  )
-)
+h4 {
+  font-weight: bold;
+  font-size: 20px;
+}
 
-# infads &lt;- read_rds(&quot;/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/infads_clean&quot;) # read in the cleaned data
+h5 {
+  font-weight: bold;
+  font-size: 16px;
+}
 
-utl &lt;- read_xlsx(&quot;/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX&quot;,
-  sheet = &quot;Sheet1&quot;,
-  skip = 1
-)
+</style>
+<p><br></p>
+<div id="exploring-costs" class="section level1">
+<h1>Exploring Costs</h1>
+<hr />
+<div id="costs-by-category" class="section level2">
+<h2>Costs by Category</h2>
+<center>
+Facility Sustainment, Restoration and Modernization (FSRM)
+</center>
+<p><br></p>
+<p><div id="miltecmodx" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
 
-fac &lt;- fac %&gt;%
-  janitor::clean_names() %&gt;%
-  separate(mccs_installation_name, c(&quot;num&quot;, &quot;installation&quot;), sep = 7) %&gt;%
-  separate(i_nfads_predominant_current_use_category_code, c(&quot;usecode&quot;, &quot;usedesc&quot;), sep = 6) %&gt;%
-  select(
-    RPUID = i_nfads_real_property_unique_id,
-    usecode,
-    usedesc,
-    installation,
-    prv = i_nfads_current_prv,
-    fci = i_nfads_facility_condition_index,
-    fci_dt = i_nfads_fci_date,
-    build_dt = i_nfads_facility_built_date
-  ) %&gt;%
-  # coverting dates to ymd format
-  mutate(
-    usecode = usecode %&gt;% as.numeric(),
-    fci_dt = ymd(fci_dt) %&gt;% replace_na(ymd(0000 / 00 / 00)),
-    build_dt = ymd(build_dt) %&gt;% replace_na(ymd(0000 / 00 / 00))
-  ) %&gt;%
-  # adding new column called Q-Rating based on the FCI
-  mutate(q_rating = case_when(
-    fci &lt;= 59 ~ &quot;Q4&quot;,
-    fci &lt;= 79 ~ &quot;Q3&quot;,
-    fci &lt;= 89 ~ &quot;Q2&quot;,
-    TRUE ~ &quot;Q1&quot;
-  )) %&gt;%
-  # mutate(Category = Category %&gt;% replace_na(&quot;Z&quot;)) %&gt;%
-  mutate(installation = case_when(
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;butler&quot;) ~ &quot;MCB Butler&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcb camp pendleton&quot;) ~ &quot;MCB Pendleton&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcb camp lejeune&quot;) ~ &quot;MCB Lejeune&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcb hawaii&quot;) ~ &quot;MCB Hawaii&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcas iwakuni&quot;) ~ &quot;MCAS Iwakuni&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcas cherry&quot;) ~ &quot;MCAS Cherry Point&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;marine corps base quantico&quot;) ~ &quot;MCB Quantico&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcagcc&quot;) ~ &quot;MCAGCC 29 Palms&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;miramar&quot;) ~ &quot;MCAS Miramar&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;yuma&quot;) ~ &quot;MCAS Yuma&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;san diego&quot;) ~ &quot;MCRD San Diego&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcrd beaufort&quot;) ~ &quot;MCRD PI&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;new river&quot;) ~ &quot;MCAS New River&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;futenma&quot;) ~ &quot;MCAS Futenma&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcas beaufort&quot;) ~ &quot;MCAS Beaufort&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;barstow&quot;) ~ &quot;MCLB Barstow&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;albany&quot;) ~ &quot;MCLB Albany&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;orleans&quot;) ~ &quot;MARFORRES&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;washington&quot;) ~ &quot;MBW (8th &amp; I)&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;garden&quot;) ~ &quot;Garden City&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;bridgeport&quot;) ~ &quot;MWTC Bridgeport&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mujuk&quot;) ~ &quot;Camp Mujuk&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcas camp pendleton&quot;) ~ &quot;MCAS Pendleton&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;allen&quot;) ~ &quot;Camp Elmore&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcsf&quot;) ~ &quot;MCSF Blount Island&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;4th mardiv&quot;) ~ &quot;HQ 4th MARDIV&quot;,
-    installation %&gt;% str_to_lower() %&gt;% str_detect(&quot;mcsptact&quot;) ~ &quot;Kansas City&quot;
-  )) %&gt;%
-  mutate(RPUID = RPUID %&gt;% as.character()) %&gt;%
-  mutate(RM = prv * 0.025)
+#miltecmodx .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
 
+#miltecmodx .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
 
+#miltecmodx .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
 
+#miltecmodx .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
 
-`%notin%` &lt;- Negate(`%in%`)
+#miltecmodx .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
 
-utl &lt;- utl %&gt;%
-  janitor::clean_names() %&gt;%
-  janitor::remove_empty(c(&quot;rows&quot;), quiet = TRUE) %&gt;%
-  select(
-    RPUID = i_nfads_real_property_unique_id,
-    use = i_nfads_use_category_code,
-    fac_num = i_nfads_facility_number,
-    installation = mccs_installation_name,
-    program = mccs_business_program,
-    asset_name = i_nfads_real_property_asset_name,
-    fac_use = i_nfads_facility_use,
-    FY2022 = fsm_fy22_sustainment_cost,
-    Cat = i_nfads_naf_category,
-    adq = i_nfads_adq_area_measure,
-    sub = i_nfads_sub_area_measure,
-    iadq = i_nfads_iadq_area_measure,
-    adq_alt = i_nfads_adq_alternate_measure,
-    sub_alt = i_nfads_sub_alternate_measure,
-    iadq_alt = i_nfads_iadq_alternate_measure,
-    adq_other = i_nfads_adq_other_measure,
-    sub_other = i_nfads_sub_other_measure,
-    iadq_other = i_nfads_iadq_other_measure
-  ) %&gt;%
-  separate(use, into = c(&quot;use_code&quot;, &quot;use_desc&quot;), sep = 6) %&gt;%
-  mutate(use_code = use_code %&gt;% as.numeric()) %&gt;%
-  # Remove divestments
-  filter(RPUID %notin% c(
-    21104, 54390, 25139, 24922, 18187, 21378, 21379, 43713, 43714, 35068, 35073, 35080,
-    33751, 38891, 38889, 38895, 47139, 40535, 43543, 43544, 43744, 40524, 40529,
-    40532, 40526, 40534, 47876, 46374, 39594, 54613
-  )) %&gt;%
-  mutate(
-    adq = adq %&gt;% replace_na(0),
-    sub = sub %&gt;% replace_na(0),
-    iadq = iadq %&gt;% replace_na(0),
-    adq_other = adq_other %&gt;% replace_na(0),
-    sub_other = sub_other %&gt;% replace_na(0),
-    iadq_other = iadq_other %&gt;% replace_na(0),
-    adq_alt = adq_alt %&gt;% replace_na(0),
-    sub_alt = sub_alt %&gt;% replace_na(0),
-    iadq_alt = iadq_alt %&gt;% replace_na(0),
-    FY2022 = FY2022 %&gt;% replace_na(0)
-  ) %&gt;%
-  mutate(total_measure = adq + sub + iadq,
-         alt_total_measure = adq_alt + sub_alt + iadq_alt,
-         other_total_measure = adq_other + sub_other + iadq_other) %&gt;%
-  group_by(RPUID) %&gt;%
+#miltecmodx .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
 
-  mutate(use_pct_area = total_measure / sum(total_measure),
-         use_pct_other = other_total_measure / sum(other_total_measure),
-         use_pct_alt = alt_total_measure / sum(alt_total_measure),
-         use_pct_area = use_pct_area %&gt;% replace_na(0),
-         use_pct_alt = use_pct_alt %&gt;% replace_na(0),
-         use_pct_other = use_pct_other %&gt;% replace_na(0)) %&gt;%
+#miltecmodx .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#miltecmodx .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#miltecmodx .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#miltecmodx .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#miltecmodx .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#miltecmodx .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#miltecmodx .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#miltecmodx .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#miltecmodx .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#miltecmodx .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#miltecmodx .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#miltecmodx .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#miltecmodx .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#miltecmodx .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#miltecmodx .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#miltecmodx .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#miltecmodx .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#miltecmodx .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#miltecmodx .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#miltecmodx .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#miltecmodx .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#miltecmodx .gt_left {
+  text-align: left;
+}
+
+#miltecmodx .gt_center {
+  text-align: center;
+}
+
+#miltecmodx .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#miltecmodx .gt_font_normal {
+  font-weight: normal;
+}
+
+#miltecmodx .gt_font_bold {
+  font-weight: bold;
+}
+
+#miltecmodx .gt_font_italic {
+  font-style: italic;
+}
+
+#miltecmodx .gt_super {
+  font-size: 65%;
+}
+
+#miltecmodx .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style><em>Annual</em> MCCS FSRM Costs by Category<sup class="gt_footnote_marks">1,2</sup></th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Categroy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Sustainment<sup class="gt_footnote_marks">3</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">R &amp; M<sup class="gt_footnote_marks">4</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">A</td>
+<td class="gt_row gt_left">$25,695,011</td>
+<td class="gt_row gt_left">$88,802,160</td>
+<td class="gt_row gt_left">$114,497,172</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">B</td>
+<td class="gt_row gt_left">$18,183,573</td>
+<td class="gt_row gt_left">$44,002,558</td>
+<td class="gt_row gt_left">$62,186,131</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">C</td>
+<td class="gt_row gt_left">$72,570,986</td>
+<td class="gt_row gt_left">$120,040,348</td>
+<td class="gt_row gt_left">$192,611,334</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">L<sup class="gt_footnote_marks">5</sup></td>
+<td class="gt_row gt_left">$11,446,488</td>
+<td class="gt_row gt_left">$29,944,762</td>
+<td class="gt_row gt_left">$41,391,250</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">FSRM</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$127,896,057</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$282,789,829</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+    </tr>
+  </tbody>
   
-  mutate(fac_use_pct = if_else(use_pct_area &gt; 0, use_pct_area, 
-                               if_else(use_pct_alt &gt; 0, use_pct_alt, use_pct_other))) %&gt;% 
-  ungroup() %&gt;%
-  mutate(region = case_when(
-    installation %in% c(
-      &quot;M00146 MCAS CHERRY POINT NC&quot;,
-      &quot;M00263 MCRD BEAUFORT PI SC&quot;,
-      &quot;M60169 MCAS BEAUFORT SC&quot;,
-      &quot;M62573 MCAS NEW RIVER JAX NC&quot;,
-      &quot;M67001 MCB CAMP LEJEUNE NC&quot;,
-      &quot;M67004 MCLB ALBANY GA&quot;,
-      &quot;M67695 MCSF BLOUNT ISLAND&quot;
-    ) ~ &quot;MCIEAST&quot;,
-    installation %in% c(
-      &quot;M00264 MARINE CORPS BASE QUANTICO VA&quot;,
-      &quot;M67029 MARBKS WASHINGTON DC&quot;
-    ) ~ &quot;MCINCR&quot;,
-    installation %in% c(
-      &quot;M00318 MCB HAWAII KANEOHE&quot;,
-      &quot;M20810 CAMP MUJUK REPUBLIC OF KOREA&quot;,
-      &quot;M63026 MCAS FUTENMA JA&quot;,
-      &quot;M67400 MCB CAMP S D BUTLER OKINAWA JA&quot;,
-      &quot;M62613 MCAS IWAKUNI JA&quot;
-    ) ~ &quot;MCIPAC&quot;,
-    installation %in% c(
-      &quot;M00681 MCB CAMP PENDLETON CA&quot;,
-      &quot;M62204 MCLB BARSTOW CA&quot;,
-      &quot;M62974 MCAS YUMA AZ&quot;,
-      &quot;M67604 MCAS CAMP PENDLETON CA&quot;,
-      &quot;M67865 MCAS MIRAMAR&quot;
-    ) ~ &quot;MCIWEST&quot;,
-    installation %in% c(
-      &quot;M00243 MARCORPRCUITDEP SAN DIEGO CA&quot;,
-      &quot;M64495 MARCORPSMWTC BRIDGEPORT CA&quot;,
-      &quot;M67399 MCAGCC TWENTYNINE PALMS CA&quot;
-    ) ~ &quot;SLTI&quot;,
-    installation %in% c(
-      &quot;M09036 CAMP ALLEN&quot;,
-      &quot;M67011 MARCORPS DIST 1 GARDEN CITY NY&quot;,
-      &quot;M67386 MCSPTACT KANSAS CITY MO&quot;,
-      &quot;M67861 MARCORRESFOR NEW ORLEANS LA&quot;,
-      &quot;M68479 HDQTRS 4TH MARDIV NEW ORLEANS&quot;
-    ) ~ &quot;NONE&quot;
-  )) %&gt;%
-  mutate(RPUID = RPUID %&gt;% as.character())
-
-fac_mapped &lt;- utl %&gt;%
-  inner_join(cat_codes, by = c(&quot;use_code&quot; = &quot;use_code&quot;)) 
- 
-
-fac_mapped &lt;- fac_mapped %&gt;%
-  left_join(fac, by = &quot;RPUID&quot;) %&gt;% 
-  filter(naf_cat %in% c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;L&quot;))
-
-# RPUID_count &lt;- fac_mapped %&gt;%
-#   group_by(RPUID) %&gt;%
-#   count(RPUID)
-# 
-# fac_mapped &lt;- fac_mapped %&gt;%
-#   inner_join((RPUID_count))
-
-
-df_clean &lt;- fac_mapped %&gt;%
-  mutate(
-    sus = if_else(naf_cat == &quot;C&quot;, FY2022 * 2, FY2022),
-    sus = sus %&gt;% replace_na(0)
-  ) %&gt;%
-  mutate(
-    RM_corrected = RM * fac_use_pct) 
-
-
-df_final &lt;- df_clean %&gt;%
-  select(region, installation = installation.x, RPUID, use_code, use_desc, usedesc, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
-
-write_xlsx(df_final, path = &quot;/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/df_finalv3.xlsx&quot;)</code></pre>
-<p><br><br></p>
-<div id="exploring-costs" class="section level4">
-<h4>Exploring Costs</h4>
-<pre class="r"><code>category &lt;- df_final %&gt;%
-  group_by(naf_cat) %&gt;%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %&gt;%
-  arrange(desc(total)) %&gt;%
-  janitor::adorn_totals()
-
-category</code></pre>
-<pre><code>##  naf_cat total_sus  total_rm     total
-##        C  72570986 120040348 192611334
-##        A  25695011  88802160 114497172
-##        B  18183573  44002558  62186131
-##        L  11446488  29944762  41391250
-##    Total 127896057 282789829 410685886</code></pre>
-<p><br><br></p>
-<pre class="r"><code>region &lt;- df_final %&gt;%
-  group_by(region) %&gt;%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %&gt;%
-  arrange(desc(total)) %&gt;%
-  janitor::adorn_totals()
-
-region</code></pre>
-<pre><code>##   region   total_sus  total_rm     total
-##   MCIPAC  49129796.2 107857413 156987209
-##  MCIEAST  29301336.3  78408898 107710234
-##  MCIWEST  30908358.3  46197514  77105872
-##     SLTI  11654129.9  19120407  30774537
-##   MCINCR   6232067.3  23673522  29905589
-##     NONE    670369.3   7532075   8202444
-##    Total 127896057.4 282789829 410685886</code></pre>
-<p><br><br></p>
-<pre class="r"><code>program &lt;- df_final %&gt;%
-  group_by(op_activity) %&gt;%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %&gt;%
-  arrange(desc(total)) %&gt;%
-  janitor::adorn_totals()
-
-program</code></pre>
-<pre><code>##                op_activity   total_sus  total_rm     total
-##        Semper Fit Programs  21031441.9  75525342  96556784
-##        Exchange Operations  31407372.8  39522473  70929846
-##   Food &amp; Beverage (Direct)   8390116.1  52345280  60735396
-##   Marine &amp; Family Programs  12400073.9  33274964  45675038
-##                      Clubs  19884399.1  22394064  42278463
-##                    Lodging  11446487.8  29944762  41391250
-##      Commercial Recreation  16074501.9  13782553  29857055
-##  Children &amp; Youth Programs   6430689.6  12803731  19234421
-##  Other Business Operations    830974.4   3196660   4027634
-##                      Total 127896057.4 282789829 410685886</code></pre>
-<p><br><br></p>
-<div id="exploring-square-footage" class="section level5">
-<h5>Exploring Square Footage</h5>
-<p><br><br></p>
-<pre class="r"><code>program_decade_sqft &lt;- df_final %&gt;%
-  mutate(decade = floor_date(build_dt, years(10)) %&gt;% year()) %&gt;%
-  group_by(decade, op_activity) %&gt;%
-  summarise(total = sum(total_measure)) %&gt;%
-  mutate(decade = if_else(is.na(decade), 2020, decade)) %&gt;%
-  ggplot(aes(decade, total)) +
-  geom_line() +
-  # geom_smooth(method = &quot;lm&quot;, se = FALSE) +
-  facet_wrap(~op_activity, scales = &quot;free_y&quot;) +
-  theme_clean() +
-  scale_y_continuous(labels = scales::number) +
-  labs(
-    y = &quot;Total Measure (SqFt)&quot;,
-    x = &quot;Decade&quot;,
-    title = &quot;What is the sqft added in each decade by Program?&quot;,
-    subtitle = &quot;Decade is based on build date&quot;
-  )
-
-program_decade_sqft</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-5-1.png" width="960" /> <br><br></p>
-<pre class="r"><code>program_year_sqft &lt;- df_final %&gt;%
-  mutate(year = floor_date(build_dt, years(1)) %&gt;% year()) %&gt;%
-  group_by(year, op_activity) %&gt;%
-  filter(year &gt;= 1980, year &lt;= 2020) %&gt;%
-  summarise(total = sum(total_measure)) %&gt;%
-  # mutate(decade = if_else(is.na(year), 2020, decade)) %&gt;%
-  ggplot(aes(year, total)) +
-  geom_col() +
-  geom_smooth(method = &quot;lm&quot;, se = FALSE) +
-  facet_wrap(~op_activity, scales = &quot;free&quot;) +
-  theme_tq() +
-  scale_y_continuous(labels = scales::number) +
-  # scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020)) +
-  labs(
-    y = &quot;Total Measure (SqFt)&quot;,
-    x = &quot;Year&quot;,
-    title = &quot;What is the sqft added each year by Program?&quot;,
-    subtitle = &quot;Year is based on build date of facility&quot;
-  )
-
-program_year_sqft</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-6-1.png" width="960" /> <br><br></p>
-<pre class="r"><code>region_year_sqft &lt;- df_final %&gt;%
-  mutate(year = floor_date(build_dt, years(1)) %&gt;% year()) %&gt;%
-  group_by(year, region) %&gt;%
-  filter(year &gt;= 1980, year &lt;= 2020) %&gt;%
-  summarise(total = sum(total_measure)) %&gt;%
-  filter(region != &quot;NONE&quot;) %&gt;%
-  # mutate(decade = if_else(is.na(year), 2020, decade)) %&gt;%
-  ggplot(aes(year, total)) +
-  geom_col() +
-  geom_smooth(method = &quot;lm&quot;, se = FALSE) +
-  facet_wrap(~region, scales = &quot;free&quot;) +
-  theme_tq() +
-  scale_y_continuous(labels = scales::number) +
-  # scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020)) +
-  labs(
-    y = &quot;Total Measure (SqFt)&quot;,
-    x = &quot;Year&quot;,
-    title = &quot;What is the total measure of sqft by Region in a given year?&quot;,
-    subtitle = &quot;Year is based on build date of facility&quot;
-  )
-
-region_year_sqft</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-7-1.png" width="960" /> <br><br></p>
-<pre class="r"><code>scale &lt;- seq(1900, 2020, by = 10)
-
-
-df_final %&gt;%
-  mutate(decade = floor_date(build_dt, years(10)) %&gt;% year()) %&gt;%
-  group_by(decade) %&gt;%
-  summarise(sqft = sum(total_measure)) %&gt;%
-  mutate(decade = decade %&gt;% as.double(),
-         decade = if_else(is.na(decade), 2020, decade)) %&gt;% 
-  ungroup() %&gt;% 
-  ggplot(aes(decade, sqft)) +
-  geom_col(fill = &quot;#2c3e50&quot;) +
-  scale_x_continuous(breaks = scale) +
-  theme_clean() +
-  labs(
-    title = &quot;New Square Footage by Decade&quot;,
-    subtitle = &quot;Based on Facilities Build Date&quot;,
-    y = &quot;SQFT&quot;,
-    x = &quot;Decade&quot;
-  )</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-8-1.png" width="960" /></p>
-<pre class="r"><code>df_final %&gt;%
-  mutate(decade = floor_date(build_dt, years(10)) %&gt;% year()) %&gt;%
-  group_by(decade) %&gt;%
-  summarise(sqft = sum(total_measure)) %&gt;%
-  ungroup() %&gt;%
-  mutate(decade = decade %&gt;% as.double(),
-         decade = if_else(is.na(decade), 2020, decade), 
-    cumulative = cumsum(sqft)
-  ) %&gt;%
-  ggplot(aes(decade, cumulative)) +
-  geom_area(fill = &quot;#2c3e50&quot;) +
-  scale_x_continuous(breaks = scale) +
-  scale_y_continuous(labels = scales::number_format()) +
-  theme_clean() +
-  labs(
-    title = &quot;Cumulative New Square Footage&quot;,
-    subtitle = &quot;Based on Facilities Build Date&quot;,
-    y = &quot;SQFT&quot;,
-    x = &quot;Decade&quot;
-  )</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-8-2.png" width="960" /></p>
-<p><br><br></p>
-<pre class="r"><code>total_sq_by_region &lt;- df_final %&gt;%
-  group_by(region) %&gt;%
-  summarise(total_sqft = sum(total_measure)) %&gt;% 
-  arrange(desc(total_sqft)) %&gt;% 
-  mutate(region = region %&gt;% fct_reorder(total_sqft)) %&gt;% 
-  ggplot(aes(region, total_sqft)) +
-  geom_col(fill = &quot;#2c3e50&quot;) +
-  coord_flip() +
-  theme_clean() +
-  scale_y_continuous(labels = scales::number) +
-  labs(
-    title = &quot;Total Square Footage by Region&quot;,
-    y = &quot;Total SqFt&quot;,
-    x = &quot;Region&quot;
-  )
-
-total_sq_by_region</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
-<p><br><br></p>
-<pre class="r"><code>total_sq_by_installation &lt;- df_final %&gt;%
-  group_by(installation) %&gt;%
-  summarise(total_sqft = sum(total_measure)) %&gt;% 
-  arrange(desc(total_sqft)) %&gt;% 
-  mutate(installation = installation %&gt;% fct_reorder(total_sqft)) %&gt;% 
-  ggplot(aes(installation, total_sqft)) + 
-  geom_col(fill = &quot;#2c3e50&quot;) +
-  coord_flip() +
-  theme_clean() +
-   labs(
-    title = &quot;Total Square Footage by Installation&quot;,
-    y = &quot;Total SQFT&quot;,
-    x = &quot;Installation&quot;
-  )
-
-# %&gt;% 
-#   gt() %&gt;% 
-#   tab_header(title = &quot;Total Sqaure Foot by Instllation&quot;) %&gt;% 
-#   fmt_number(columns = 2 ,
-#              decimals = 0,
-#              sep_mark = &quot;,&quot;,
-#              use_seps = TRUE)
-
-total_sq_by_installation</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-10-1.png" width="960" /></p>
-<p><br><br></p>
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>2</em>
+          </sup>
+           
+          Nominal dollars
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>3</em>
+          </sup>
+           
+          2x iNFADS FYDP average annual sustainment costs
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>4</em>
+          </sup>
+           
+          2.5% of PRV (MCICOM Metric)
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>5</em>
+          </sup>
+           
+          Category L= Lodging
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div> <br></p>
+<hr />
 </div>
+<div id="costs-by-region" class="section level2">
+<h2>Costs by Region</h2>
+<p><br></p>
+<p><div id="yjbtcedzfv" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#yjbtcedzfv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#yjbtcedzfv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#yjbtcedzfv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#yjbtcedzfv .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#yjbtcedzfv .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#yjbtcedzfv .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#yjbtcedzfv .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#yjbtcedzfv .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yjbtcedzfv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yjbtcedzfv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#yjbtcedzfv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#yjbtcedzfv .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#yjbtcedzfv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#yjbtcedzfv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yjbtcedzfv .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yjbtcedzfv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#yjbtcedzfv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#yjbtcedzfv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yjbtcedzfv .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#yjbtcedzfv .gt_left {
+  text-align: left;
+}
+
+#yjbtcedzfv .gt_center {
+  text-align: center;
+}
+
+#yjbtcedzfv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#yjbtcedzfv .gt_font_normal {
+  font-weight: normal;
+}
+
+#yjbtcedzfv .gt_font_bold {
+  font-weight: bold;
+}
+
+#yjbtcedzfv .gt_font_italic {
+  font-style: italic;
+}
+
+#yjbtcedzfv .gt_super {
+  font-size: 65%;
+}
+
+#yjbtcedzfv .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style><em>Annual</em> MCCS FSRM Costs by Region<sup class="gt_footnote_marks">1,2</sup></th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Region</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Sustainment<sup class="gt_footnote_marks">3</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">R &amp; M<sup class="gt_footnote_marks">4</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIPAC</td>
+<td class="gt_row gt_left">$49,129,796</td>
+<td class="gt_row gt_left">$107,857,413</td>
+<td class="gt_row gt_left">$156,987,209</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIEAST</td>
+<td class="gt_row gt_left">$29,301,336</td>
+<td class="gt_row gt_left">$78,408,898</td>
+<td class="gt_row gt_left">$107,710,234</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIWEST</td>
+<td class="gt_row gt_left">$30,908,358</td>
+<td class="gt_row gt_left">$46,197,514</td>
+<td class="gt_row gt_left">$77,105,872</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">SLTI</td>
+<td class="gt_row gt_left">$11,654,130</td>
+<td class="gt_row gt_left">$19,120,407</td>
+<td class="gt_row gt_left">$30,774,537</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCINCR</td>
+<td class="gt_row gt_left">$6,232,067</td>
+<td class="gt_row gt_left">$23,673,522</td>
+<td class="gt_row gt_left">$29,905,589</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">NONE<sup class="gt_footnote_marks">5</sup></td>
+<td class="gt_row gt_left">$670,369</td>
+<td class="gt_row gt_left">$7,532,075</td>
+<td class="gt_row gt_left">$8,202,444</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">FSRM</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$127,896,057</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$282,789,829</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>2</em>
+          </sup>
+           
+          Nominal dollars
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>3</em>
+          </sup>
+           
+          2x iNFADS FYDP average annual sustainment costs
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>4</em>
+          </sup>
+           
+          2.5% of PRV (MCICOM Metric)
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>5</em>
+          </sup>
+           
+          Garden City, Camp Elmore, Kansas City, MARFORRES, 4th MARDIV
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div> <br></p>
+<hr />
+</div>
+<div id="costs-by-program" class="section level2">
+<h2>Costs by Program</h2>
+<p><br></p>
+<p><div id="rjhuaoyqyu" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#rjhuaoyqyu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#rjhuaoyqyu .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#rjhuaoyqyu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#rjhuaoyqyu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#rjhuaoyqyu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#rjhuaoyqyu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#rjhuaoyqyu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#rjhuaoyqyu .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#rjhuaoyqyu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#rjhuaoyqyu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#rjhuaoyqyu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#rjhuaoyqyu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#rjhuaoyqyu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#rjhuaoyqyu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rjhuaoyqyu .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rjhuaoyqyu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#rjhuaoyqyu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#rjhuaoyqyu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rjhuaoyqyu .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#rjhuaoyqyu .gt_left {
+  text-align: left;
+}
+
+#rjhuaoyqyu .gt_center {
+  text-align: center;
+}
+
+#rjhuaoyqyu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#rjhuaoyqyu .gt_font_normal {
+  font-weight: normal;
+}
+
+#rjhuaoyqyu .gt_font_bold {
+  font-weight: bold;
+}
+
+#rjhuaoyqyu .gt_font_italic {
+  font-style: italic;
+}
+
+#rjhuaoyqyu .gt_super {
+  font-size: 65%;
+}
+
+#rjhuaoyqyu .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style><em>Annual</em> MCCS FSRM Costs by Program<sup class="gt_footnote_marks">1,2</sup></th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Program</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Sustainment<sup class="gt_footnote_marks">3</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">R &amp; M<sup class="gt_footnote_marks">4</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Semper Fit Programs</td>
+<td class="gt_row gt_left">$21,031,442</td>
+<td class="gt_row gt_left">$75,525,342</td>
+<td class="gt_row gt_left">$96,556,784</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Exchange Operations</td>
+<td class="gt_row gt_left">$31,407,373</td>
+<td class="gt_row gt_left">$39,522,473</td>
+<td class="gt_row gt_left">$70,929,846</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Food &amp; Beverage (Direct)</td>
+<td class="gt_row gt_left">$8,390,116</td>
+<td class="gt_row gt_left">$52,345,280</td>
+<td class="gt_row gt_left">$60,735,396</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Marine &amp; Family Programs</td>
+<td class="gt_row gt_left">$12,400,074</td>
+<td class="gt_row gt_left">$33,274,964</td>
+<td class="gt_row gt_left">$45,675,038</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Clubs</td>
+<td class="gt_row gt_left">$19,884,399</td>
+<td class="gt_row gt_left">$22,394,064</td>
+<td class="gt_row gt_left">$42,278,463</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Lodging</td>
+<td class="gt_row gt_left">$11,446,488</td>
+<td class="gt_row gt_left">$29,944,762</td>
+<td class="gt_row gt_left">$41,391,250</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Commercial Recreation</td>
+<td class="gt_row gt_left">$16,074,502</td>
+<td class="gt_row gt_left">$13,782,553</td>
+<td class="gt_row gt_left">$29,857,055</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Children &amp; Youth Programs</td>
+<td class="gt_row gt_left">$6,430,690</td>
+<td class="gt_row gt_left">$12,803,731</td>
+<td class="gt_row gt_left">$19,234,421</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Other Business Operations</td>
+<td class="gt_row gt_left">$830,974</td>
+<td class="gt_row gt_left">$3,196,660</td>
+<td class="gt_row gt_left">$4,027,634</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">FSRM</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$127,896,057</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$282,789,829</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>2</em>
+          </sup>
+           
+          Nominal dollars
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>3</em>
+          </sup>
+           
+          2x iNFADS FYDP average annual sustainment costs
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>4</em>
+          </sup>
+           
+          2.5% of PRV (MCICOM Metric)
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div> <br></p>
+<hr />
+</div>
+<div id="use-category-top-10" class="section level2">
+<h2>Use Category Top 10</h2>
+<p><em>Facility Type Code</em> — The Facility Type Code determines the category code of the facility. The code ranges from category I to category IV and is tied to the DoD FAC Code. Each Category Code has an accompanying category use description.</p>
+<p><br></p>
+<p>There are a total of <strong>71</strong> distinct use categories within data set. The top 10 use category descriptions account for over <strong>68%</strong> of the total costs in the MCCS portfolio.</p>
+<div id="znoifmnzuh" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#znoifmnzuh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#znoifmnzuh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#znoifmnzuh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#znoifmnzuh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#znoifmnzuh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#znoifmnzuh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#znoifmnzuh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#znoifmnzuh .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#znoifmnzuh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#znoifmnzuh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#znoifmnzuh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#znoifmnzuh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#znoifmnzuh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#znoifmnzuh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#znoifmnzuh .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#znoifmnzuh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#znoifmnzuh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#znoifmnzuh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#znoifmnzuh .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#znoifmnzuh .gt_left {
+  text-align: left;
+}
+
+#znoifmnzuh .gt_center {
+  text-align: center;
+}
+
+#znoifmnzuh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#znoifmnzuh .gt_font_normal {
+  font-weight: normal;
+}
+
+#znoifmnzuh .gt_font_bold {
+  font-weight: bold;
+}
+
+#znoifmnzuh .gt_font_italic {
+  font-style: italic;
+}
+
+#znoifmnzuh .gt_super {
+  font-size: 65%;
+}
+
+#znoifmnzuh .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style>Top 10 most expensive iNFADS Use Category<sup class="gt_footnote_marks">1,2,3</sup></th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Use Category</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Sustainment<sup class="gt_footnote_marks">4</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">R &amp; M<sup class="gt_footnote_marks">5</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">EXCHANGE / MWR FOOD SERVICE</td>
+<td class="gt_row gt_left">$8,390,116</td>
+<td class="gt_row gt_left">$52,345,280</td>
+<td class="gt_row gt_left">$60,735,396</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">INDOOR PHYSICAL FITNESS CENTER (GYM)</td>
+<td class="gt_row gt_left">$12,209,158</td>
+<td class="gt_row gt_left">$29,318,054</td>
+<td class="gt_row gt_left">$41,527,212</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">ALL HANDS CLUB</td>
+<td class="gt_row gt_left">$19,374,830</td>
+<td class="gt_row gt_left">$22,096,564</td>
+<td class="gt_row gt_left">$41,471,394</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">EXCHANGE RETAIL STORE</td>
+<td class="gt_row gt_left">$13,924,120</td>
+<td class="gt_row gt_left">$15,461,957</td>
+<td class="gt_row gt_left">$29,386,076</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">FITNESS ROOM</td>
+<td class="gt_row gt_left">$958,615</td>
+<td class="gt_row gt_left">$25,460,813</td>
+<td class="gt_row gt_left">$26,419,428</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">TDY OFFICIAL LODGING</td>
+<td class="gt_row gt_left">$7,206,857</td>
+<td class="gt_row gt_left">$18,715,265</td>
+<td class="gt_row gt_left">$25,922,122</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">PCS OFFICIAL LODGING</td>
+<td class="gt_row gt_left">$4,239,631</td>
+<td class="gt_row gt_left">$11,229,497</td>
+<td class="gt_row gt_left">$15,469,128</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">EXCHANGE SERVICE OUTLETS (BARBER, UNIFORM, ETC)</td>
+<td class="gt_row gt_left">$3,826,565</td>
+<td class="gt_row gt_left">$10,783,832</td>
+<td class="gt_row gt_left">$14,610,397</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">FAMILY SERVICES CENTER</td>
+<td class="gt_row gt_left">$2,866,910</td>
+<td class="gt_row gt_left">$9,072,213</td>
+<td class="gt_row gt_left">$11,939,122</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">CHILD DEVELOPMENT CENTER</td>
+<td class="gt_row gt_left">$3,505,962</td>
+<td class="gt_row gt_left">$8,336,636</td>
+<td class="gt_row gt_left">$11,842,598</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">FSRM</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$76,502,763</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$202,820,110</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$279,322,873</td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Based on total FSRM costs
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>2</em>
+          </sup>
+           
+          Nominal dollars
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>3</em>
+          </sup>
+           
+          There are 71 use categories in dataset
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>4</em>
+          </sup>
+           
+          2x iNFADS FYDP average annual sustainment costs
+          <br />
+        </p>
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>5</em>
+          </sup>
+           
+          2.5% of PRV (MCICOM Metric)
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="exploring-sqft-utilization" class="section level1">
+<h1>Exploring SqFt Utilization</h1>
+<p>Total utilization of MCCS according to iNFADS is <strong>15,878,761</strong> square feet (Total Measure = adq + iadq + sub).</p>
+<p><br> Note: Utilization such as athletic fields, outdoor playing courts(basketball, volleyball, etc), playgrounds and Marina/Boat Ramp's are typically not included in total measure of square foot utilization)</p>
+<p>Note: The trends are based on MCCS existing utilization by build date.</p>
+<p><br></p>
+<div id="trends" class="section level2">
+<h2>Trends</h2>
+<p><br></p>
+<div id="what-is-the-trend-of-sqft-additions-by-program" class="section level5">
+<h5>What is the trend of sqft additions by Program?</h5>
+<p>Exchange Operations, Children and Youth and Semper Fit programs have been adding additional square footage utilization throughout the 2000 and 2010 decades (2000 - 2019). Additionally, Clubs, Commercial Recreation and less so in Lodging from the 2000 to the 2010 have slowed adding additional square footage within their programs. While Food and Beverage (Direct) and Other Business Operations have remained relatively flat.</p>
+<p><br> <img src="Facilities_files/figure-html/unnamed-chunk-8-1.png" width="960" /> <br></p>
+</div>
+<div id="additional-square-footage-by-decade" class="section level5">
+<h5>Additional Square Footage by Decade</h5>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-9-1.png" width="960" /></p>
+<p><br></p>
+</div>
+<div id="cumulative-new-sqare-footage-by-decade" class="section level5">
+<h5>Cumulative New Sqare Footage by Decade</h5>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-10-1.png" width="960" /></p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="percent-of-total" class="section level2">
+<h2>Percent of Total</h2>
+<p><br></p>
+<div id="what-is-the-percent-of-total-square-foot-by-category" class="section level5">
+<h5>What is the percent of total square foot by Category?</h5>
+<p>Cateory C accounts for <strong>39%</strong> of MCCS total utilization.</p>
+<p><br> <img src="Facilities_files/figure-html/unnamed-chunk-12-1.png" width="960" /> <br> <br></p>
+</div>
+<div id="what-is-the-fsrm-cost-per-square-foot-by-category" class="section level5">
+<h5>What is the FSRM cost per square foot by Category?</h5>
+<p><br> <div id="vlklkqmmgp" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#vlklkqmmgp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#vlklkqmmgp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#vlklkqmmgp .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#vlklkqmmgp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#vlklkqmmgp .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#vlklkqmmgp .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#vlklkqmmgp .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#vlklkqmmgp .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vlklkqmmgp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vlklkqmmgp .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#vlklkqmmgp .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#vlklkqmmgp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#vlklkqmmgp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#vlklkqmmgp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlklkqmmgp .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlklkqmmgp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#vlklkqmmgp .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#vlklkqmmgp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vlklkqmmgp .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#vlklkqmmgp .gt_left {
+  text-align: left;
+}
+
+#vlklkqmmgp .gt_center {
+  text-align: center;
+}
+
+#vlklkqmmgp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#vlklkqmmgp .gt_font_normal {
+  font-weight: normal;
+}
+
+#vlklkqmmgp .gt_font_bold {
+  font-weight: bold;
+}
+
+#vlklkqmmgp .gt_font_italic {
+  font-style: italic;
+}
+
+#vlklkqmmgp .gt_super {
+  font-size: 65%;
+}
+
+#vlklkqmmgp .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style>FSRM SqFt Costs by Category</th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Category</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total FSRM<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total SqFt</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Cost Per SqFT</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">A</td>
+<td class="gt_row gt_left">114,497,172</td>
+<td class="gt_row gt_left">4,569,439</td>
+<td class="gt_row gt_left">$25.06</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">B</td>
+<td class="gt_row gt_left">62,186,131</td>
+<td class="gt_row gt_left">3,020,179</td>
+<td class="gt_row gt_left">$20.59</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">C</td>
+<td class="gt_row gt_left">192,611,334</td>
+<td class="gt_row gt_left">6,244,445</td>
+<td class="gt_row gt_left">$30.85</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">L</td>
+<td class="gt_row gt_left">41,391,250</td>
+<td class="gt_row gt_left">2,044,698</td>
+<td class="gt_row gt_left">$20.24</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">15,878,761</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div></p>
+<p><br></p>
+</div>
+<div id="what-is-percent-of-total-square-foot-by-program" class="section level5">
+<h5>What is percent of total square foot by Program?</h5>
+<p><strong>Exchange Operations, Semper Fit Programs, Marine &amp; Family Programs</strong> account for roughly <strong>58%</strong> of MCCS total square foot utilization.</p>
+<p>While Food &amp; Beverage (Direct) only accounts for just over <strong>3%</strong> of the total MCCS sqft utilization it ranks number <strong>3</strong> in total FSRM costs at a total cost of <strong>$60,735,396</strong> or <strong>15%</strong> of all FSRM costs.</p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-16-1.png" width="960" /> <br> <br></p>
+</div>
+<div id="what-is-the-average-cost-per-square-foot-by-program" class="section level5">
+<h5>What is the average cost per square foot by Program?</h5>
+<p>The cost per sqft by program is <strong>$33.29</strong></p>
+<p>The cost per sqft by program, excluding Food and Beverage (Direct) is <strong>$23.51</strong></p>
+<p>Food and Beverage (Direct) costs 2.7x more than the next most expensive cost per square foot.</p>
+<p><br></p>
+<div id="rqaoeocwby" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#rqaoeocwby .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#rqaoeocwby .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#rqaoeocwby .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#rqaoeocwby .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#rqaoeocwby .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#rqaoeocwby .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#rqaoeocwby .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#rqaoeocwby .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#rqaoeocwby .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#rqaoeocwby .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#rqaoeocwby .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#rqaoeocwby .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#rqaoeocwby .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#rqaoeocwby .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqaoeocwby .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqaoeocwby .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#rqaoeocwby .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#rqaoeocwby .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rqaoeocwby .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#rqaoeocwby .gt_left {
+  text-align: left;
+}
+
+#rqaoeocwby .gt_center {
+  text-align: center;
+}
+
+#rqaoeocwby .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#rqaoeocwby .gt_font_normal {
+  font-weight: normal;
+}
+
+#rqaoeocwby .gt_font_bold {
+  font-weight: bold;
+}
+
+#rqaoeocwby .gt_font_italic {
+  font-style: italic;
+}
+
+#rqaoeocwby .gt_super {
+  font-size: 65%;
+}
+
+#rqaoeocwby .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style>FSRM SqFt Costs by Program</th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Program</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total FSRM<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total SqFt</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Cost Per SqFT</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Food &amp; Beverage (Direct)</td>
+<td class="gt_row gt_left">60,735,396</td>
+<td class="gt_row gt_left">544,809</td>
+<td class="gt_row gt_left">$111.48</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Clubs</td>
+<td class="gt_row gt_left">42,278,463</td>
+<td class="gt_row gt_left">1,024,864</td>
+<td class="gt_row gt_left">$41.25</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Semper Fit Programs</td>
+<td class="gt_row gt_left">96,556,784</td>
+<td class="gt_row gt_left">3,035,432</td>
+<td class="gt_row gt_left">$31.81</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Other Business Operations</td>
+<td class="gt_row gt_left">4,027,634</td>
+<td class="gt_row gt_left">180,239</td>
+<td class="gt_row gt_left">$22.35</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Lodging</td>
+<td class="gt_row gt_left">41,391,250</td>
+<td class="gt_row gt_left">2,044,698</td>
+<td class="gt_row gt_left">$20.24</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Marine &amp; Family Programs</td>
+<td class="gt_row gt_left">45,675,038</td>
+<td class="gt_row gt_left">2,375,107</td>
+<td class="gt_row gt_left">$19.23</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Exchange Operations</td>
+<td class="gt_row gt_left">70,929,846</td>
+<td class="gt_row gt_left">3,884,817</td>
+<td class="gt_row gt_left">$18.26</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Commercial Recreation</td>
+<td class="gt_row gt_left">29,857,055</td>
+<td class="gt_row gt_left">1,643,438</td>
+<td class="gt_row gt_left">$18.17</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Children &amp; Youth Programs</td>
+<td class="gt_row gt_left">19,234,421</td>
+<td class="gt_row gt_left">1,145,357</td>
+<td class="gt_row gt_left">$16.79</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">15,878,761</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br> <br></p>
+</div>
+<div id="what-is-the-percent-of-total-sqft-by-region" class="section level5">
+<h5>What is the percent of total sqft by Region?</h5>
+<p><strong>MCIEAST, MCIWEST, MCIPAC</strong> account for over <strong>84%</strong> of the total MCCS square feet utilization.</p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-20-1.png" width="960" /> <br> <br></p>
+</div>
+<div id="what-is-the-average-costs-per-squre-foot-by-region" class="section level5">
+<h5>What is the average costs per squre foot by Region?</h5>
+<p>Locations without a Region have a substainally greater costs for FSRM per squre foot.</p>
+<div id="froobngkhg" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#froobngkhg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#froobngkhg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#froobngkhg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#froobngkhg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#froobngkhg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#froobngkhg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#froobngkhg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#froobngkhg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#froobngkhg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#froobngkhg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#froobngkhg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#froobngkhg .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#froobngkhg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#froobngkhg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#froobngkhg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#froobngkhg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#froobngkhg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#froobngkhg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#froobngkhg .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#froobngkhg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#froobngkhg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#froobngkhg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#froobngkhg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#froobngkhg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#froobngkhg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#froobngkhg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#froobngkhg .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#froobngkhg .gt_left {
+  text-align: left;
+}
+
+#froobngkhg .gt_center {
+  text-align: center;
+}
+
+#froobngkhg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#froobngkhg .gt_font_normal {
+  font-weight: normal;
+}
+
+#froobngkhg .gt_font_bold {
+  font-weight: bold;
+}
+
+#froobngkhg .gt_font_italic {
+  font-style: italic;
+}
+
+#froobngkhg .gt_super {
+  font-size: 65%;
+}
+
+#froobngkhg .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style>FSRM SqFt Costs by Region</th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Region</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total FSRM<sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total SqFt</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Cost Per SqFT</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">NONE</td>
+<td class="gt_row gt_left">8,202,444</td>
+<td class="gt_row gt_left">91,623</td>
+<td class="gt_row gt_left">$89.52</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIPAC</td>
+<td class="gt_row gt_left">156,987,209</td>
+<td class="gt_row gt_left">4,169,274</td>
+<td class="gt_row gt_left">$37.65</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCINCR</td>
+<td class="gt_row gt_left">29,905,589</td>
+<td class="gt_row gt_left">901,717</td>
+<td class="gt_row gt_left">$33.17</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIEAST</td>
+<td class="gt_row gt_left">107,710,234</td>
+<td class="gt_row gt_left">4,956,900</td>
+<td class="gt_row gt_left">$21.73</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">SLTI</td>
+<td class="gt_row gt_left">30,774,537</td>
+<td class="gt_row gt_left">1,535,359</td>
+<td class="gt_row gt_left">$20.04</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCIWEST</td>
+<td class="gt_row gt_left">77,105,872</td>
+<td class="gt_row gt_left">4,223,889</td>
+<td class="gt_row gt_left">$18.25</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">$410,685,886</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">15,878,761</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row"></td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="5">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Funding agnostic
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br> <br></p>
+</div>
+<div id="what-is-the-percent-of-total-sqft-by-installation" class="section level5">
+<h5>What is the percent of total sqft by Installation?</h5>
+<p>Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the total square footage of MCCS, though it should be noted that MCB Butler comes in a close 3rd. The below chart highlights the top 10 installation that account for over 83% of MCCS total infrastructure.</p>
+<div id="lvuafbkuxm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#lvuafbkuxm .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lvuafbkuxm .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lvuafbkuxm .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lvuafbkuxm .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lvuafbkuxm .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lvuafbkuxm .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lvuafbkuxm .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lvuafbkuxm .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lvuafbkuxm .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lvuafbkuxm .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lvuafbkuxm .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lvuafbkuxm .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lvuafbkuxm .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#lvuafbkuxm .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lvuafbkuxm .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lvuafbkuxm .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lvuafbkuxm .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#lvuafbkuxm .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lvuafbkuxm .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#lvuafbkuxm .gt_left {
+  text-align: left;
+}
+
+#lvuafbkuxm .gt_center {
+  text-align: center;
+}
+
+#lvuafbkuxm .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lvuafbkuxm .gt_font_normal {
+  font-weight: normal;
+}
+
+#lvuafbkuxm .gt_font_bold {
+  font-weight: bold;
+}
+
+#lvuafbkuxm .gt_font_italic {
+  font-style: italic;
+}
+
+#lvuafbkuxm .gt_super {
+  font-size: 65%;
+}
+
+#lvuafbkuxm .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="4" class="gt_heading gt_title gt_font_normal" style>Top 10 Installations based on total sqaure feet of facilities aboard the Installation</th>
+    </tr>
+    <tr>
+      <th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><em>iNFADS</em> data retrieved <strong>Jun 17, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Installation</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Total SqFt</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">% of Total</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Lejeune</td>
+<td class="gt_row gt_left">2,546,398</td>
+<td class="gt_row gt_left">16.0&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Pendleton</td>
+<td class="gt_row gt_left">2,526,874</td>
+<td class="gt_row gt_left">15.9&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Butler</td>
+<td class="gt_row gt_left">1,804,863</td>
+<td class="gt_row gt_left">11.4&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Iwakuni</td>
+<td class="gt_row gt_left">1,083,667</td>
+<td class="gt_row gt_left">6.8&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Miramar</td>
+<td class="gt_row gt_left">1,054,724</td>
+<td class="gt_row gt_left">6.6&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Hawaii</td>
+<td class="gt_row gt_left">1,024,626</td>
+<td class="gt_row gt_left">6.5&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAGCC 29 Palms</td>
+<td class="gt_row gt_left">945,520</td>
+<td class="gt_row gt_left">6.0&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Quantico</td>
+<td class="gt_row gt_left">844,464</td>
+<td class="gt_row gt_left">5.3&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Cherry Point</td>
+<td class="gt_row gt_left">745,867</td>
+<td class="gt_row gt_left">4.7&percnt;</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCRD PI</td>
+<td class="gt_row gt_left">552,095</td>
+<td class="gt_row gt_left">3.5&percnt;</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">SqFt</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">13,129,098</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">82.68&percnt;</td>
+    </tr>
+  </tbody>
+  
+  
+</table>
+</div>
+<p><br></p>
+<p>MCCS has facilities in 26 different locations. The below grpah breaks down the percent of total square foot utilization by each location.</p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-23-1.png" width="960" /></p>
+<p><br></p>
+<hr />
 </div>
 <div id="exploring-q-rating" class="section level4">
 <h4>Exploring Q-Rating</h4>
-<p><br><br></p>
-<pre class="r"><code>q_group &lt;- df_final %&gt;% distinct(RPUID, .keep_all = TRUE)
-
-op_activity_q &lt;- q_group %&gt;% 
-  group_by(op_activity) %&gt;% 
-  count(q_rating) %&gt;% 
-  mutate(q_rating_pct = n / sum(n))
-
-op_activity_q</code></pre>
+<p><br></p>
 <pre><code>## # A tibble: 36 x 4
 ## # Groups:   op_activity [9]
 ##    op_activity               q_rating     n q_rating_pct
@@ -840,12 +3938,6 @@ op_activity_q</code></pre>
 ## 10 Commercial Recreation     Q2         218       0.461 
 ## # ... with 26 more rows</code></pre>
 <p><br><br></p>
-<pre class="r"><code>cat_q &lt;- q_group %&gt;% 
-  group_by(naf_cat) %&gt;% 
-  count(q_rating) %&gt;% 
-  mutate(q_rating_pct = n / sum(n))
-
-cat_q</code></pre>
 <pre><code>## # A tibble: 16 x 4
 ## # Groups:   naf_cat [4]
 ##    naf_cat q_rating     n q_rating_pct
@@ -867,16 +3959,6 @@ cat_q</code></pre>
 ## 15 L       Q3          16       0.186 
 ## 16 L       Q4           1       0.0116</code></pre>
 <p><br><br></p>
-<pre class="r"><code>region_q &lt;- q_group %&gt;% 
-  group_by(region) %&gt;% 
-  count(q_rating) %&gt;% 
-  mutate(q_rating_pct = n / sum(n))  
-# %&gt;% 
-#   gt() %&gt;% 
-#    tab_header(title = &quot;Exploring Q-Rating by Region&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-region_q</code></pre>
 <pre><code>## # A tibble: 24 x 4
 ## # Groups:   region [6]
 ##    region  q_rating     n q_rating_pct
@@ -893,53 +3975,25 @@ region_q</code></pre>
 ## 10 MCIPAC  Q2         248       0.405 
 ## # ... with 14 more rows</code></pre>
 <p><br><br></p>
-<pre class="r"><code>installation_q &lt;- q_group %&gt;% 
-  group_by(installation) %&gt;% 
-  count(q_rating) %&gt;% 
-  mutate(q_rating_pct = n / sum(n)) 
-# %&gt;% 
-#   gt() %&gt;% 
-#    tab_header(title = &quot;Exploring Q-Rating by Installation&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-installation_q</code></pre>
-<pre><code>## # A tibble: 85 x 4
-## # Groups:   installation [27]
-##    installation                        q_rating     n q_rating_pct
-##    &lt;chr&gt;                               &lt;chr&gt;    &lt;int&gt;        &lt;dbl&gt;
-##  1 M00146 MCAS CHERRY POINT NC         Q1          67       0.475 
-##  2 M00146 MCAS CHERRY POINT NC         Q2          48       0.340 
-##  3 M00146 MCAS CHERRY POINT NC         Q3          23       0.163 
-##  4 M00146 MCAS CHERRY POINT NC         Q4           3       0.0213
-##  5 M00243 MARCORPRCUITDEP SAN DIEGO CA Q1          12       0.2   
-##  6 M00243 MARCORPRCUITDEP SAN DIEGO CA Q2          30       0.5   
-##  7 M00243 MARCORPRCUITDEP SAN DIEGO CA Q3          18       0.3   
-##  8 M00263 MCRD BEAUFORT PI SC          Q1          27       0.257 
-##  9 M00263 MCRD BEAUFORT PI SC          Q2          54       0.514 
-## 10 M00263 MCRD BEAUFORT PI SC          Q3          19       0.181 
-## # ... with 75 more rows</code></pre>
+<pre><code>## # A tibble: 83 x 4
+## # Groups:   installation [26]
+##    installation q_rating     n q_rating_pct
+##    &lt;chr&gt;        &lt;chr&gt;    &lt;int&gt;        &lt;dbl&gt;
+##  1 Camp Elmore  Q1           5       0.455 
+##  2 Camp Elmore  Q3           1       0.0909
+##  3 Camp Elmore  Q4           5       0.455 
+##  4 Camp Mujuk   Q1           9       0.692 
+##  5 Camp Mujuk   Q2           4       0.308 
+##  6 Garden City  Q3           1       1     
+##  7 Kansas City  Q2           2       0.667 
+##  8 Kansas City  Q3           1       0.333 
+##  9 MARFORRES    Q1          10       0.769 
+## 10 MARFORRES    Q2           2       0.154 
+## # ... with 73 more rows</code></pre>
 <p><br><br></p>
 <div id="exploring-the-age-of-facilities" class="section level5">
 <h5>Exploring the age of facilities</h5>
 <p><br><br></p>
-<pre class="r"><code>age_q &lt;- df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  group_by(q_rating) %&gt;% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age)
-# %&gt;% 
-#   gt() %&gt;% 
-#   tab_header(title = &quot;Exlploring Facility Age by Q-Rating&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-age_q</code></pre>
 <pre><code>## # A tibble: 4 x 7
 ##   q_rating avg_age median_age sd_age max_age min_age range_age
 ##   &lt;chr&gt;      &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
@@ -948,39 +4002,8 @@ age_q</code></pre>
 ## 3 Q3            58         60     19     103       3       100
 ## 4 Q4            57         61     21     103      10        93</code></pre>
 <p><br><br></p>
-<pre class="r"><code>df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  mutate(q_rating = q_rating %&gt;% fct_reorder(age)) %&gt;% 
-  ggplot(aes(age, q_rating)) + 
-  geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = &quot;Facility Age by Q-Rating&quot;,
-       x = &quot;Age&quot;,
-       y = &quot;Q-Rating&quot;)</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-16-1.png" width="960" /></p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-29-1.png" width="960" /></p>
 <p><br><br></p>
-<pre class="r"><code>program_age &lt;- df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  group_by(op_activity) %&gt;% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) 
-# %&gt;% 
-#   gt() %&gt;% 
-#   tab_header(title = &quot;Exlploring Facility Age by Program&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-program_age</code></pre>
 <pre><code>## # A tibble: 9 x 7
 ##   op_activity               avg_age median_age sd_age max_age min_age range_age
 ##   &lt;chr&gt;                       &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
@@ -994,39 +4017,8 @@ program_age</code></pre>
 ## 8 Other Business Operations      37         30     25      79       3        76
 ## 9 Semper Fit Programs            34         29     24     103       3       100</code></pre>
 <p><br><br></p>
-<pre class="r"><code>df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  mutate(op_activity = op_activity %&gt;% fct_reorder(age)) %&gt;% 
-  ggplot(aes(age, op_activity)) + 
-  geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = &quot;Facility Age by Program&quot;,
-       x = &quot;Age&quot;,
-       y = &quot;Program&quot;)</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-18-1.png" width="960" /></p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-31-1.png" width="960" /></p>
 <p><br><br></p>
-<pre class="r"><code>region_age &lt;- df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  group_by(region) %&gt;% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) 
-# %&gt;% 
-#   gt() %&gt;% 
-#   tab_header(title = &quot;Exlploring Facility Age by Region&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-region_age</code></pre>
 <pre><code>## # A tibble: 6 x 7
 ##   region  avg_age median_age sd_age max_age min_age range_age
 ##   &lt;chr&gt;     &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
@@ -1037,68 +4029,43 @@ region_age</code></pre>
 ## 5 NONE         38         37     28      98       3        95
 ## 6 SLTI         40         33     28     100       5        95</code></pre>
 <p><br><br></p>
-<pre class="r"><code>df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  mutate(region = region %&gt;% fct_reorder(age)) %&gt;% 
-  ggplot(aes(age, region)) + 
-  geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = &quot;Facility Age by Region&quot;,
-       x = &quot;Age&quot;,
-       y = &quot;Region&quot;)</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-20-1.png" width="960" /></p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-33-1.png" width="960" /></p>
 <p><br><br></p>
-<pre class="r"><code>installation_age &lt;- df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  group_by(installation) %&gt;% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age)
-# %&gt;% 
-#   gt() %&gt;% 
-#   tab_header(title = &quot;Exlploring Facility Age by Installation&quot;) %&gt;% 
-#   cols_align(align = c(&quot;center&quot;))
-
-installation_age</code></pre>
-<pre><code>## # A tibble: 27 x 7
-##    installation              avg_age median_age sd_age max_age min_age range_age
-##    &lt;chr&gt;                       &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
-##  1 M00146 MCAS CHERRY POINT~      39         34     24      79       5        74
-##  2 M00243 MARCORPRCUITDEP S~      59         70     33     100       5        95
-##  3 M00263 MCRD BEAUFORT PI ~      43         42     28     121       3       118
-##  4 M00264 MARINE CORPS BASE~      45         42     27     103       6        97
-##  5 M00318 MCB HAWAII KANEOHE      48         47     24      80       6        74
-##  6 M00681 MCB CAMP PENDLETO~      27         19     20      79       4        75
-##  7 M09036 CAMP ALLEN              37         37     18      76      12        64
-##  8 M20810 CAMP MUJUK REPUBL~      16         17      2      17      11         6
-##  9 M60169 MCAS BEAUFORT SC        31         25     20      78       4        74
-## 10 M62204 MCLB BARSTOW CA         35         26     21      79       6        73
-## # ... with 17 more rows</code></pre>
+<pre><code>## # A tibble: 26 x 7
+##    installation      avg_age median_age sd_age max_age min_age range_age
+##    &lt;chr&gt;               &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;
+##  1 Camp Elmore            37         37     18      76      12        64
+##  2 Camp Mujuk             16         17      2      17      11         6
+##  3 Garden City            98         98      0      98      98         0
+##  4 Kansas City            54         57      6      59      47        12
+##  5 MARFORRES              26         10     29      80       3        77
+##  6 MBW (8th &amp; I)          42         17     37     113      17        96
+##  7 MCAGCC 29 Palms        32         31     21      68       5        63
+##  8 MCAS Beaufort          31         25     20      78       4        74
+##  9 MCAS Cherry Point      39         34     24      79       5        74
+## 10 MCAS Futenma           47         52     15      62      17        45
+## # ... with 16 more rows</code></pre>
 <p><br><br></p>
-<pre class="r"><code>df_final %&gt;% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %&gt;% as.numeric()) %&gt;% 
-  filter(!is.na(build_dt)) %&gt;% 
-  mutate(installation = installation %&gt;% fct_reorder(age)) %&gt;% 
-  ggplot(aes(age, installation)) + 
-  geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = &quot;Facility Age by Installation&quot;,
-       x = &quot;Age&quot;,
-       y = &quot;Installation&quot;)</code></pre>
-<p><img src="Facilities_files/figure-html/unnamed-chunk-22-1.png" width="960" /></p>
+<p><img src="Facilities_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
+</div>
+</div>
+</div>
+<div id="data-dictionary" class="section level2">
+<h2>Data Dictionary</h2>
+<p><strong>Region:</strong> Installations grouped within their perspective geographical region. There is a total of 5 regions (MCIWEST, MCIEAST, MCIPAC, MCINCR, SLTI) The following locations are not associated with a region in the data set:</p>
+<ol style="list-style-type: decimal">
+<li><p>Garden City</p></li>
+<li><p>Camp Elmore</p></li>
+<li><p>Kansas City</p></li>
+<li><p>MARFORRES</p></li>
+<li><p>4th MARDIV</p></li>
+</ol>
+<p><strong>Installation:</strong> The name of the installation MCCS services are provided. Installation is derived from the MCCS Installation Name column in iNFADS.</p>
+<p><strong>RPUID:</strong> iNFADS Real Property Unique Identifier (Primary Key to connect facilities with utilization).</p>
+<hr />
+<p><a href="https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EY2pByxnvI5AkBjH0x53k4EB5TkkKThKs7aqM1JOGzB_9w?e=UgoQrB">MCCS Category Codes Worksheet</a></p>
+<p><strong>use_code:</strong> A five or six-digit code used by the Military Departments and WHS that represents a specific type of facility. Each CATCODE is mapped to a specific FAC (Facility Analysis Category), to include use of the unit of measure assigned to that FAC.</p>
+<p><strong>use_desc:</strong> The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property Replacement for NAVFAC P72. <a href="https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n">source</a></p>
 </div>
 </div>
 
@@ -1137,11 +4104,6 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("show" === "show");
-});
-</script>
 
 <script>
 $(document).ready(function ()  {
@@ -1156,7 +4118,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {

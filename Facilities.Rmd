@@ -1,6 +1,5 @@
 ---
 title: "MCCS Facilities Exploratory Analysis" 
-date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   html_document:
     theme: flatly
@@ -15,6 +14,38 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE, echo=FALSE)
 ```
+
+```{css, echo=FALSE}
+
+h1 {
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 22px;
+    text-align: center;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+h5 {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+```
+
 
 ```{r}
 
@@ -58,11 +89,11 @@ utl <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Dat
 fac <- fac %>%
   janitor::clean_names() %>%
   separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
-  separate(i_nfads_predominant_current_use_category_code, c("usecode", "usedesc"), sep = 6) %>%
+  separate(i_nfads_predominant_current_use_category_code, c("usecode", "fac_usedesc"), sep = 6) %>%
   select(
     RPUID = i_nfads_real_property_unique_id,
     usecode,
-    usedesc,
+    fac_usedesc,
     installation,
     prv = i_nfads_current_prv,
     fci = i_nfads_facility_condition_index,
@@ -139,7 +170,8 @@ utl <- utl %>%
     iadq_alt = i_nfads_iadq_alternate_measure,
     adq_other = i_nfads_adq_other_measure,
     sub_other = i_nfads_sub_other_measure,
-    iadq_other = i_nfads_iadq_other_measure
+    iadq_other = i_nfads_iadq_other_measure,
+    other_unit_measure = i_nfads_other_unit_meas
   ) %>%
   separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
   mutate(use_code = use_code %>% as.numeric()) %>%
@@ -245,19 +277,29 @@ df_clean <- fac_mapped %>%
 
 
 df_final <- df_clean %>%
-  select(region, installation = installation.x, RPUID, use_code, use_desc, usedesc, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, fac_usedesc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, other_unit_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
 
 write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/df_finalv3.xlsx")
 
 
 ```
-<br><br>
+<br>
 
-# Exploring Costs
+# Exploring Costs 
+
+---
 
 ## Costs by Category
 
+<center>
+Facility Sustainment, Restoration and Modernization (FSRM)
+</center>
+
+<br>
+
 ```{r}
+
+# Category FSRM ----
 category <- df_final %>%
   group_by(naf_cat) %>%
   summarise(
@@ -324,12 +366,19 @@ category <- df_final %>%
 
 category
 
+
 ```
-<br><br>
+<br>
+
+---
 
 ## Costs by Region
 
+<br>
+
 ```{r}
+# Region FSRM ----
+
 region <- df_final %>%
   group_by(region) %>%
   summarise(
@@ -392,11 +441,17 @@ region <- df_final %>%
 
 region
 ```
-<br><br>
+<br>
+
+---
 
 ## Costs by Program
 
+<br>
+
 ```{r}
+
+# Program FSRM ----
 
 program <- df_final %>%
   group_by(op_activity) %>%
@@ -456,94 +511,203 @@ program <- df_final %>%
 
 program
 
+sqft_total <- df_final %>%
+  summarise(total = (sum(total_measure))) %>% 
+  mutate(total = total %>% scales::number(big.mark = ","))
+
 ```
-<br><br>
+<br>
 
-# Exploring Square Footage
+---
 
-<br><br>
+## Use Category Top 10
+
+
+*Facility Type Code* — The Facility Type Code determines the category code of the facility. The code ranges from category I to category IV and is tied to the DoD FAC Code. Each Category Code has an accompanying category use description. 
+
+
+<br>
+
+```{r}
+# Use Category Helper ----
+
+num_use_desc <-  df_final %>% 
+  distinct(use_desc) %>% 
+  count()
+
+use_desc_total <- df_final %>% 
+  group_by(use_desc) %>% 
+  summarise(total_sus = sum(sus),
+            total_rm = sum(RM_corrected),
+            total = total_sus + total_rm) %>% 
+  arrange(desc(total)) %>% 
+  ungroup() %>% 
+  mutate(pct = total / sum(total)) %>% 
+  mutate(use_desc = use_desc %>% fct_reorder(pct)) %>% 
+  head(10) %>% 
+  summarise(total = sum(pct)) %>% 
+  mutate(total = total %>% scales::percent())
+
+```
+
+
+There are a total of **`r num_use_desc`** distinct use categories within data set. The top 10 use category descriptions account for over **`r use_desc_total`** of the total costs in the MCCS portfolio. 
+
+
+
+```{r}
+# Use Category ----
+
+top_10_use_categroy <- df_final %>% 
+  group_by(use_desc) %>% 
+  summarise(total_sus = sum(sus),
+            total_rm = sum(RM_corrected),
+            total = total_sus + total_rm) %>% 
+  mutate(use_desc = use_desc %>% fct_reorder(total)) %>% 
+  arrange(desc(total)) %>% 
+  head(10) %>% 
+  gt() %>% 
+   tab_header(
+  title = md("Top 10 most expensive iNFADS Use Category"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD", 
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Based on total FSRM costs", 
+    locations = cells_title(groups = "title")
+) %>% 
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric)", 
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+) %>% 
+  tab_footnote(
+    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    locations = cells_column_labels(
+      columns = total_sus)
+) %>% 
+    tab_footnote(
+    footnote = "Nominal dollars", 
+    locations = cells_title(groups = "title")
+) %>% 
+    tab_footnote(
+    footnote = str_glue("There are {num_use_desc} use categories in dataset"), 
+    locations = cells_title(groups = "title")
+) %>%
+  grand_summary_rows(
+  columns = c(total_sus, total_rm, total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "FSRM",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    use_desc = "Use Category",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+
+top_10_use_categroy
+
+
+# df_final %>% 
+#   select(use_desc, naf_cat) %>% 
+#   group_by(use_desc, naf_cat) %>% 
+#   count() %>% 
+#   ungroup() %>% 
+#   mutate(pct = n / sum(n)) %>% 
+#   arrange(desc(pct)) %>% 
+#   head(10) %>% 
+#   janitor::adorn_totals()
+  
+
+
+```
+
+<br>
+
+---
+
+# Exploring SqFt Utilization
+
+
+Total utilization of MCCS according to iNFADS is **`r sqft_total`** square feet (Total Measure = adq + iadq + sub).
+
+<br>
+Note: Utilization such as athletic fields, outdoor playing courts(basketball, volleyball, etc), playgrounds and Marina/Boat Ramp's are typically not included in total measure of square foot utilization)
+
+Note: The trends are based on MCCS existing utilization by build date. 
+
+<br>
+
+## Trends
+
+<br>
+
+##### What is the trend of sqft additions by Program?
+
+
+
+Exchange Operations, Children and Youth and Semper Fit programs have been adding additional square footage utilization throughout the 2000 and 2010 decades (2000 - 2019). Additionally, Clubs, Commercial Recreation and less so in Lodging from the 2000 to the 2010 have slowed adding additional square footage within their programs. While Food and Beverage (Direct) and Other Business Operations have remained relatively flat. 
+
+
+
+<br>
 ```{r, fig.width = 10, fig.height=5}
+
+# Program Decade Sqft ----
 program_decade_sqft <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade, op_activity) %>%
   summarise(total = sum(total_measure)) %>%
+  ungroup() %>% 
   filter(!is.na(decade)) %>% 
   ggplot(aes(decade, total)) +
   geom_line() +
+  # geom_abline() +
   geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~op_activity, scales = "free_y") +
+  facet_wrap(~op_activity, scales = "free_x") +
   theme_tq() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank()
+  ) +
   scale_y_continuous(labels = scales::number) +
+  scale_x_continuous(breaks = c(1910,1930,1950,1970,1990,2010)) +
   labs(
     y = "Total Measure (SqFt)",
     x = "Decade",
-    title = "What is the trend of sqft additions by Program?",
-    subtitle = "Decade is based on iNFADS facility build date*",
-    caption = "*Build dates are grouped by decade (ex. 2010-2019) is decade 2010"
+    caption = "*Build dates are grouped by decade (ex. 2010-2019) represents decade 2010.
+                Decade is based on iNFADS facility build date"
   )
 
 program_decade_sqft
-```
-<br><br>
-
-```{r, fig.width = 10, fig.height=5}
-program_year_sqft <- df_final %>%
-  mutate(year = floor_date(build_dt, years(1)) %>% year()) %>%
-  group_by(year, op_activity) %>%
-  filter(year >= 1980, year <= 2020) %>%
-  summarise(total = sum(total_measure)) %>%
-  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
-  ggplot(aes(year, total)) +
-  geom_col() +
-  geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~op_activity, scales = "free") +
-  theme_tq() +
-  scale_y_continuous(labels = scales::number) +
-  # scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020)) +
-  labs(
-    y = "Total Measure (SqFt)",
-    x = "Year",
-    title = "What is the sqft added each year by Program?",
-    subtitle = "Year is based on build date of facility"
-  )
-
-program_year_sqft
-```
-<br><br>
-
-```{r, fig.width = 10, fig.height=5}
-region_year_sqft <- df_final %>%
-  mutate(year = floor_date(build_dt, years(1)) %>% year()) %>%
-  group_by(year, region) %>%
-  filter(year >= 1980, year <= 2020) %>%
-  summarise(total = sum(total_measure)) %>%
-  filter(region != "NONE") %>%
-  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
-  ggplot(aes(year, total)) +
-  geom_col() +
-  geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~region, scales = "free") +
-  theme_tq() +
-  scale_y_continuous(labels = scales::number) +
-  # scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020)) +
-  labs(
-    y = "Total Measure (SqFt)",
-    x = "Year",
-    title = "What is the total measure of sqft by Region in a given year?",
-    subtitle = "Year is based on build date of facility"
-  )
-
-region_year_sqft
 
 ```
-<br><br>
+<br>
+
+##### Additional Square Footage by Decade
+
 
 ```{r, fig.width = 10, fig.height=5}
+# Sq by Decade----
 
 scale <- seq(1900, 2020, by = 10)
 
 
-df_final %>%
+ Sqft_by_decade <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade) %>%
   summarise(sqft = sum(total_measure)) %>%
@@ -553,16 +717,30 @@ df_final %>%
   ggplot(aes(decade, sqft)) +
   geom_col(fill = "#2c3e50") +
   scale_x_continuous(breaks = scale) +
-  theme_clean() +
-  labs(
-    title = "New Square Footage by Decade",
-    subtitle = "Based on Facilities Build Date",
-    y = "SQFT",
-    x = "Decade"
+  theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(y = "SQFT",
+    x = "Decade",
+    caption = "Note: Decade 2020 only includes data from Jan 2020 to Jun 2021"
   )
+ 
+Sqft_by_decade
 
+```
 
-df_final %>%
+<br>
+
+##### Cumulative New Sqare Footage by Decade
+
+```{r, fig.width = 10, fig.height=5}
+# Sqft Cumulative ----
+sq_cumulative <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade) %>%
   summarise(sqft = sum(total_measure)) %>%
@@ -575,77 +753,632 @@ df_final %>%
   geom_area(fill = "#2c3e50") +
   scale_x_continuous(breaks = scale) +
   scale_y_continuous(labels = scales::number_format()) +
-  theme_clean() +
-  labs(
-    title = "Cumulative New Square Footage",
-    subtitle = "Based on Facilities Build Date",
-    y = "SQFT",
+    theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(y = "SQFT",
     x = "Decade"
   )
 
+sq_cumulative
+
 ```
 
-<br><br>
+<br>
 
-```{r, fig.width = 10, fig.height=5}
+---
 
-total_sq_by_region <- df_final %>%
-  group_by(region) %>%
-  summarise(total_sqft = sum(total_measure)) %>% 
-  arrange(desc(total_sqft)) %>% 
-  mutate(region = region %>% fct_reorder(total_sqft)) %>% 
-  ggplot(aes(region, total_sqft)) +
+## Percent of Total
+
+<br>
+
+##### What is the percent of total square foot by Category?
+
+```{r}
+pct_c_sqft <- df_final %>%
+  group_by(naf_cat) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         naf_cat = naf_cat %>% fct_reorder(pct)) %>% 
+  arrange(naf_cat) %>% 
+  ungroup() %>% 
+  filter(naf_cat == "C") %>% 
+  summarise(pct = sum(pct)) %>% 
+  mutate(pct = pct %>% scales::percent())
+```
+
+Cateory C accounts for **`r pct_c_sqft`** of MCCS total utilization. 
+
+<br>
+```{r, fig.width = 10, fig.height=3}
+
+naf_cat_sqft_pct_total <- df_final %>%
+  group_by(naf_cat) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         naf_cat = naf_cat %>% fct_reorder(pct)) %>% 
+  arrange(naf_cat) %>% 
+  ungroup() %>% 
+  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
+  ggplot(aes(pct, naf_cat)) +
   geom_col(fill = "#2c3e50") +
-  coord_flip() +
-  theme_clean() +
-  scale_y_continuous(labels = scales::number) +
+  # geom_smooth(method = "lm", se = FALSE) +
+    theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  scale_x_continuous(labels = scales::percent) +
   labs(
-    title = "Total Square Footage by Region",
-    y = "Total SqFt",
-    x = "Region"
+    y = "",
+    x = "Precent of Total (SqFt)"
   )
 
-total_sq_by_region
+naf_cat_sqft_pct_total
+
+```
+<br>
+<br>
+
+##### What is the FSRM cost per square foot by Category?
+
+<br>
+```{r}
+avg_sqft_cat <- df_final %>% 
+  mutate(total = RM_corrected + sus) %>% 
+  group_by(naf_cat) %>% 
+  summarise(total = sum(total),
+            total_sqft = sum(total_measure)) %>% 
+  mutate(avg_fsrm_cost = total / total_sqft,
+         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
+  arrange(naf_cat) %>% 
+  mutate(naf_cat = naf_cat %>% fct_reorder(avg_fsrm_cost)) %>% 
+  select(naf_cat, total, total_sqft, avg_fsrm_cost) %>% 
+  gt() %>% 
+   tab_header(
+  title = md("FSRM SqFt Costs by Category"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(avg_fsrm_cost),
+    currency = "USD", 
+    decimals = 2
+) %>% 
+  fmt_number(
+    columns = c(total, total_sqft),
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_column_labels(columns = total)
+) %>% 
+  grand_summary_rows(
+  columns = c(total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+   grand_summary_rows(
+  columns = c(total_sqft),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_number,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    naf_cat = "Category",
+    total = "Total FSRM",
+    total_sqft = "Total SqFt",
+    avg_fsrm_cost = "Cost Per SqFT"
+  )
+
+avg_sqft_cat
+```
+
+
+<br>
+
+##### What is percent of total square foot by Program?
+
+```{r}
+# Program Helper SqFt ----
+top_3_program_names <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         op_activity = op_activity %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  head(3) %>% 
+  pull(op_activity)
+
+
+top_3_programs_pct <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         op_activity = op_activity %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  head(3) %>% 
+  summarise(total = sum(pct)) %>% 
+  mutate(total = total %>% scales::percent(accuracy = 2))
+  
+
 
 ```
 
-<br><br>
+```{r}
+# fb_direct sqft helper ----
+fb_direct_pct <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         op_activity = op_activity %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  filter(op_activity == "Food & Beverage (Direct)") %>% 
+  summarise(pct = sum(pct)) %>% 
+  mutate(pct = pct %>% scales::percent())
+
+fb_direct_fsrm <-  df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>% 
+  filter(op_activity == "Food & Beverage (Direct)") %>% 
+   summarise(total = sum(total)) %>% 
+   mutate(total = total %>% scales::dollar(big.mark = ","))
+
+fb_direct_rank <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>% 
+  mutate(rank = dense_rank(desc(total))) %>% 
+    filter(op_activity == "Food & Beverage (Direct)") %>% 
+   summarise(total = sum(rank))
+
+
+fb_direct_pct_fsrm <-  df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>% 
+  ungroup() %>% 
+  mutate(pct = total / sum(total)) %>% 
+ filter(op_activity == "Food & Beverage (Direct)") %>% 
+ summarise(pct = sum(pct)) %>% 
+ mutate(pct = pct %>% scales::percent())
+
+
+```
+**`r top_3_program_names`** account for roughly **`r top_3_programs_pct`** of MCCS total square foot utilization.
+
+While Food & Beverage (Direct) only accounts for just over **`r fb_direct_pct`** of the total MCCS sqft utilization it ranks number **`r fb_direct_rank`** in total FSRM costs at a total cost of **`r fb_direct_fsrm`** or **`r fb_direct_pct_fsrm`** of all FSRM costs. 
+
+```{r, fig.width = 10, fig.height=5}
+# Program SqFt Pct----
+
+
+program_sqft_pct <-  df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         op_activity = op_activity %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  ungroup() %>% 
+  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
+  ggplot(aes(pct, op_activity)) +
+  geom_col(fill = "#2c3e50") +
+  # geom_smooth(method = "lm", se = FALSE) +
+    theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    y = "",
+    x = "Precent of Total (SqFt)"
+  )
+
+program_sqft_pct
+
+```
+<br>
+<br>
+
+##### What is the average cost per square foot by Program?
+
+
+```{r}
+
+# Avg Costs per Sqft Helper ----
+avg_cost_program <- df_final %>% 
+  mutate(total = RM_corrected + sus) %>% 
+  group_by(op_activity) %>% 
+  summarise(total = sum(total),
+            total_sqft = sum(total_measure)) %>% 
+  mutate(avg_fsrm_cost = total / total_sqft,
+         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
+  arrange(desc(avg_fsrm_cost)) %>% 
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
+     summarise(avg = mean(avg_fsrm_cost)) %>% 
+    mutate(avg = avg %>% scales::dollar())  
+  
+  
+  
+avg_cost_minus_fb <- df_final %>% 
+  mutate(total = RM_corrected + sus) %>% 
+  group_by(op_activity) %>% 
+  summarise(total = sum(total),
+            total_sqft = sum(total_measure)) %>% 
+  mutate(avg_fsrm_cost = total / total_sqft,
+         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
+  arrange(desc(avg_fsrm_cost)) %>% 
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
+     filter(op_activity != "Food & Beverage (Direct)") %>% 
+     summarise(avg = mean(avg_fsrm_cost)) %>% 
+    mutate(avg = avg %>% scales::dollar())
+
+  
+```
+
+The cost per sqft by program is **`r avg_cost_program`**
+
+The cost per sqft by program, excluding Food and Beverage (Direct) is **`r avg_cost_minus_fb`**
+
+Food and Beverage (Direct) costs 2.7x more than the next most expensive cost per square foot. 
+
+<br>
+
+```{r}
+
+# Avg Cost Per SqFt by Prorgam----
+avg_cost_sqft_program <- df_final %>% 
+  mutate(total = RM_corrected + sus) %>% 
+  group_by(op_activity) %>% 
+  summarise(total = sum(total),
+            total_sqft = sum(total_measure)) %>% 
+  mutate(avg_fsrm_cost = total / total_sqft,
+         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
+  arrange(desc(avg_fsrm_cost)) %>% 
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
+  gt() %>% 
+   tab_header(
+  title = md("FSRM SqFt Costs by Program"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(avg_fsrm_cost),
+    currency = "USD", 
+    decimals = 2
+) %>% 
+  fmt_number(
+    columns = c(total, total_sqft),
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_column_labels(columns = total)
+) %>% 
+  grand_summary_rows(
+  columns = c(total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+   grand_summary_rows(
+  columns = c(total_sqft),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_number,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    op_activity = "Program",
+    total = "Total FSRM",
+    total_sqft = "Total SqFt",
+    avg_fsrm_cost = "Cost Per SqFT"
+  )
+
+  avg_cost_sqft_program 
+  
+  
+
+```
+
+
+<br>
+<br>
+
+##### What is the percent of total sqft by Region?
+
+```{r}
+# Region SqFt Top 3 Helpers ----
+top_3_region <- df_final %>%
+  group_by(region) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         region = region %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  head(3) %>% 
+  summarise(total = sum(pct)) %>% 
+  mutate(total = total %>% scales::percent(accuracy = 2))
+
+top_3_region_names <- df_final %>%
+  group_by(region) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         region = region %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  head(3) %>% 
+  pull(region)
+
+
+```
+
+
+**`r top_3_region_names`** account for over **`r top_3_region`** of the total MCCS square feet utilization. 
 
 
 ```{r, fig.width = 10, fig.height=5}
-total_sq_by_installation <- df_final %>%
-  group_by(installation) %>%
-  summarise(total_sqft = sum(total_measure)) %>% 
-  arrange(desc(total_sqft)) %>% 
-  mutate(installation = installation %>% fct_reorder(total_sqft)) %>% 
-  ggplot(aes(installation, total_sqft)) + 
+
+# region_sqft Pct ----
+
+region_sqft_pct <-  df_final %>%
+  group_by(region) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         region = region %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  ungroup() %>% 
+  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
+  ggplot(aes(pct, region)) +
   geom_col(fill = "#2c3e50") +
-  coord_flip() +
-  theme_clean() +
-   labs(
-    title = "Total Square Footage by Installation",
-    y = "Total SQFT",
-    x = "Installation"
+  # geom_smooth(method = "lm", se = FALSE) +
+   theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    y = "",
+    x = "Precent of Total (SqFt)"
   )
 
-# %>% 
-#   gt() %>% 
-#   tab_header(title = "Total Sqaure Foot by Instllation") %>% 
-#   fmt_number(columns = 2 ,
-#              decimals = 0,
-#              sep_mark = ",",
-#              use_seps = TRUE)
+region_sqft_pct
 
-total_sq_by_installation
+```
+<br>
+<br>
+
+##### What is the average costs per squre foot by Region? 
+
+Locations without a Region have a substainally greater costs for FSRM per squre foot. 
+
+
+```{r}
+cost_sqft_region <- df_final %>% 
+  mutate(total = RM_corrected + sus) %>% 
+  group_by(region) %>% 
+  summarise(total = sum(total),
+            total_sqft = sum(total_measure)) %>% 
+  mutate(avg_fsrm_cost = total / total_sqft,
+         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
+  arrange(desc(avg_fsrm_cost)) %>% 
+  mutate(region = region %>% fct_reorder(avg_fsrm_cost)) %>% 
+  select(region, total, total_sqft, avg_fsrm_cost) %>% 
+  gt() %>% 
+   tab_header(
+  title = md("FSRM SqFt Costs by Region"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_currency(
+    columns = c(avg_fsrm_cost),
+    currency = "USD", 
+    decimals = 2
+) %>% 
+  fmt_number(
+    columns = c(total, total_sqft),
+    decimals = 0
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic", 
+    locations = cells_column_labels(columns = total)
+) %>% 
+  grand_summary_rows(
+  columns = c(total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_currency,
+  decimals = 0
+  ) %>% 
+   grand_summary_rows(
+  columns = c(total_sqft),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "",
+  formatter = fmt_number,
+  decimals = 0
+  ) %>% 
+  cols_label(
+    region = "Region",
+    total = "Total FSRM",
+    total_sqft = "Total SqFt",
+    avg_fsrm_cost = "Cost Per SqFT"
+  )
+
+
+cost_sqft_region
 
 ```
 
-<br><br>
+<br>
+<br>
 
+##### What is the percent of total sqft by Installation? 
+
+
+Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the total square footage of MCCS, though it should be noted that MCB Butler comes in a close 3rd. The below chart highlights the top 10 installation that account for over 83% of MCCS total infrastructure. 
+
+
+```{r}
+# Installation Sqt Top 10 Table ----
+
+installation_sqft_pct_table <- df_final %>%
+  group_by(installation) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         installation = installation %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  head(10) %>% 
+  gt()  %>% 
+  tab_header(
+  title = md("Top 10 Installations based on total sqaure feet of facilities aboard the Installation"),
+  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+) %>% 
+  fmt_number(
+    columns = c(total),
+    decimals = 0
+) %>%
+  fmt_percent(
+    columns = c(pct),
+    decimals = 1
+) %>% 
+  cols_align(
+  align = c("left"),
+  columns = everything()
+) %>% 
+  grand_summary_rows(
+  columns = c(total),
+  fns =  list(
+      Total = ~sum(.)),
+  missing_text = "SqFt",
+  decimals = 0
+) %>% 
+  grand_summary_rows(
+    columns = c(pct),
+    fns = list(
+      Total = ~sum(.)),
+    missing_text = "SqFt",
+    decimals = 2,
+    formatter = fmt_percent
+) %>% 
+  cols_label(
+    installation = "Installation",
+    total = "Total SqFt",
+    pct = "% of Total"
+  )
+
+installation_sqft_pct_table
+
+
+```
+
+<br>
+
+
+MCCS has facilities in 26 different locations. The below grpah breaks down the percent of total square foot utilization by each location. 
+
+
+```{r, fig.width = 10, fig.height=8}
+
+# Installation SqFt Percent ----
+installation_sqft_pct <-  df_final %>%
+  group_by(installation) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(pct = total / sum(total),
+         pct = pct %>% replace_na(0),
+         installation = installation %>% fct_reorder(pct)) %>% 
+  arrange(desc(pct)) %>% 
+  ungroup() %>% 
+  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
+  ggplot(aes(pct, installation)) +
+  geom_col(fill = "#2c3e50") +
+  # geom_smooth(method = "lm", se = FALSE) +
+   theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    y = "",
+    x = "Precent of Total (SqFt)"
+  )
+
+installation_sqft_pct
+
+
+```
+
+
+<br>
+
+---
 
 #### Exploring Q-Rating
 
-<br><br>
+<br>
+
 ```{r}
 
 q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
@@ -881,6 +1614,34 @@ df_final %>%
        y = "Installation")
   
 ```
+
+## Data Dictionary
+
+__Region:__ Installations grouped within their perspective geographical region. There is a total of 5 regions (MCIWEST, MCIEAST, MCIPAC, MCINCR, SLTI)
+The following locations are not associated with a region in the data set: 
+
+1. Garden City 
+
+2. Camp Elmore
+
+3. Kansas City
+
+4. MARFORRES
+
+5. 4th MARDIV
+
+__Installation:__ The name of the installation MCCS services are provided. Installation is derived from the MCCS Installation Name column in iNFADS. 
+
+__RPUID:__ iNFADS Real Property Unique Identifier (Primary Key to connect facilities with utilization). 
+
+---
+
+[MCCS Category Codes Worksheet](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EY2pByxnvI5AkBjH0x53k4EB5TkkKThKs7aqM1JOGzB_9w?e=UgoQrB)
+
+__use_code:__ A five or six-digit code used by the Military Departments and WHS that represents a specific type of facility. Each CATCODE is mapped to a specific FAC (Facility Analysis Category), to include use of the unit of measure assigned to that FAC. 
+
+__use_desc:__ The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property
+Replacement for NAVFAC P72. [source](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
 
 
 
