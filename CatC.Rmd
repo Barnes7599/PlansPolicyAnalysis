@@ -1,6 +1,6 @@
 ---
 title: "Category C Profit vs Utilization Report"
-date: "`r format(Sys.time(), '%d %B %Y')`"
+
 output:
   html_document:
     theme: flatly
