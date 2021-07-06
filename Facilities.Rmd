@@ -377,6 +377,7 @@ category
 
 <br>
 
+
 ```{r}
 # Region FSRM ----
 
@@ -778,7 +779,7 @@ sq_cumulative
 
 <br>
 
-##### What is the percent of total square foot by Category?
+##### What is the percent of total square foot utilization by Category?
 
 ```{r}
 pct_c_sqft <- df_final %>%
@@ -831,7 +832,7 @@ naf_cat_sqft_pct_total
 <br>
 <br>
 
-##### What is the FSRM cost per square foot by Category?
+##### What is the FSRM cost per square foot utilization by Category?
 
 <br>
 ```{r}
@@ -847,7 +848,7 @@ avg_sqft_cat <- df_final %>%
   select(naf_cat, total, total_sqft, avg_fsrm_cost) %>% 
   gt() %>% 
    tab_header(
-  title = md("FSRM SqFt Costs by Category"),
+  title = md("FSRM SqFt Utilization Costs by Category"),
   subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
 ) %>% 
   fmt_currency(
@@ -896,7 +897,7 @@ avg_sqft_cat
 
 <br>
 
-##### What is percent of total square foot by Program?
+##### What is percent of total square foot utilization by Program?
 
 ```{r}
 # Program Helper SqFt ----
@@ -1020,7 +1021,7 @@ program_sqft_pct
 <br>
 <br>
 
-##### What is the average cost per square foot by Program?
+##### What is the average cost per square foot utilization by Program?
 
 
 ```{r}
@@ -1081,7 +1082,7 @@ avg_cost_sqft_program <- df_final %>%
   select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
   gt() %>% 
    tab_header(
-  title = md("FSRM SqFt Costs by Program"),
+  title = md("FSRM SqFt Utilization Costs by Program"),
   subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
 ) %>% 
   fmt_currency(
@@ -1134,7 +1135,7 @@ avg_cost_sqft_program <- df_final %>%
 <br>
 <br>
 
-##### What is the percent of total sqft by Region?
+##### What is the percent of total sqft utilization by Region?
 
 ```{r}
 # Region SqFt Top 3 Helpers ----
@@ -1202,9 +1203,9 @@ region_sqft_pct
 <br>
 <br>
 
-##### What is the average costs per squre foot by Region? 
+##### What is the average costs per squre foot utilization by Region? 
 
-Locations without a Region have a substainally greater costs for FSRM per squre foot. 
+Locations without a Region have substainally greater costs for FSRM per squre foot utilization. 
 
 
 ```{r}
@@ -1220,7 +1221,7 @@ cost_sqft_region <- df_final %>%
   select(region, total, total_sqft, avg_fsrm_cost) %>% 
   gt() %>% 
    tab_header(
-  title = md("FSRM SqFt Costs by Region"),
+  title = md("FSRM SqFt Utilization Costs by Region"),
   subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
 ) %>% 
   fmt_currency(
@@ -1271,7 +1272,7 @@ cost_sqft_region
 <br>
 <br>
 
-##### What is the percent of total sqft by Installation? 
+##### What is the percent of total sqft utilization by Installation? 
 
 
 Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the total square footage of MCCS, though it should be noted that MCB Butler comes in a close 3rd. The below chart highlights the top 10 installation that account for over 83% of MCCS total infrastructure. 
@@ -1290,7 +1291,7 @@ installation_sqft_pct_table <- df_final %>%
   head(10) %>% 
   gt()  %>% 
   tab_header(
-  title = md("Top 10 Installations based on total sqaure feet of facilities aboard the Installation"),
+  title = md("Top 10 Installations based on total sqaure feet utilization aboard the Installation"),
   subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
 ) %>% 
   fmt_number(
