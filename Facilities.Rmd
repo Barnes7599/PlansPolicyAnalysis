@@ -637,6 +637,7 @@ top_10_use_categroy
 ```
 
 <br>
+## Program Costs Data Table
 
 ```{r}
 cost_by_Program_DT <- df_final %>%
