@@ -643,12 +643,12 @@ top_10_use_categroy
 cost_by_Program_DT <- df_final %>%
   mutate(count = 1) %>% 
   #mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
-  group_by(installation, naf_cat, op_activity, use_desc, asset_name) %>%
+  group_by(installation, naf_cat, op_activity, use_desc, facility_desc,asset_name) %>%
   summarise(Sustainment = sum(sus),
             R_M = sum(RM_corrected),
             Total = sum(RM_corrected, sus),
             count = sum(count)) %>% 
-  arrange(installation) %>% 
+  arrange(installation) %>% view()
   datatable(colnames = c("Installation", "Categroy", "Program", "Use Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
             options = list(
   initComplete = JS(
@@ -662,6 +662,7 @@ cost_by_Program_DT
 ```
 
 <br>
+
 ---
 
 # Exploring SqFt Utilization
