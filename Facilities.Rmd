@@ -633,13 +633,16 @@ top_10_use_categroy
 #   janitor::adorn_totals()
   
 
-
 ```
 
+---
+
 <br>
+
 ## Program Costs Data Table
 
 ```{r}
+
 cost_by_Program_DT <- df_final %>%
   mutate(count = 1) %>% 
   #mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
@@ -659,6 +662,7 @@ cost_by_Program_DT <- df_final %>%
   formatCurrency(c('Sustainment','R_M','Total'), digits = 0)
 
 cost_by_Program_DT
+
 ```
 
 <br>
@@ -684,9 +688,7 @@ Note: The trends are based on MCCS existing utilization by build date.
 ##### What is the trend of sqaure foot utilization by decade and Program?
 
 
-
 Exchange Operations, Children and Youth and Semper Fit programs have been adding additional square footage utilization throughout the 2000 and 2010 decades (2000 - 2019). Additionally, Clubs, Commercial Recreation and less so in Lodging from the 2000 to the 2010 have slowed adding additional square footage within their programs. While Food and Beverage (Direct) and Other Business Operations have remained relatively flat. 
-
 
 
 <br>
@@ -725,14 +727,13 @@ program_decade_sqft
 ```
 <br>
 
-##### Additional Square Footage by Decade
+##### Square Footage by Decade based on Facility Build Date
 
 
 ```{r, fig.width = 10, fig.height=5}
 # Sq by Decade----
 
 scale <- seq(1900, 2020, by = 10)
-
 
  Sqft_by_decade <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
@@ -763,7 +764,7 @@ Sqft_by_decade
 
 <br>
 
-##### Cumulative New Sqare Footage by Decade
+##### Cumulative Sqare Footage by Decade base on Facility Build Date
 
 ```{r, fig.width = 10, fig.height=5}
 # Sqft Cumulative ----
@@ -820,7 +821,7 @@ pct_c_sqft <- df_final %>%
   mutate(pct = pct %>% scales::percent())
 ```
 
-Cateory C accounts for **`r pct_c_sqft`** of MCCS total utilization. 
+Category C accounts for **`r pct_c_sqft`** of MCCS total utilization. 
 
 <br>
 ```{r, fig.width = 10, fig.height=3}
@@ -1046,7 +1047,7 @@ program_sqft_pct
 <br>
 <br>
 
-##### What is the average cost per square foot utilization by Program?
+##### What is the FSRM cost per square foot utilization by Program?
 
 
 ```{r}
@@ -1154,8 +1155,8 @@ avg_cost_sqft_program <- df_final %>%
   
   
 
+  
 ```
-
 
 <br>
 <br>
@@ -1184,6 +1185,7 @@ top_3_region_names <- df_final %>%
   arrange(desc(pct)) %>% 
   head(3) %>% 
   pull(region)
+
 
 
 ```
@@ -1224,13 +1226,14 @@ region_sqft_pct <-  df_final %>%
 
 region_sqft_pct
 
+
 ```
 <br>
 <br>
 
-##### What is the average costs per squre foot utilization by Region? 
+##### What is the FSRM costs per squre foot utilization by Region? 
 
-Locations without a Region have substainally greater costs for FSRM per squre foot utilization. 
+Locations without a Region have substantially greater costs for FSRM per square foot utilization. 
 
 
 ```{r}
@@ -1360,7 +1363,7 @@ installation_sqft_pct_table
 <br>
 
 
-MCCS has facilities in 26 different locations. The below grpah breaks down the percent of total square foot utilization by each location. 
+MCCS has facilities in 26 different locations. The below graph breaks down the percent of total square foot utilization by each location. 
 
 
 ```{r, fig.width = 10, fig.height=8}
