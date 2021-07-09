@@ -1413,7 +1413,7 @@ installation_sqft_pct
 
 # Exploring Q-Rating
 
-Use the *Search:* box to sort or filter information in each table below. 
+<br>
 
 ## Program
 
@@ -1440,6 +1440,7 @@ utl_q4 <- q_group %>%
 
 ```
 
+<br>
 
 ##### Q-Rating by Program and Categroy (based on facility)
 
@@ -1454,6 +1455,9 @@ Number of **facilities** by Q-Rating
 
 -Q4: `r utl_q4`
 
+<br>
+
+Use the *Search:* box to sort or filter information in each table below. 
 
 <br>
 
