@@ -13,7 +13,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE, echo=FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE, echo = FALSE)
 ```
 
 ```{css, echo=FALSE}
@@ -192,20 +192,23 @@ utl <- utl %>%
     iadq_alt = iadq_alt %>% replace_na(0),
     FY2022 = FY2022 %>% replace_na(0)
   ) %>%
-  mutate(total_measure = adq + sub + iadq,
-         alt_total_measure = adq_alt + sub_alt + iadq_alt,
-         other_total_measure = adq_other + sub_other + iadq_other) %>%
+  mutate(
+    total_measure = adq + sub + iadq,
+    alt_total_measure = adq_alt + sub_alt + iadq_alt,
+    other_total_measure = adq_other + sub_other + iadq_other
+  ) %>%
   group_by(RPUID) %>%
-
-  mutate(use_pct_area = total_measure / sum(total_measure),
-         use_pct_other = other_total_measure / sum(other_total_measure),
-         use_pct_alt = alt_total_measure / sum(alt_total_measure),
-         use_pct_area = use_pct_area %>% replace_na(0),
-         use_pct_alt = use_pct_alt %>% replace_na(0),
-         use_pct_other = use_pct_other %>% replace_na(0)) %>%
-  
-  mutate(fac_use_pct = if_else(use_pct_area > 0, use_pct_area, 
-                               if_else(use_pct_alt > 0, use_pct_alt, use_pct_other))) %>% 
+  mutate(
+    use_pct_area = total_measure / sum(total_measure),
+    use_pct_other = other_total_measure / sum(other_total_measure),
+    use_pct_alt = alt_total_measure / sum(alt_total_measure),
+    use_pct_area = use_pct_area %>% replace_na(0),
+    use_pct_alt = use_pct_alt %>% replace_na(0),
+    use_pct_other = use_pct_other %>% replace_na(0)
+  ) %>%
+  mutate(fac_use_pct = if_else(use_pct_area > 0, use_pct_area,
+    if_else(use_pct_alt > 0, use_pct_alt, use_pct_other)
+  )) %>%
   ungroup() %>%
   mutate(region = case_when(
     installation %in% c(
@@ -251,17 +254,17 @@ utl <- utl %>%
   mutate(RPUID = RPUID %>% as.character())
 
 fac_mapped <- utl %>%
-  inner_join(cat_codes, by = c("use_code" = "use_code")) 
- 
+  inner_join(cat_codes, by = c("use_code" = "use_code"))
+
 
 fac_mapped <- fac_mapped %>%
-  left_join(fac, by = "RPUID") %>% 
+  left_join(fac, by = "RPUID") %>%
   filter(naf_cat %in% c("A", "B", "C", "L"))
 
 # RPUID_count <- fac_mapped %>%
 #   group_by(RPUID) %>%
 #   count(RPUID)
-# 
+#
 # fac_mapped <- fac_mapped %>%
 #   inner_join((RPUID_count))
 
@@ -272,15 +275,14 @@ df_clean <- fac_mapped %>%
     sus = sus %>% replace_na(0)
   ) %>%
   mutate(
-    RM_corrected = RM * fac_use_pct) 
+    RM_corrected = RM * fac_use_pct
+  )
 
 
 df_final <- df_clean %>%
   select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, fac_usedesc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, other_unit_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
 
 write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/df_finalv3.xlsx")
-
-
 ```
 
 <br>
@@ -322,65 +324,66 @@ category <- df_final %>%
     total = sum(sus) + sum(RM_corrected)
   ) %>%
   arrange(naf_cat) %>%
-  gt() %>% 
-   tab_header(
-  title = md("*Annual* MCCS FSRM Costs by Category"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+  gt() %>%
+  tab_header(
+    title = md("*Annual* MCCS FSRM Costs by Category"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
-    currency = "USD", 
+    currency = "USD",
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_title(groups = "title")
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)", 
+    footnote = "2.5% of PRV (MCICOM Metric)",
     locations = cells_column_labels(
       columns = total_rm
     )
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "Cat c - 2x iNFADS FYDP average annual sustainment costs", 
+    footnote = "Cat c - 2x iNFADS FYDP average annual sustainment costs",
     locations = cells_column_labels(
-      columns = total_sus)
-) %>% 
-    tab_footnote(
-    footnote = "Nominal dollars", 
-    locations = cells_title(groups = "title")
-)  %>% 
+      columns = total_sus
+    )
+  ) %>%
   tab_footnote(
-    footnote = "Category L= Lodging", 
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "Category L= Lodging",
     locations = cells_body(
       columns = naf_cat,
-      rows = 4)
-) %>%
+      rows = 4
+    )
+  ) %>%
   grand_summary_rows(
-  columns = c(total_sus, total_rm, total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "FSRM",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
   cols_label(
     naf_cat = "Categroy",
     total_sus = "Sustainment",
     total_rm = "R & M",
     total = "Total"
   )
-  
-  
+
+
 
 category
-
-
 ```
 <br>
 
@@ -402,51 +405,53 @@ region <- df_final %>%
     total = sum(sus) + sum(RM_corrected)
   ) %>%
   arrange(desc(total)) %>%
-  gt() %>% 
-   tab_header(
-  title = md("*Annual* MCCS FSRM Costs by Region"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+  gt() %>%
+  tab_header(
+    title = md("*Annual* MCCS FSRM Costs by Region"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
-    currency = "USD", 
+    currency = "USD",
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_title(groups = "title")
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)", 
+    footnote = "2.5% of PRV (MCICOM Metric)",
     locations = cells_column_labels(
       columns = total_rm
     )
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    footnote = "2x iNFADS FYDP average annual sustainment costs",
     locations = cells_column_labels(
-      columns = total_sus)
-) %>% 
-    tab_footnote(
-    footnote = "Nominal dollars", 
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
-) %>% 
+  ) %>%
   tab_footnote(
     footnote = "Garden City, Camp Elmore, Kansas City, MARFORRES, 4th MARDIV",
     cells_body(columns = region, rows = 6)
-) %>%
+  ) %>%
   grand_summary_rows(
-  columns = c(total_sus, total_rm, total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "FSRM",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
   cols_label(
     region = "Region",
     total_sus = "Sustainment",
@@ -476,47 +481,49 @@ program <- df_final %>%
     total = sum(sus) + sum(RM_corrected)
   ) %>%
   arrange(desc(total)) %>%
- gt() %>% 
-   tab_header(
-  title = md("*Annual* MCCS FSRM Costs by Program"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+  gt() %>%
+  tab_header(
+    title = md("*Annual* MCCS FSRM Costs by Program"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
-    currency = "USD", 
+    currency = "USD",
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_title(groups = "title")
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)", 
+    footnote = "2.5% of PRV (MCICOM Metric)",
     locations = cells_column_labels(
       columns = total_rm
     )
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    footnote = "2x iNFADS FYDP average annual sustainment costs",
     locations = cells_column_labels(
-      columns = total_sus)
-) %>% 
-    tab_footnote(
-    footnote = "Nominal dollars", 
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
-) %>%
+  ) %>%
   grand_summary_rows(
-  columns = c(total_sus, total_rm, total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "FSRM",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
   cols_label(
     op_activity = "Program",
     total_sus = "Sustainment",
@@ -527,9 +534,8 @@ program <- df_final %>%
 program
 
 sqft_total <- df_final %>%
-  summarise(total = (sum(total_measure))) %>% 
+  summarise(total = (sum(total_measure))) %>%
   mutate(total = total %>% scales::number(big.mark = ","))
-
 ```
 <br>
 
@@ -546,23 +552,24 @@ sqft_total <- df_final %>%
 ```{r}
 # Use Category Helper ----
 
-num_use_desc <-  df_final %>% 
-  distinct(use_desc) %>% 
+num_use_desc <- df_final %>%
+  distinct(use_desc) %>%
   count()
 
-use_desc_total <- df_final %>% 
-  group_by(use_desc) %>% 
-  summarise(total_sus = sum(sus),
-            total_rm = sum(RM_corrected),
-            total = total_sus + total_rm) %>% 
-  arrange(desc(total)) %>% 
-  ungroup() %>% 
-  mutate(pct = total / sum(total)) %>% 
-  mutate(use_desc = use_desc %>% fct_reorder(pct)) %>% 
-  head(10) %>% 
-  summarise(total = sum(pct)) %>% 
+use_desc_total <- df_final %>%
+  group_by(use_desc) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = total_sus + total_rm
+  ) %>%
+  arrange(desc(total)) %>%
+  ungroup() %>%
+  mutate(pct = total / sum(total)) %>%
+  mutate(use_desc = use_desc %>% fct_reorder(pct)) %>%
+  head(10) %>%
+  summarise(total = sum(pct)) %>%
   mutate(total = total %>% scales::percent())
-
 ```
 
 
@@ -573,59 +580,63 @@ There are a total of **`r num_use_desc`** distinct use categories within data se
 ```{r}
 # Use Category ----
 
-top_10_use_categroy <- df_final %>% 
-  group_by(use_desc) %>% 
-  summarise(total_sus = sum(sus),
-            total_rm = sum(RM_corrected),
-            total = total_sus + total_rm) %>% 
-  mutate(use_desc = use_desc %>% fct_reorder(total)) %>% 
-  arrange(desc(total)) %>% 
-  head(10) %>% 
-  gt() %>% 
-   tab_header(
-  title = md("Top 10 most expensive iNFADS Use Category"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+top_10_use_categroy <- df_final %>%
+  group_by(use_desc) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = total_sus + total_rm
+  ) %>%
+  mutate(use_desc = use_desc %>% fct_reorder(total)) %>%
+  arrange(desc(total)) %>%
+  head(10) %>%
+  gt() %>%
+  tab_header(
+    title = md("Top 10 most expensive iNFADS Use Category"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
-    currency = "USD", 
+    currency = "USD",
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Based on total FSRM costs", 
+    footnote = "Based on total FSRM costs",
     locations = cells_title(groups = "title")
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)", 
+    footnote = "2.5% of PRV (MCICOM Metric)",
     locations = cells_column_labels(
       columns = total_rm
     )
-) %>% 
+  ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs", 
+    footnote = "2x iNFADS FYDP average annual sustainment costs",
     locations = cells_column_labels(
-      columns = total_sus)
-) %>% 
-    tab_footnote(
-    footnote = "Nominal dollars", 
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
-) %>% 
-    tab_footnote(
-    footnote = str_glue("There are {num_use_desc} use categories in dataset"), 
+  ) %>%
+  tab_footnote(
+    footnote = str_glue("There are {num_use_desc} use categories in dataset"),
     locations = cells_title(groups = "title")
-) %>%
+  ) %>%
   grand_summary_rows(
-  columns = c(total_sus, total_rm, total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "FSRM",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
   cols_label(
     use_desc = "Use Category",
     total_sus = "Sustainment",
@@ -636,17 +647,15 @@ top_10_use_categroy <- df_final %>%
 top_10_use_categroy
 
 
-# df_final %>% 
-#   select(use_desc, naf_cat) %>% 
-#   group_by(use_desc, naf_cat) %>% 
-#   count() %>% 
-#   ungroup() %>% 
-#   mutate(pct = n / sum(n)) %>% 
-#   arrange(desc(pct)) %>% 
-#   head(10) %>% 
+# df_final %>%
+#   select(use_desc, naf_cat) %>%
+#   group_by(use_desc, naf_cat) %>%
+#   count() %>%
+#   ungroup() %>%
+#   mutate(pct = n / sum(n)) %>%
+#   arrange(desc(pct)) %>%
+#   head(10) %>%
 #   janitor::adorn_totals()
-  
-
 ```
 
 ---
@@ -658,25 +667,30 @@ top_10_use_categroy
 ```{r}
 
 cost_by_Program_DT <- df_final %>%
-  mutate(count = 1) %>% 
-  #mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
-  group_by(op_activity, use_desc, facility_desc,asset_name) %>%
-  summarise(Sustainment = sum(sus),
-            R_M = sum(RM_corrected),
-            Total = sum(RM_corrected, sus),
-            count = sum(count)) %>% 
-  arrange(desc(count)) %>% 
-  datatable(colnames = c("Program", "Use Description", "Facility Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:8)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-)) %>% 
-  formatCurrency(c('Sustainment','R_M','Total'), digits = 0)
+  mutate(count = 1) %>%
+  # mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
+  group_by(op_activity, use_desc, facility_desc, asset_name) %>%
+  summarise(
+    Sustainment = sum(sus),
+    R_M = sum(RM_corrected),
+    Total = sum(RM_corrected, sus),
+    count = sum(count)
+  ) %>%
+  arrange(desc(count)) %>%
+  datatable(
+    colnames = c("Program", "Use Description", "Facility Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:8)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  ) %>%
+  formatCurrency(c("Sustainment", "R_M", "Total"), digits = 0)
 
 cost_by_Program_DT
-
 ```
 
 <br>
@@ -713,8 +727,8 @@ program_decade_sqft <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade, op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  ungroup() %>% 
-  filter(!is.na(decade)) %>% 
+  ungroup() %>%
+  filter(!is.na(decade)) %>%
   ggplot(aes(decade, total)) +
   geom_line() +
   # geom_abline() +
@@ -727,7 +741,7 @@ program_decade_sqft <- df_final %>%
     panel.background = element_blank()
   ) +
   scale_y_continuous(labels = scales::number) +
-  scale_x_continuous(breaks = c(1910,1930,1950,1970,1990,2010)) +
+  scale_x_continuous(breaks = c(1910, 1930, 1950, 1970, 1990, 2010)) +
   labs(
     y = "Total Measure (SqFt)",
     x = "Decade",
@@ -736,8 +750,6 @@ program_decade_sqft <- df_final %>%
   )
 
 program_decade_sqft
-
-
 ```
 <br>
 
@@ -749,31 +761,33 @@ program_decade_sqft
 
 scale <- seq(1900, 2020, by = 10)
 
- Sqft_by_decade <- df_final %>%
+Sqft_by_decade <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade) %>%
   summarise(sqft = sum(total_measure)) %>%
-  mutate(decade = decade %>% as.double(),
-         decade = if_else(is.na(decade), 2020, decade)) %>% 
-  ungroup() %>% 
+  mutate(
+    decade = decade %>% as.double(),
+    decade = if_else(is.na(decade), 2020, decade)
+  ) %>%
+  ungroup() %>%
   ggplot(aes(decade, sqft)) +
   geom_col(fill = "#2c3e50") +
   scale_x_continuous(breaks = scale) +
   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(y = "SQFT",
+  labs(
+    y = "SQFT",
     x = "Decade",
     caption = "Note: Decade 2020 only includes data from Jan 2020 to Jun 2021"
   )
- 
-Sqft_by_decade
 
+Sqft_by_decade
 ```
 
 <br>
@@ -787,28 +801,29 @@ sq_cumulative <- df_final %>%
   group_by(decade) %>%
   summarise(sqft = sum(total_measure)) %>%
   ungroup() %>%
-  mutate(decade = decade %>% as.double(),
-         decade = if_else(is.na(decade), 2020, decade), 
+  mutate(
+    decade = decade %>% as.double(),
+    decade = if_else(is.na(decade), 2020, decade),
     cumulative = cumsum(sqft)
   ) %>%
   ggplot(aes(decade, cumulative)) +
   geom_area(fill = "#2c3e50") +
   scale_x_continuous(breaks = scale) +
   scale_y_continuous(labels = scales::number_format()) +
-    theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(y = "SQFT",
+  labs(
+    y = "SQFT",
     x = "Decade"
   )
 
 sq_cumulative
-
 ```
 
 <br>
@@ -825,13 +840,15 @@ sq_cumulative
 pct_c_sqft <- df_final %>%
   group_by(naf_cat) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         naf_cat = naf_cat %>% fct_reorder(pct)) %>% 
-  arrange(naf_cat) %>% 
-  ungroup() %>% 
-  filter(naf_cat == "C") %>% 
-  summarise(pct = sum(pct)) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    naf_cat = naf_cat %>% fct_reorder(pct)
+  ) %>%
+  arrange(naf_cat) %>%
+  ungroup() %>%
+  filter(naf_cat == "C") %>%
+  summarise(pct = sum(pct)) %>%
   mutate(pct = pct %>% scales::percent())
 ```
 
@@ -843,18 +860,20 @@ Category C accounts for **`r pct_c_sqft`** of MCCS total utilization.
 naf_cat_sqft_pct_total <- df_final %>%
   group_by(naf_cat) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         naf_cat = naf_cat %>% fct_reorder(pct)) %>% 
-  arrange(naf_cat) %>% 
-  ungroup() %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    naf_cat = naf_cat %>% fct_reorder(pct)
+  ) %>%
+  arrange(naf_cat) %>%
+  ungroup() %>%
   # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
   ggplot(aes(pct, naf_cat)) +
   geom_col(fill = "#2c3e50") +
   # geom_smooth(method = "lm", se = FALSE) +
-    theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -867,7 +886,6 @@ naf_cat_sqft_pct_total <- df_final %>%
   )
 
 naf_cat_sqft_pct_total
-
 ```
 <br>
 <br>
@@ -876,54 +894,60 @@ naf_cat_sqft_pct_total
 
 <br>
 ```{r}
-avg_sqft_cat <- df_final %>% 
-  mutate(total = RM_corrected + sus) %>% 
-  group_by(naf_cat) %>% 
-  summarise(total = sum(total),
-            total_sqft = sum(total_measure)) %>% 
-  mutate(avg_fsrm_cost = total / total_sqft,
-         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
-  arrange(naf_cat) %>% 
-  mutate(naf_cat = naf_cat %>% fct_reorder(avg_fsrm_cost)) %>% 
-  select(naf_cat, total, total_sqft, avg_fsrm_cost) %>% 
-  gt() %>% 
-   tab_header(
-  title = md("FSRM SqFt Utilization Costs by Category"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+avg_sqft_cat <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(naf_cat) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(naf_cat) %>%
+  mutate(naf_cat = naf_cat %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(naf_cat, total, total_sqft, avg_fsrm_cost) %>%
+  gt() %>%
+  tab_header(
+    title = md("FSRM SqFt Utilization Costs by Category"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
-    currency = "USD", 
+    currency = "USD",
     decimals = 2
-) %>% 
+  ) %>%
   fmt_number(
     columns = c(total, total_sqft),
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_column_labels(columns = total)
-) %>% 
+  ) %>%
   grand_summary_rows(
-  columns = c(total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
-   grand_summary_rows(
-  columns = c(total_sqft),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_number,
-  decimals = 0
-  ) %>% 
+    columns = c(total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sqft),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_number,
+    decimals = 0
+  ) %>%
   cols_label(
     naf_cat = "Category",
     total = "Total FSRM",
@@ -944,27 +968,28 @@ avg_sqft_cat
 top_3_program_names <- df_final %>%
   group_by(op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         op_activity = op_activity %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  head(3) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
   pull(op_activity)
 
 
 top_3_programs_pct <- df_final %>%
   group_by(op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         op_activity = op_activity %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  head(3) %>% 
-  summarise(total = sum(pct)) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  summarise(total = sum(pct)) %>%
   mutate(total = total %>% scales::percent(accuracy = 2))
-  
-
-
 ```
 
 ```{r}
@@ -972,25 +997,27 @@ top_3_programs_pct <- df_final %>%
 fb_direct_pct <- df_final %>%
   group_by(op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         op_activity = op_activity %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  filter(op_activity == "Food & Beverage (Direct)") %>% 
-  summarise(pct = sum(pct)) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(pct = sum(pct)) %>%
   mutate(pct = pct %>% scales::percent())
 
-fb_direct_fsrm <-  df_final %>%
+fb_direct_fsrm <- df_final %>%
   group_by(op_activity) %>%
   summarise(
     total_sus = sum(sus),
     total_rm = sum(RM_corrected),
     total = sum(sus) + sum(RM_corrected)
   ) %>%
-  arrange(desc(total)) %>% 
-  filter(op_activity == "Food & Beverage (Direct)") %>% 
-   summarise(total = sum(total)) %>% 
-   mutate(total = total %>% scales::dollar(big.mark = ","))
+  arrange(desc(total)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(total = sum(total)) %>%
+  mutate(total = total %>% scales::dollar(big.mark = ","))
 
 fb_direct_rank <- df_final %>%
   group_by(op_activity) %>%
@@ -999,27 +1026,25 @@ fb_direct_rank <- df_final %>%
     total_rm = sum(RM_corrected),
     total = sum(sus) + sum(RM_corrected)
   ) %>%
-  arrange(desc(total)) %>% 
-  mutate(rank = dense_rank(desc(total))) %>% 
-    filter(op_activity == "Food & Beverage (Direct)") %>% 
-   summarise(total = sum(rank))
+  arrange(desc(total)) %>%
+  mutate(rank = dense_rank(desc(total))) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(total = sum(rank))
 
 
-fb_direct_pct_fsrm <-  df_final %>%
+fb_direct_pct_fsrm <- df_final %>%
   group_by(op_activity) %>%
   summarise(
     total_sus = sum(sus),
     total_rm = sum(RM_corrected),
     total = sum(sus) + sum(RM_corrected)
   ) %>%
-  arrange(desc(total)) %>% 
-  ungroup() %>% 
-  mutate(pct = total / sum(total)) %>% 
- filter(op_activity == "Food & Beverage (Direct)") %>% 
- summarise(pct = sum(pct)) %>% 
- mutate(pct = pct %>% scales::percent())
-
-
+  arrange(desc(total)) %>%
+  ungroup() %>%
+  mutate(pct = total / sum(total)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(pct = sum(pct)) %>%
+  mutate(pct = pct %>% scales::percent())
 ```
 **`r top_3_program_names`** account for roughly **`r top_3_programs_pct`** of MCCS total square foot utilization.
 
@@ -1029,21 +1054,23 @@ While Food & Beverage (Direct) only accounts for just over **`r fb_direct_pct`**
 # Program SqFt Pct----
 
 
-program_sqft_pct <-  df_final %>%
+program_sqft_pct <- df_final %>%
   group_by(op_activity) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         op_activity = op_activity %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  ungroup() %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  ungroup() %>%
   # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
   ggplot(aes(pct, op_activity)) +
   geom_col(fill = "#2c3e50") +
   # geom_smooth(method = "lm", se = FALSE) +
-    theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -1056,7 +1083,6 @@ program_sqft_pct <-  df_final %>%
   )
 
 program_sqft_pct
-
 ```
 <br>
 <br>
@@ -1067,36 +1093,42 @@ program_sqft_pct
 ```{r}
 
 # Avg Costs per Sqft Helper ----
-avg_cost_program <- df_final %>% 
-  mutate(total = RM_corrected + sus) %>% 
-  group_by(op_activity) %>% 
-  summarise(total = sum(total),
-            total_sqft = sum(total_measure)) %>% 
-  mutate(avg_fsrm_cost = total / total_sqft,
-         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
-  arrange(desc(avg_fsrm_cost)) %>% 
-  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
-  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
-     summarise(avg = mean(avg_fsrm_cost)) %>% 
-    mutate(avg = avg %>% scales::dollar())  
-  
-  
-  
-avg_cost_minus_fb <- df_final %>% 
-  mutate(total = RM_corrected + sus) %>% 
-  group_by(op_activity) %>% 
-  summarise(total = sum(total),
-            total_sqft = sum(total_measure)) %>% 
-  mutate(avg_fsrm_cost = total / total_sqft,
-         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
-  arrange(desc(avg_fsrm_cost)) %>% 
-  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
-  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
-     filter(op_activity != "Food & Beverage (Direct)") %>% 
-     summarise(avg = mean(avg_fsrm_cost)) %>% 
-    mutate(avg = avg %>% scales::dollar())
+avg_cost_program <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(op_activity) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
+  summarise(avg = mean(avg_fsrm_cost)) %>%
+  mutate(avg = avg %>% scales::dollar())
 
-  
+
+
+avg_cost_minus_fb <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(op_activity) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
+  filter(op_activity != "Food & Beverage (Direct)") %>%
+  summarise(avg = mean(avg_fsrm_cost)) %>%
+  mutate(avg = avg %>% scales::dollar())
 ```
 
 The cost per sqft by program is **`r avg_cost_program`**
@@ -1110,54 +1142,60 @@ Food and Beverage (Direct) costs 2.7x more than the next most expensive cost per
 ```{r}
 
 # Avg Cost Per SqFt by Prorgam----
-avg_cost_sqft_program <- df_final %>% 
-  mutate(total = RM_corrected + sus) %>% 
-  group_by(op_activity) %>% 
-  summarise(total = sum(total),
-            total_sqft = sum(total_measure)) %>% 
-  mutate(avg_fsrm_cost = total / total_sqft,
-         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
-  arrange(desc(avg_fsrm_cost)) %>% 
-  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>% 
-  select(op_activity, total, total_sqft, avg_fsrm_cost) %>% 
-  gt() %>% 
-   tab_header(
-  title = md("FSRM SqFt Utilization Costs by Program"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+avg_cost_sqft_program <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(op_activity) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
+  gt() %>%
+  tab_header(
+    title = md("FSRM SqFt Utilization Costs by Program"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
-    currency = "USD", 
+    currency = "USD",
     decimals = 2
-) %>% 
+  ) %>%
   fmt_number(
     columns = c(total, total_sqft),
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_column_labels(columns = total)
-) %>% 
+  ) %>%
   grand_summary_rows(
-  columns = c(total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
-   grand_summary_rows(
-  columns = c(total_sqft),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_number,
-  decimals = 0
-  ) %>% 
+    columns = c(total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sqft),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_number,
+    decimals = 0
+  ) %>%
   cols_label(
     op_activity = "Program",
     total = "Total FSRM",
@@ -1165,11 +1203,7 @@ avg_cost_sqft_program <- df_final %>%
     avg_fsrm_cost = "Cost Per SqFT"
   )
 
-  avg_cost_sqft_program 
-  
-  
-
-  
+avg_cost_sqft_program
 ```
 
 <br>
@@ -1182,26 +1216,27 @@ avg_cost_sqft_program <- df_final %>%
 top_3_region <- df_final %>%
   group_by(region) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         region = region %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  head(3) %>% 
-  summarise(total = sum(pct)) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    region = region %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  summarise(total = sum(pct)) %>%
   mutate(total = total %>% scales::percent(accuracy = 2))
 
 top_3_region_names <- df_final %>%
   group_by(region) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         region = region %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  head(3) %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    region = region %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
   pull(region)
-
-
-
 ```
 
 
@@ -1212,21 +1247,23 @@ top_3_region_names <- df_final %>%
 
 # region_sqft Pct ----
 
-region_sqft_pct <-  df_final %>%
+region_sqft_pct <- df_final %>%
   group_by(region) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         region = region %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  ungroup() %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    region = region %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  ungroup() %>%
   # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
   ggplot(aes(pct, region)) +
   geom_col(fill = "#2c3e50") +
   # geom_smooth(method = "lm", se = FALSE) +
-   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -1239,8 +1276,6 @@ region_sqft_pct <-  df_final %>%
   )
 
 region_sqft_pct
-
-
 ```
 <br>
 <br>
@@ -1251,54 +1286,60 @@ Locations without a Region have substantially greater costs for FSRM per square 
 
 
 ```{r}
-cost_sqft_region <- df_final %>% 
-  mutate(total = RM_corrected + sus) %>% 
-  group_by(region) %>% 
-  summarise(total = sum(total),
-            total_sqft = sum(total_measure)) %>% 
-  mutate(avg_fsrm_cost = total / total_sqft,
-         avg_cost_text = avg_fsrm_cost %>% scales::dollar()) %>% 
-  arrange(desc(avg_fsrm_cost)) %>% 
-  mutate(region = region %>% fct_reorder(avg_fsrm_cost)) %>% 
-  select(region, total, total_sqft, avg_fsrm_cost) %>% 
-  gt() %>% 
-   tab_header(
-  title = md("FSRM SqFt Utilization Costs by Region"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+cost_sqft_region <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(region) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(region = region %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(region, total, total_sqft, avg_fsrm_cost) %>%
+  gt() %>%
+  tab_header(
+    title = md("FSRM SqFt Utilization Costs by Region"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
-    currency = "USD", 
+    currency = "USD",
     decimals = 2
-) %>% 
+  ) %>%
   fmt_number(
     columns = c(total, total_sqft),
     decimals = 0
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   tab_footnote(
-    footnote = "Funding agnostic", 
+    footnote = "Funding agnostic",
     locations = cells_column_labels(columns = total)
-) %>% 
+  ) %>%
   grand_summary_rows(
-  columns = c(total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_currency,
-  decimals = 0
-  ) %>% 
-   grand_summary_rows(
-  columns = c(total_sqft),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "",
-  formatter = fmt_number,
-  decimals = 0
-  ) %>% 
+    columns = c(total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sqft),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "",
+    formatter = fmt_number,
+    decimals = 0
+  ) %>%
   cols_label(
     region = "Region",
     total = "Total FSRM",
@@ -1308,7 +1349,6 @@ cost_sqft_region <- df_final %>%
 
 
 cost_sqft_region
-
 ```
 
 <br>
@@ -1326,43 +1366,47 @@ Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the to
 installation_sqft_pct_table <- df_final %>%
   group_by(installation) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         installation = installation %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  head(10) %>% 
-  gt()  %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    installation = installation %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(10) %>%
+  gt() %>%
   tab_header(
-  title = md("Top 10 Installations based on total sqaure feet utilization aboard the Installation"),
-  subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
-) %>% 
+    title = md("Top 10 Installations based on total sqaure feet utilization aboard the Installation"),
+    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
   fmt_number(
     columns = c(total),
     decimals = 0
-) %>%
+  ) %>%
   fmt_percent(
     columns = c(pct),
     decimals = 1
-) %>% 
+  ) %>%
   cols_align(
-  align = c("left"),
-  columns = everything()
-) %>% 
+    align = c("left"),
+    columns = everything()
+  ) %>%
   grand_summary_rows(
-  columns = c(total),
-  fns =  list(
-      Total = ~sum(.)),
-  missing_text = "SqFt",
-  decimals = 0
-) %>% 
+    columns = c(total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "SqFt",
+    decimals = 0
+  ) %>%
   grand_summary_rows(
     columns = c(pct),
     fns = list(
-      Total = ~sum(.)),
+      Total = ~ sum(.)
+    ),
     missing_text = "SqFt",
     decimals = 2,
     formatter = fmt_percent
-) %>% 
+  ) %>%
   cols_label(
     installation = "Installation",
     total = "Total SqFt",
@@ -1370,8 +1414,6 @@ installation_sqft_pct_table <- df_final %>%
   )
 
 installation_sqft_pct_table
-
-
 ```
 
 <br>
@@ -1383,21 +1425,23 @@ MCCS has facilities in 26 different locations. The below graph breaks down the p
 ```{r, fig.width = 10, fig.height=8}
 
 # Installation SqFt Percent ----
-installation_sqft_pct <-  df_final %>%
+installation_sqft_pct <- df_final %>%
   group_by(installation) %>%
   summarise(total = sum(total_measure)) %>%
-  mutate(pct = total / sum(total),
-         pct = pct %>% replace_na(0),
-         installation = installation %>% fct_reorder(pct)) %>% 
-  arrange(desc(pct)) %>% 
-  ungroup() %>% 
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    installation = installation %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  ungroup() %>%
   # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
   ggplot(aes(pct, installation)) +
   geom_col(fill = "#2c3e50") +
   # geom_smooth(method = "lm", se = FALSE) +
-   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -1410,8 +1454,6 @@ installation_sqft_pct <-  df_final %>%
   )
 
 installation_sqft_pct
-
-
 ```
 
 
@@ -1426,26 +1468,24 @@ installation_sqft_pct
 ## Program
 
 ```{r}
-utl_q1 <- q_group %>% 
-  filter(q_rating == "Q1") %>% 
+utl_q1 <- q_group %>%
+  filter(q_rating == "Q1") %>%
   count()
 
 
-utl_q2 <- q_group %>% 
-  filter(q_rating == "Q2") %>% 
+utl_q2 <- q_group %>%
+  filter(q_rating == "Q2") %>%
   count()
 
 
-utl_q3 <- q_group %>% 
-  filter(q_rating == "Q3") %>% 
+utl_q3 <- q_group %>%
+  filter(q_rating == "Q3") %>%
   count()
 
 
-utl_q4 <- q_group %>% 
-  filter(q_rating == "Q4") %>% 
+utl_q4 <- q_group %>%
+  filter(q_rating == "Q4") %>%
   count()
-
-
 ```
 
 <br>
@@ -1474,22 +1514,25 @@ Use the *Search:* box to sort or filter information in each table below.
 
 q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
 
-op_activity_q <- q_group %>% 
-  group_by(op_activity, naf_cat) %>% 
-  count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n)) %>% 
-   janitor::adorn_totals() %>% 
-  datatable(colnames = c("Program", "Category", "Q-Rating", "Count", "% of Program Total"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:5)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-)) %>% 
-  formatPercentage(c('q_rating_pct'), digits = 2)
+op_activity_q <- q_group %>%
+  group_by(op_activity, naf_cat) %>%
+  count(q_rating) %>%
+  mutate(q_rating_pct = n / sum(n)) %>%
+  janitor::adorn_totals() %>%
+  datatable(
+    colnames = c("Program", "Category", "Q-Rating", "Count", "% of Program Total"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:5)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  ) %>%
+  formatPercentage(c("q_rating_pct"), digits = 2)
 
 op_activity_q
-
 ```
 <br>
 
@@ -1500,22 +1543,25 @@ op_activity_q
 <br>
 
 ```{r}
-cat_q <- df_final %>% 
-  group_by(naf_cat) %>% 
-  count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n)) %>% 
-  janitor::adorn_totals() %>% 
-  datatable(colnames = c("Category", "Q-Rating", "Count", "% of Program Total"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-)) %>% 
-  formatPercentage(c('q_rating_pct'), digits = 2)
+cat_q <- df_final %>%
+  group_by(naf_cat) %>%
+  count(q_rating) %>%
+  mutate(q_rating_pct = n / sum(n)) %>%
+  janitor::adorn_totals() %>%
+  datatable(
+    colnames = c("Category", "Q-Rating", "Count", "% of Program Total"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:4)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  ) %>%
+  formatPercentage(c("q_rating_pct"), digits = 2)
 
 cat_q
-
 ```
 <br>
 
@@ -1528,27 +1574,30 @@ cat_q
 <br>
 
 ```{r}
-region_q <- q_group %>% 
-  group_by(region) %>% 
-  count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n))  %>% 
-  janitor::adorn_totals() %>% 
-  datatable(colnames = c("Region", "Q-Rating", "Count", "% of Program Total"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-)) %>% 
-  formatPercentage(c('q_rating_pct'), digits = 2)
+region_q <- q_group %>%
+  group_by(region) %>%
+  count(q_rating) %>%
+  mutate(q_rating_pct = n / sum(n)) %>%
+  janitor::adorn_totals() %>%
+  datatable(
+    colnames = c("Region", "Q-Rating", "Count", "% of Program Total"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:4)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  ) %>%
+  formatPercentage(c("q_rating_pct"), digits = 2)
 
-# %>% 
-#   gt() %>% 
-#    tab_header(title = "Exploring Q-Rating by Region") %>% 
+# %>%
+#   gt() %>%
+#    tab_header(title = "Exploring Q-Rating by Region") %>%
 #   cols_align(align = c("center"))
 
 region_q
-
 ```
 <br>
 
@@ -1559,26 +1608,29 @@ region_q
 <br>
 
 ```{r}
-installation_q <- q_group %>% 
-  group_by(installation) %>% 
-  count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n)) %>% 
-  janitor::adorn_totals() %>% 
-  datatable(colnames = c("Installation", "Q-Rating", "Count", "% of Program Total"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-)) %>% 
-  formatPercentage(c('q_rating_pct'), digits = 2)
-# %>% 
-#   gt() %>% 
-#    tab_header(title = "Exploring Q-Rating by Installation") %>% 
+installation_q <- q_group %>%
+  group_by(installation) %>%
+  count(q_rating) %>%
+  mutate(q_rating_pct = n / sum(n)) %>%
+  janitor::adorn_totals() %>%
+  datatable(
+    colnames = c("Installation", "Q-Rating", "Count", "% of Program Total"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:4)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  ) %>%
+  formatPercentage(c("q_rating_pct"), digits = 2)
+# %>%
+#   gt() %>%
+#    tab_header(title = "Exploring Q-Rating by Installation") %>%
 #   cols_align(align = c("center"))
 
 installation_q
-
 ```
 <br>
 
@@ -1592,32 +1644,39 @@ installation_q
 
 
 ```{r}
-age_q <- df_final %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  group_by(q_rating) %>% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) %>% 
-   datatable(colnames = c("Q-Rating", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-))
-# %>% 
-#   gt() %>% 
-#   tab_header(title = "Exlploring Facility Age by Q-Rating") %>% 
+age_q <- df_final %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  group_by(q_rating) %>%
+  summarise(
+    avg_age = round(mean(age), 0),
+    median_age = round(median(age), 0),
+    sd_age = round(sd(age), 0),
+    max_age = max(age),
+    min_age = min(age),
+    range_age = max_age - min_age
+  ) %>%
+  datatable(
+    colnames = c("Q-Rating", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:7)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  )
+# %>%
+#   gt() %>%
+#   tab_header(title = "Exlploring Facility Age by Q-Rating") %>%
 #   cols_align(align = c("center"))
 
 age_q
-
 ```
 
 <br>
@@ -1652,27 +1711,30 @@ The box and whiskers chart shows you how your data is spread out. Five pieces of
 <br>
 
 ```{r, fig.width = 10, fig.height=5}
-q_box <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  mutate(q_rating = q_rating %>% fct_reorder(age)) %>% 
-  ggplot(aes(age, q_rating)) + 
+q_box <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  mutate(q_rating = q_rating %>% fct_reorder(age)) %>%
+  ggplot(aes(age, q_rating)) +
   geom_boxplot() +
-    theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(x = "Age",
-       y = "")
+  labs(
+    x = "Age",
+    y = ""
+  )
 
 q_box
-  
 ```
 
 
@@ -1686,32 +1748,39 @@ q_box
 
 
 ```{r}
-program_age <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  group_by(op_activity) %>% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) %>% 
-  datatable(colnames = c("Program", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")
-))
-# %>% 
-#   gt() %>% 
-#   tab_header(title = "Exlploring Facility Age by Program") %>% 
+program_age <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  group_by(op_activity) %>%
+  summarise(
+    avg_age = round(mean(age), 0),
+    median_age = round(median(age), 0),
+    sd_age = round(sd(age), 0),
+    max_age = max(age),
+    min_age = min(age),
+    range_age = max_age - min_age
+  ) %>%
+  datatable(
+    colnames = c("Program", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:7)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  )
+# %>%
+#   gt() %>%
+#   tab_header(title = "Exlploring Facility Age by Program") %>%
 #   cols_align(align = c("center"))
 
 program_age
-
 ```
 
 <br>
@@ -1723,27 +1792,30 @@ program_age
 
 ```{r, fig.width = 10, fig.height=5}
 
-program_box <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  mutate(op_activity = op_activity %>% fct_reorder(age)) %>% 
-  ggplot(aes(age, op_activity)) + 
+program_box <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(age)) %>%
+  ggplot(aes(age, op_activity)) +
   geom_boxplot() +
   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(x = "Age",
-       y = "")
+  labs(
+    x = "Age",
+    y = ""
+  )
 
 program_box
-  
 ```
 
 
@@ -1757,31 +1829,39 @@ program_box
 
 ```{r}
 
-region_age <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  group_by(region) %>% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) %>%
-  datatable(colnames = c("Region", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}"))) 
-# %>% 
-#   gt() %>% 
-#   tab_header(title = "Exlploring Facility Age by Region") %>% 
+region_age <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  group_by(region) %>%
+  summarise(
+    avg_age = round(mean(age), 0),
+    median_age = round(median(age), 0),
+    sd_age = round(sd(age), 0),
+    max_age = max(age),
+    min_age = min(age),
+    range_age = max_age - min_age
+  ) %>%
+  datatable(
+    colnames = c("Region", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:7)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  )
+# %>%
+#   gt() %>%
+#   tab_header(title = "Exlploring Facility Age by Region") %>%
 #   cols_align(align = c("center"))
 
 region_age
-
 ```
 
 <br>
@@ -1791,27 +1871,30 @@ region_age
 <br>
 
 ```{r, fig.width = 10, fig.height=5}
-region_box <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  mutate(region = region %>% fct_reorder(age)) %>% 
-  ggplot(aes(age, region)) + 
+region_box <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  mutate(region = region %>% fct_reorder(age)) %>%
+  ggplot(aes(age, region)) +
   geom_boxplot() +
-   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme_tq() +
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(x = "Age",
-       y = "")
+  labs(
+    x = "Age",
+    y = ""
+  )
 
 region_box
-  
 ```
 
 
@@ -1824,31 +1907,39 @@ region_box
 <br>
 
 ```{r}
-installation_age <- q_group %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  group_by(installation) %>% 
-  summarise(avg_age = round(mean(age),0),
-            median_age = round(median(age),0),
-            sd_age = round(sd(age),0),
-            max_age = max(age),
-            min_age = min(age),
-            range_age = max_age - min_age) %>% 
-  datatable(colnames = c("Installation", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
-  initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
-    "}")))
-# %>% 
-#   gt() %>% 
-#   tab_header(title = "Exlploring Facility Age by Installation") %>% 
+installation_age <- q_group %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  group_by(installation) %>%
+  summarise(
+    avg_age = round(mean(age), 0),
+    median_age = round(median(age), 0),
+    sd_age = round(sd(age), 0),
+    max_age = max(age),
+    min_age = min(age),
+    range_age = max_age - min_age
+  ) %>%
+  datatable(
+    colnames = c("Installation", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+    options = list(
+      columnDefs = list(list(className = "dt-center", targets = 0:7)),
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+        "}"
+      )
+    )
+  )
+# %>%
+#   gt() %>%
+#   tab_header(title = "Exlploring Facility Age by Installation") %>%
 #   cols_align(align = c("center"))
 
 installation_age
-
 ```
 
 <br>
@@ -1858,27 +1949,30 @@ installation_age
 <br>
 
 ```{r, fig.width = 10, fig.height=5}
-int_box <- df_final %>% 
-  mutate(age = today() - build_dt,
-         age = round(age/365,0),
-         age = age %>% as.numeric()) %>% 
-  filter(!is.na(build_dt)) %>% 
-  mutate(installation = installation %>% fct_reorder(age)) %>% 
-  ggplot(aes(age, installation)) + 
+int_box <- df_final %>%
+  mutate(
+    age = today() - build_dt,
+    age = round(age / 365, 0),
+    age = age %>% as.numeric()
+  ) %>%
+  filter(!is.na(build_dt)) %>%
+  mutate(installation = installation %>% fct_reorder(age)) %>%
+  ggplot(aes(age, installation)) +
   geom_boxplot() +
   theme_tq() +
-    theme(
-    #panel.grid.major = element_blank(),
+  theme(
+    # panel.grid.major = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     panel.border = element_blank()
   ) +
-  labs(x = "Age",
-       y = "")
+  labs(
+    x = "Age",
+    y = ""
+  )
 
 int_box
-  
 ```
 
 # Data Dictionary 
@@ -1941,7 +2035,7 @@ __Sustainment:__ Sustainment provides resources for maintenance and repair activ
 periodically throughout the facility life-cycle. 
 
 GENERAL POLICY FOR SUSTAINMENT
-1. The work includes regular roof replacement, refinishing wall surfaces, repairing and replacing heating, ventilation and airconditioning (HVAC) systems, replacing tile and carpeting, and similar type work. When sustainment involves replacement of constituent parts, the items installed shall serve the same purpose.
+1. The work includes regular roof replacement, refinishing wall surfaces, repairing and replacing heating, ventilation and air conditioning (HVAC) systems, replacing tile and carpeting, and similar type work. When sustainment involves replacement of constituent parts, the items installed shall serve the same purpose.
 
 2. Sustainment does not include any construction. Sustainment does not include repairing or replacing non-attached equipment or furniture, or building components that typically last more than 50 years (e.g., foundation and structural members). Sustainment does not include repair work classified as restoration or modernization, environmental compliance, or historical preservation. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included.
 
