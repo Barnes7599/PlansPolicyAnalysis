@@ -1413,9 +1413,47 @@ installation_sqft_pct
 
 # Exploring Q-Rating
 
+Use the *Search:* box to sort or filter information in each table below. 
+
 ## Program
 
+```{r}
+utl_q1 <- q_group %>% 
+  filter(q_rating == "Q1") %>% 
+  count()
+
+
+utl_q2 <- q_group %>% 
+  filter(q_rating == "Q2") %>% 
+  count()
+
+
+utl_q3 <- q_group %>% 
+  filter(q_rating == "Q3") %>% 
+  count()
+
+
+utl_q4 <- q_group %>% 
+  filter(q_rating == "Q4") %>% 
+  count()
+
+
+```
+
+
 ##### Q-Rating by Program and Categroy (based on facility)
+
+
+Number of **facilities** by Q-Rating
+
+-Q1: `r utl_q1`
+
+-Q2: `r utl_q2`
+
+-Q3: `r utl_q3`
+
+-Q4: `r utl_q4`
+
 
 <br>
 
@@ -1471,6 +1509,8 @@ cat_q
 ## Region
 
 ##### Q-Rating by Region (based on facility)
+
+
 
 <br>
 
