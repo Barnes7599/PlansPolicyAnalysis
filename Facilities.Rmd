@@ -1908,10 +1908,9 @@ __NAF Category, Program__ are mapped to iNFADS use_codes based on the the follow
 [MCCS Category Codes Worksheet](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EY2pByxnvI5AkBjH0x53k4EB5TkkKThKs7aqM1JOGzB_9w?e=UgoQrB)
 
 __use_code:__ A five-digit system of numbering a common nomenclature for classes 1 and 2 plant property. See NAVFAC P-72, Department of the Navy Facility Category Codes, for a listing of recognized codes.  
-[NAVFAC P-72](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
-[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
-__use_desc:__ The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property Replacement for NAVFAC P72. [source](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+
+__use_desc:__ The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property Replacement for NAVFAC P72. 
 
 __fac_use:__ Identifies the use of a Navy or Marine Corps facility (or portion thereof). 
 
@@ -1919,7 +1918,7 @@ __PRV:__ PRV is the cost to replace an existing facility with a generic facility
 contain costs associated with any other facility. Therefore, PRV costs are considered to extend only to the five-foot line surrounding the facility.
 This estimate applies to all facilities regardless of funding source and does not include land or leasing costs. The PRV is calculated at the Use level and is based on the standard DoD algorithm: 
 
->Plant Replacement Value = Facility Quantity^1^x Construction Cost Factor^2^x Area Cost Factor^3^x Historical Records Adjustment^4^x Planning and Design Factor^5^x Supervision Inspection and Overhead Factor^6^x Contingency Factor^7^
+> Plant Replacement Value = Facility Quantity^1^x Construction Cost Factor^2^x Area Cost Factor^3^x Historical Records Adjustment^4^x Planning and Design Factor^5^x Supervision Inspection and Overhead Factor^6^x Contingency Factor^7^
 
 ^1^ The Facility Quantity is the sum total of assets at the Use/User
 level.
@@ -1948,10 +1947,7 @@ GENERAL POLICY FOR SUSTAINMENT
 
 3. Replacing landscaping destroyed by a sustainment project shall be classified as sustainment. 
 
-[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
-
->The calculation in this report for Cat C utilizations is 2x iNFADS (FSM calculated Sustainment costs, for Cat A, Cat B and Lodging utilizations (FSM calculated sustainment costs)
-
+> Sustainment: The calculation in this report for Cat C utilizations is 2x iNFADS (FSM calculated Sustainment costs, for Cat A, Cat B and Lodging utilizations (FSM calculated sustainment costs)
 
 __Restoration and Modernization:__ Restoration and Modernization provides resources for improving facilities. Restoration includes repair
 and replacement work to restore facilities damaged by inadequate sustainment, excessive age, natural disasters, fire, accident, or other cases. Modernization includes construction or alteration of facilities solely to implement a new or higher standard (including regulatory changes), to accommodate new functions, or replace building components that typically last more than 50 years (e.g., foundations and structural members).
@@ -1962,9 +1958,7 @@ GENERAL POLICY FOR RESTORATION AND MODERNIZATION
 
 2. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included. 
 
-[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
-
->The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
+> R & M: The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
 
 __Adequate Area Measure (adq):__ The capacity or size in area measure of a facility or portion thereof that is in adequate condition and associated with a designated function (use) and a designated user. Adequate is defined as being capable of supporting the designated function without a need for capital improvements.
 
@@ -1994,6 +1988,10 @@ economically corrected (compared with replacement) to meet the requirements of t
 
 __Build_dt:__ The century and year, e.g., 20XX, when the initial construction of a Class 2 facility was completed. Where not available, a “best estimate” is used.
 
-Additional References: [source](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
+References: 
+[NAVFAC P-78](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
+[NAVFAC P-72](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+[NAVFAC Appendix A P72 ](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
 ---
