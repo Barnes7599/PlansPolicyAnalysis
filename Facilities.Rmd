@@ -1444,6 +1444,7 @@ utl_q4 <- q_group %>%
 
 ##### Q-Rating by Program and Categroy (based on facility)
 
+<br>
 
 Number of **facilities** by Q-Rating
 
@@ -1633,7 +1634,7 @@ The box and whiskers chart shows you how your data is spread out. Five pieces of
 
 -Inter-quartile Range (IQR): The IQR describes the middle 50% of values when ordered from lowest to highest. To find the interquartile range (IQR), first find the median (middle value) of the lower and upper half of the data. These values are quartile 1 (Q1) and quartile 3 (Q3). The IQR is the difference between Q3 and Q1.
 
--If outliers are present, the whisker on the appropriate side is drawn to 1.5 * IQR rather than the data minimum or the data maximum. Red filled circles are used for known outliers.
+-If outliers are present, the whisker on the appropriate side is drawn to 1.5 * IQR rather than the data minimum or the data maximum. Black filled circles are used for known outliers.
 
 -Widths of the boxplot are represented of the amount of observations within each grouping. 
 
@@ -1651,8 +1652,7 @@ q_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(q_rating = q_rating %>% fct_reorder(age)) %>% 
   ggplot(aes(age, q_rating)) + 
-  geom_boxplot(outlier.color = "red",varwidth = TRUE, outlier.alpha = .5, fill = "#2c3e50", alpha = .5) +
-  geom_jitter(alpha = .05) +
+  geom_boxplot(varwidth = TRUE) +
     theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1723,8 +1723,7 @@ program_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(op_activity = op_activity %>% fct_reorder(age)) %>% 
   ggplot(aes(age, op_activity)) + 
-  geom_boxplot(outlier.color = "red",varwidth = TRUE, outlier.alpha = .5, fill = "#2c3e50", alpha = .5) +
-  geom_jitter(alpha = .05)  +
+  geom_boxplot(varwidth = TRUE) +
   theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1792,8 +1791,7 @@ region_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(region = region %>% fct_reorder(age)) %>% 
   ggplot(aes(age, region)) + 
-   geom_boxplot(outlier.color = "red",varwidth = TRUE, outlier.alpha = .5, fill = "#2c3e50", alpha = .5) +
-  geom_jitter(alpha = .05)  +
+  geom_boxplot(varwidth = TRUE) +
    theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1860,8 +1858,7 @@ int_box <- df_final %>%
   filter(!is.na(build_dt)) %>% 
   mutate(installation = installation %>% fct_reorder(age)) %>% 
   ggplot(aes(age, installation)) + 
-  geom_boxplot(outlier.color = "red",varwidth = TRUE, outlier.alpha = .5, fill = "#2c3e50", alpha = .5) +
-  geom_jitter(alpha = .05) +
+  geom_boxplot(varwidth = TRUE) +
   theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
