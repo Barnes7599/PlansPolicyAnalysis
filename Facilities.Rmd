@@ -349,7 +349,7 @@ category <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "Cat c - 2x iNFADS FYDP average annual sustainment costs",
+    footnote = "Cat C - 2x iNFADS sustainment costs",
     locations = cells_column_labels(
       columns = total_sus
     )
@@ -430,7 +430,7 @@ region <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs",
+    footnote = "Cat C - 2x iNFADS sustainment costs",
     locations = cells_column_labels(
       columns = total_sus
     )
@@ -506,7 +506,7 @@ program <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs",
+    footnote = "Cat C - 2x iNFADS sustainment costs",
     locations = cells_column_labels(
       columns = total_sus
     )
@@ -615,7 +615,7 @@ top_10_use_categroy <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "2x iNFADS FYDP average annual sustainment costs",
+    footnote = "Cat C - 2x iNFADS sustainment costs",
     locations = cells_column_labels(
       columns = total_sus
     )
