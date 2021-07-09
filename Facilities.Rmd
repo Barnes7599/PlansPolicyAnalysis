@@ -792,7 +792,7 @@ Sqft_by_decade
 
 <br>
 
-##### Cumulative Sqare Footage by Decade base on Facility Build Date
+##### Cumulative Sqare Footage by Decade based on Facility Build Date
 
 ```{r, fig.width = 10, fig.height=5}
 # Sqft Cumulative ----
@@ -2083,9 +2083,9 @@ economically corrected (compared with replacement) to meet the requirements of t
 __Build_dt:__ The century and year, e.g., 20XX, when the initial construction of a Class 2 facility was completed. Where not available, a “best estimate” is used.
 
 References: 
-[NAVFAC P-78](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
-[NAVFAC P-72](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
-[NAVFAC Appendix A P72 ](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+[NAVFAC P-78](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html) |
+[NAVFAC P-72](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) | 
+[NAVFAC Appendix A P72 ](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) |
 [MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
 ---
