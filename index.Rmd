@@ -17,7 +17,7 @@ h1 {
 
 h2 {
   font-weight: bold;
-  font-size: 22px;
+  font-size: 20px;
   color: #2c3e50
 }
 
@@ -48,6 +48,7 @@ h5 {
 
 #getting-started img {
   margin-right: 10px;
+  margin-left: 10px;
 }
 
 </style>
@@ -65,6 +66,8 @@ h5 {
 <br>
 
 # **PPBEA Reform**
+
+---
 
 <br>
 
@@ -87,6 +90,8 @@ Semper Fit and Recreation capabilities provide commanders with a team of fitness
 The Business and Support Services of MCCS is about supporting Mission, Marines and their families by Investing in Marines for Duty Home and Self. The Marine Corps is most successful when Marines and families are equipped with services and tools they need to meet an era of persistent conflict, natural disasters, world pandemics, and the challenges of day-to-day life in the 21st century. A Marine’s ability to prevail over future challenges will depend on the strength of our force, the strength of our families,and our ability to navigate the ever-challenging environment that comes with a military lifestyle. There is an inherent understanding that our Business relevancy is aligned with mission and Marines. Our business portfolio is twofold; to develop solutions to meet the ever-changing needs of Marines while providing critical resources to support important MWR programs. The Business Portfolio includes activities that meet daily needs of Marines and families to include the Marine Corps Exchange, Marine Marts, Uniform Support, Food and PCS/TDY Lodging. Additionally, it includes an array of recreational activities that provide well-being, morale and a healthy lifestyle during dwell time.
 
 The Business Portfolio also includes Support Services that provides Non-appropriated fund (NAF) Back office support across the total MCCS Enterprise, including Family Programs, Semper Fit and the Business Services. The consolidated back-office services include Information Technology, Human Resources, Finance and Accounting, Buying and Procurement, Training and Construction. Several innovative common support efficiency reforms are underway to include the stand-up of a Global Business Services center for NAF transactional accounting, and the standardization of common support across the MCCS enterprise as a precursor to developing a full cost of ownership model that is aligned to PPBEA reform. Business Strategies are focused on innovation and modernization efforts to maintain relevance with Marine and mission. The Marine Corps has been recognized for their forward leaning efforts to establish new service delivery models in order to disrupt old think and antiquated business behaviors.
+
+---
 
 ## OVERARCHING GOALS
 
@@ -111,6 +116,7 @@ The image of Marine Corps Community Services must be understood throughout the M
 ### Become a “Critical Enabler” for Programs and Services to support Marines and their Families.
 We will be built on management principles, plans and policies that provide the necessary tools to effectively and efficiently deliver programs and services. Integrated training, technical assistance and enhanced communications will be used to implement and exploit best practices and lessons-learned
 
+---
 
 ## SUPPORTING CAPABILITIES
 

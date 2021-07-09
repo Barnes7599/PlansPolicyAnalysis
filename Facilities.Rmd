@@ -286,6 +286,7 @@ write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization
 <br>
 
 Note: The current report is based on utilization information unless otherwise noted. 
+
 Data dictionary and assumptions are at the end of this report. 
 
 <br>
@@ -658,7 +659,7 @@ cost_by_Program_DT <- df_final %>%
             count = sum(count)) %>% 
   arrange(installation) %>% 
   datatable(colnames = c("Installation", "Categroy", "Program", "Use Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
-            options = list(
+            options = list(columnDefs = list(list(className = 'dt-center', targets = "_all")),
   initComplete = JS(
     "function(settings, json) {",
     "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
@@ -1410,7 +1411,7 @@ installation_sqft_pct
 
 ---
 
-## Exploring Q-Rating
+# Exploring Q-Rating
 
 ##### Q-Rating by Program and Categroy (based on facility)
 
@@ -1522,7 +1523,7 @@ installation_q
 
 ---
 
-##### Exploring the age of facilities
+# Exploring the age of facilities
 
 <br>
 
@@ -1561,7 +1562,8 @@ age_q
 
 How to read a boxplot:
 
-![Boxplot](images/boxplot4.png)
+![](images/boxplot4.png)
+<br>
 
 The box and whiskers chart shows you how your data is spread out. Five pieces of information (the “five number summary“) are generally included in the chart:
 
@@ -1809,7 +1811,7 @@ int_box
   
 ```
 
-## Data Dictionary
+# Data Dictionary
 
 __Region:__ Installations grouped within their perspective geographical region. There is a total of 5 regions (MCIWEST, MCIEAST, MCIPAC, MCINCR, SLTI)
 The following locations are not associated with a region in the data set: 
