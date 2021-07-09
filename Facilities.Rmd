@@ -285,14 +285,17 @@ write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization
 
 <br>
 
+<center>
 Note: The current report is based on utilization information unless otherwise noted. 
 
 Data dictionary and assumptions are at the end of this report. 
 
 Download raw data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZhsWc6iB2hCqURhX9S3JiIBdXDp2ROHBV_SQUMwvMrsNw?e=CbGJcA)
 
-This report was drived from the below cleaned data: 
+
 Download cleaned data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EWkORB0ANilAr76gQ76hMWEBjAenponscgXIvylwZLVRCw?e=iow3Gm)
+
+</center>
 
 <br>
 
@@ -657,14 +660,14 @@ top_10_use_categroy
 cost_by_Program_DT <- df_final %>%
   mutate(count = 1) %>% 
   #mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
-  group_by(installation, naf_cat, op_activity, use_desc, facility_desc,asset_name) %>%
+  group_by(op_activity, use_desc, facility_desc,asset_name) %>%
   summarise(Sustainment = sum(sus),
             R_M = sum(RM_corrected),
             Total = sum(RM_corrected, sus),
             count = sum(count)) %>% 
-  arrange(installation) %>% 
-  datatable(colnames = c("Installation", "Categroy", "Program", "Use Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
-            options = list(columnDefs = list(list(className = 'dt-center', targets = "_all")),
+  arrange(desc(count)) %>% 
+  datatable(colnames = c("Program", "Use Description", "Facility Description", "Asset Name", "Sustainment", "R_M", "Total", "Count"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:8)),
   initComplete = JS(
     "function(settings, json) {",
     "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
@@ -1878,7 +1881,7 @@ int_box
   
 ```
 
-# Data Dictionary [source](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
+# Data Dictionary 
 
 __Region:__ Installations grouped within their perspective geographical region. There is a total of 5 regions (MCIWEST, MCIEAST, MCIPAC, MCINCR, SLTI)
 The following locations are not associated with a region in the data set: 
@@ -1990,5 +1993,7 @@ deterioration, functional inadequacy or hazardous location which prohibit or sev
 economically corrected (compared with replacement) to meet the requirements of the designated function.
 
 __Build_dt:__ The century and year, e.g., 20XX, when the initial construction of a Class 2 facility was completed. Where not available, a “best estimate” is used.
+
+Additional References: [source](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
 
 ---
