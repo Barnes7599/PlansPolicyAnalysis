@@ -11,7 +11,7 @@ output:
 
 h1 {
   font-weight: bold;
-  font-size: 28px;
+  font-size: 36px;
   text-align: center;
 }
 
@@ -53,9 +53,20 @@ h5 {
 </style>
 
 <div class="row" style="padding-top: 30px;">
-<div class="col-sm-9">
+<!-- <div class="col-sm-9"> -->
+
+
+<center>
+
+![](images/16_MCCSlogo_Comp.png)
+
+</center>
+
+<br>
 
 # **PPBEA Reform**
+
+<br>
 
 ## INTRODUCTION
 
@@ -125,6 +136,6 @@ Email: [Jason Barnes](jason.barnes@usmc-mccs.mil)
 <div class="col-sm-3">
 
 <a href = "http://crossroads/MRG/Pages/HRMS.aspx">
-![](images/16_MCCSlogo_Comp.png)
+
 </a>
 </div>
