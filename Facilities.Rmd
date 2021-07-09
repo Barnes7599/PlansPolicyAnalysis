@@ -289,6 +289,11 @@ Note: The current report is based on utilization information unless otherwise no
 
 Data dictionary and assumptions are at the end of this report. 
 
+Download raw data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZhsWc6iB2hCqURhX9S3JiIBdXDp2ROHBV_SQUMwvMrsNw?e=CbGJcA)
+
+This report was drived from the below cleaned data: 
+Download cleaned data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EWkORB0ANilAr76gQ76hMWEBjAenponscgXIvylwZLVRCw?e=iow3Gm)
+
 <br>
 
 # Exploring Costs 
@@ -1448,13 +1453,13 @@ utl_q4 <- q_group %>%
 
 Number of **facilities** by Q-Rating
 
--Q1: `r utl_q1`
+* Q1: `r utl_q1`
 
--Q2: `r utl_q2`
+* Q2: `r utl_q2`
 
--Q3: `r utl_q3`
+* Q3: `r utl_q3`
 
--Q4: `r utl_q4`
+* Q4: `r utl_q4`
 
 <br>
 
@@ -1622,21 +1627,20 @@ How to read a boxplot:
 
 The box and whiskers chart shows you how your data is spread out. Five pieces of information (the “five number summary“) are generally included in the chart:
 
--The minimum (the smallest number in the data set). The minimum is shown at the far left of the chart, at the end of the left “whisker.”
+* The minimum (the smallest number in the data set). The minimum is shown at the far left of the chart, at the end of the left “whisker.”
 
--First quartile, Q1, is the far left of the box (or the far right of the left whisker).
+* First quartile, Q1, is the far left of the box (or the far right of the left whisker).
 
--The median is shown as a line in the center of the box.
+* The median is shown as a line in the center of the box.
 
--Third quartile, Q3, shown at the far right of the box (at the far left of the right whisker).
+* Third quartile, Q3, shown at the far right of the box (at the far left of the right whisker).
 
--The maximum (the largest number in the data set), shown at the far right of the box.
+* The maximum (the largest number in the data set), shown at the far right of the box.
 
--Inter-quartile Range (IQR): The IQR describes the middle 50% of values when ordered from lowest to highest. To find the interquartile range (IQR), first find the median (middle value) of the lower and upper half of the data. These values are quartile 1 (Q1) and quartile 3 (Q3). The IQR is the difference between Q3 and Q1.
+* Inter-quartile Range (IQR): The IQR describes the middle 50% of values when ordered from lowest to highest. To find the interquartile range (IQR), first find the median (middle value) of the lower and upper half of the data. These values are quartile 1 (Q1) and quartile 3 (Q3). The IQR is the difference between Q3 and Q1.
 
--If outliers are present, the whisker on the appropriate side is drawn to 1.5 * IQR rather than the data minimum or the data maximum. Black filled circles are used for known outliers.
+* If outliers are present, the whisker on the appropriate side is drawn to 1.5 * IQR rather than the data minimum or the data maximum. Black filled circles are used for known outliers.
 
--Widths of the boxplot are represented of the amount of observations within each grouping. 
 
 <br>
 
@@ -1652,7 +1656,7 @@ q_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(q_rating = q_rating %>% fct_reorder(age)) %>% 
   ggplot(aes(age, q_rating)) + 
-  geom_boxplot(varwidth = TRUE) +
+  geom_boxplot() +
     theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1723,7 +1727,7 @@ program_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(op_activity = op_activity %>% fct_reorder(age)) %>% 
   ggplot(aes(age, op_activity)) + 
-  geom_boxplot(varwidth = TRUE) +
+  geom_boxplot() +
   theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1791,7 +1795,7 @@ region_box <- q_group %>%
   filter(!is.na(build_dt)) %>% 
   mutate(region = region %>% fct_reorder(age)) %>% 
   ggplot(aes(age, region)) + 
-  geom_boxplot(varwidth = TRUE) +
+  geom_boxplot() +
    theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1858,7 +1862,7 @@ int_box <- df_final %>%
   filter(!is.na(build_dt)) %>% 
   mutate(installation = installation %>% fct_reorder(age)) %>% 
   ggplot(aes(age, installation)) + 
-  geom_boxplot(varwidth = TRUE) +
+  geom_boxplot() +
   theme_tq() +
     theme(
     #panel.grid.major = element_blank(),
@@ -1874,7 +1878,7 @@ int_box
   
 ```
 
-# Data Dictionary
+# Data Dictionary [source](https://www.navfac.navy.mil/products_and_services/am/about_us/resources.html)
 
 __Region:__ Installations grouped within their perspective geographical region. There is a total of 5 regions (MCIWEST, MCIEAST, MCIPAC, MCINCR, SLTI)
 The following locations are not associated with a region in the data set: 
@@ -1891,17 +1895,100 @@ The following locations are not associated with a region in the data set:
 
 __Installation:__ The name of the installation MCCS services are provided. Installation is derived from the MCCS Installation Name column in iNFADS. 
 
-__RPUID:__ iNFADS Real Property Unique Identifier (Primary Key to connect facilities with utilization). 
+__RPUID:__ The real property unique identifier (RPUID) is a non-intelligent code used
+to permanently and uniquely identify a real property asset. (Primary Key to connect facilities with utilization). 
 
 ---
 
+__NAF Category, Program__ are mapped to iNFADS use_codes based on the the following:
+
 [MCCS Category Codes Worksheet](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EY2pByxnvI5AkBjH0x53k4EB5TkkKThKs7aqM1JOGzB_9w?e=UgoQrB)
 
-__use_code:__ A five or six-digit code used by the Military Departments and WHS that represents a specific type of facility. Each CATCODE is mapped to a specific FAC (Facility Analysis Category), to include use of the unit of measure assigned to that FAC. 
+__use_code:__ A five-digit system of numbering a common nomenclature for classes 1 and 2 plant property. See NAVFAC P-72, Department of the Navy Facility Category Codes, for a listing of recognized codes.  
+[NAVFAC P-72](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
-__use_desc:__ The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property
-Replacement for NAVFAC P72. [source](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+__use_desc:__ The title of the use category associated with the Category Use Code (use_code) derived from the Appendix A - Category Codes for Navy and Marine Corps Real Property Replacement for NAVFAC P72. [source](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) 
+
+__fac_use:__ Identifies the use of a Navy or Marine Corps facility (or portion thereof). 
+
+__PRV:__ PRV is the cost to replace an existing facility with a generic facility that can perform the same function(s). The notional replacement facility is generally understood to be the same size and to occupy the same site as the existing facility. The notional replacement facility is also assumed to be constructed to current standards of materials and design. Since each facility has its own theoretical PRV, no facility PRV should
+contain costs associated with any other facility. Therefore, PRV costs are considered to extend only to the five-foot line surrounding the facility.
+This estimate applies to all facilities regardless of funding source and does not include land or leasing costs. The PRV is calculated at the Use level and is based on the standard DoD algorithm: 
+
+>Plant Replacement Value = Facility Quantity^1^x Construction Cost Factor^2^x Area Cost Factor^3^x Historical Records Adjustment^4^x Planning and Design Factor^5^x Supervision Inspection and Overhead Factor^6^x Contingency Factor^7^
+
+^1^ The Facility Quantity is the sum total of assets at the Use/User
+level.
+
+^2^ The Construction Cost Factor is the cost value for a specific DoD Facility Analysis Code (FAC) and is “unit of measure” specific. This value is stored in the Category Code Module and updated upon the annual release of the latest version of the DoD Facilities Pricing Guide from a spreadsheet provided by NAVFAC HQ.
+
+^3^ The Geographical Area Cost Factor is a value carried on the city table. This value is stored in the RPI and updated at year-end from a spreadsheet provided by NAVFAC HQ.
+
+^4^ The Historic Records Adjustment Factor is an adjustment to account for increased costs for replacement of historical facilities or for construction in a historic district. The current factor is 1.05 and is based on the Historic/Heritage Asset data elements in iNFADS (DE
+410a-d).
+
+^5^ The Planning and Design Factor accounts for the planning and design of a facility. The current value of this factor is 1.09 for all but
+medical facilities and 1.13 for medical facilities. Assignment of this factor is based on the Category Code Number of the Use/User record.
+
+^6^ The Supervision, Inspection and Overhead Factor accounts for the supervision, inspection, and overhead activities associated with the management of a construction project. The current value of the factor is 1.06 for facilities in the continental US (CONUS) and 1.065 for facilities outside of the continental US (OCONUS). Assignment of this factor is based on the Country Code and State Code.
+
+^7^ The Contingency Factor accounts for construction contingencies; the current value of the factor is 1.05. PRV appears in the NAVFAC Public Works (Assessment) drills, Facility Maintenance Responsibility Report and various budget exhibits.
+
+__Sustainment:__ Sustainment provides resources for maintenance and repair activities necessary to keep an inventory of facilities in good working order over a 50-year service life. It includes regularly scheduled adjustments and inspections, preventive maintenance tasks, and emergency response and service calls for minor repairs. It also includes major repairs or replacement of facility components that are expected to occur
+periodically throughout the facility life-cycle. 
+
+GENERAL POLICY FOR SUSTAINMENT
+1. The work includes regular roof replacement, refinishing wall surfaces, repairing and replacing heating, ventilation and airconditioning (HVAC) systems, replacing tile and carpeting, and similar type work. When sustainment involves replacement of constituent parts, the items installed shall serve the same purpose.
+
+2. Sustainment does not include any construction. Sustainment does not include repairing or replacing non-attached equipment or furniture, or building components that typically last more than 50 years (e.g., foundation and structural members). Sustainment does not include repair work classified as restoration or modernization, environmental compliance, or historical preservation. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included.
+
+3. Replacing landscaping destroyed by a sustainment project shall be classified as sustainment. 
+
+[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
+
+>The calculation in this report for Cat C utilizations is 2x iNFADS (FSM calculated Sustainment costs, for Cat A, Cat B and Lodging utilizations (FSM calculated sustainment costs)
 
 
+__Restoration and Modernization:__ Restoration and Modernization provides resources for improving facilities. Restoration includes repair
+and replacement work to restore facilities damaged by inadequate sustainment, excessive age, natural disasters, fire, accident, or other cases. Modernization includes construction or alteration of facilities solely to implement a new or higher standard (including regulatory changes), to accommodate new functions, or replace building components that typically last more than 50 years (e.g., foundations and structural members).
 
+GENERAL POLICY FOR RESTORATION AND MODERNIZATION
 
+1. Restoration and modernization does not include recurring sustainment tasks or certain environmental measures that are funded elsewhere.
+
+2. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included. 
+
+[MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
+
+>The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
+
+__Adequate Area Measure (adq):__ The capacity or size in area measure of a facility or portion thereof that is in adequate condition and associated with a designated function (use) and a designated user. Adequate is defined as being capable of supporting the designated function without a need for capital improvements.
+
+__Adequate Other Measure (abq Other):__ The capacity or size in other measure of a facility or portion thereof that is in adequate condition and associated with a designated function (use) and a designated user. Adequate is defined as being capable of supporting the designated
+function without a need for capital improvements.
+
+__Adequate Alternate Measure (adq Alt):__ The capacity or size in alternate measure of a facility or portion thereof that is associated with a designated function (use) and designated user. Adequate is defined as being capable of supporting the designated function without a need for capital improvements.
+ 
+__Substandard Area Measure (sub)__ The capacity or size in the area measure of a facility or portion thereof that is in substandard condition and associated with a designated function (use) and a designated user. Substandard is defined as having deficiencies that prohibit or severely restrict, or will prohibit or severely restrict within the next five years due to expected deterioration, the use of a facility for its designated function.
+Capital improvements and/or repairs further define Substandard as having deficiencies that can be economically corrected (compared with replacement).
+
+__Substandard Other Measure (sub_other):__ The capacity or size in other measure of a facility or portion thereof that is in substandard condition and associated with a designated function (use) and designated user. Substandard is defined as having deficiencies that prohibit or severely
+restrict, or will prohibit or severely restrict within the next five years due to expected deterioration, the use of a facility for its designated function. Capital improvements and/or repairs further define Substandard as having deficiencies that can be economically corrected (compared with
+replacement).
+
+__Substandard Alternate Measure (sub_alt):__ The capacity or size in alternate measure of a facility or portion thereof that is in substandard condition and associated with a designated function (use) and designated user. Substandard is defined as having deficiencies that prohibit or severely restrict, or will prohibit or severely restrict within the next five years due to expected deterioration, the use of a facility for its designated function. Capital improvements and/or repairs further define Substandard as having deficiencies that can be economically corrected (compared with replacement).
+
+__Inadequate Area Measure (iadq):__ The capacity or size in area measure of a facility or portion thereof that is in inadequate condition and associated with a designated function (use) and a designated user. Inadequate is defined as having deficiencies due to physical deterioration, functional inadequacy or hazardous location which prohibit or severely restrict, or will prohibit or severely restrict within the next five
+years, the use of a facility for its designated function. Inadequate is further defined as having deficiencies, which cannot be economically corrected (compared with replacement) to meet the requirements of the designated function.
+
+__Inadequate Other Measure (iadq_other):__ The capacity or size in other measure of a facility or portion thereof that is in inadequate condition and associated with a designated function (use) and a designated user. Inadequate is defined as having deficiencies due to physical deterioration, functional inadequacy or hazardous location which prohibit or severely restrict, or will prohibit or severely restrict within the next five
+years, the use of a facility for its designated function. Inadequate is further defined as having deficiencies, which cannot be economically corrected (compared with replacement) to meet the requirements of the designated function.
+
+__Inadequate Alternate Measure (iadq_alt):__ The capacity or size in alternate measure of a facility or portion thereof that is in inadequate condition and associated with a designated function (use) and a designated user. Inadequate is defined as having deficiencies due to physical
+deterioration, functional inadequacy or hazardous location which prohibit or severely restrict, or will prohibit or severely restrict within the next five years, the use of a facility for its designated function. Inadequate is further defined as having deficiencies, which cannot be
+economically corrected (compared with replacement) to meet the requirements of the designated function.
+
+__Build_dt:__ The century and year, e.g., 20XX, when the initial construction of a Class 2 facility was completed. Where not available, a “best estimate” is used.
+
+---
