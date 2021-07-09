@@ -285,6 +285,11 @@ write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization
 
 <br>
 
+Note: The current report is based on utilization information unless otherwise noted. 
+Data dictionary and assumptions are at the end of this report. 
+
+<br>
+
 # Exploring Costs 
 
 ---
@@ -1405,7 +1410,9 @@ installation_sqft_pct
 
 ---
 
-#### Exploring Q-Rating
+## Exploring Q-Rating
+
+##### Q-Rating by Program and Categroy (based on facility)
 
 <br>
 
@@ -1414,31 +1421,67 @@ installation_sqft_pct
 q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
 
 op_activity_q <- q_group %>% 
-  group_by(op_activity) %>% 
+  group_by(op_activity, naf_cat) %>% 
   count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n))
+  mutate(q_rating_pct = n / sum(n)) %>% 
+   janitor::adorn_totals() %>% 
+  datatable(colnames = c("Program", "Category", "Q-Rating", "Count", "% of Program Total"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:5)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+)) %>% 
+  formatPercentage(c('q_rating_pct'), digits = 2)
 
 op_activity_q
 
 ```
-<br><br>
+<br>
+
+##### Q-Rating by Category (based on utilizations)
+
+<br>
 
 ```{r}
-cat_q <- q_group %>% 
+cat_q <- df_final %>% 
   group_by(naf_cat) %>% 
   count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n))
+  mutate(q_rating_pct = n / sum(n)) %>% 
+  janitor::adorn_totals() %>% 
+  datatable(colnames = c("Category", "Q-Rating", "Count", "% of Program Total"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+)) %>% 
+  formatPercentage(c('q_rating_pct'), digits = 2)
 
 cat_q
 
 ```
-<br><br>
+<br>
+
+##### Q-Rating by Category (based on facility)
+
+<br>
 
 ```{r}
 region_q <- q_group %>% 
   group_by(region) %>% 
   count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n))  
+  mutate(q_rating_pct = n / sum(n))  %>% 
+  janitor::adorn_totals() %>% 
+  datatable(colnames = c("Region", "Q-Rating", "Count", "% of Program Total"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+)) %>% 
+  formatPercentage(c('q_rating_pct'), digits = 2)
+
 # %>% 
 #   gt() %>% 
 #    tab_header(title = "Exploring Q-Rating by Region") %>% 
@@ -1447,13 +1490,26 @@ region_q <- q_group %>%
 region_q
 
 ```
-<br><br>
+<br>
+
+##### Q-Rating by Installation (based on facility)
+
+<br>
 
 ```{r}
 installation_q <- q_group %>% 
   group_by(installation) %>% 
   count(q_rating) %>% 
-  mutate(q_rating_pct = n / sum(n)) 
+  mutate(q_rating_pct = n / sum(n)) %>% 
+  janitor::adorn_totals() %>% 
+  datatable(colnames = c("Installation", "Q-Rating", "Count", "% of Program Total"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:4)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+)) %>% 
+  formatPercentage(c('q_rating_pct'), digits = 2)
 # %>% 
 #   gt() %>% 
 #    tab_header(title = "Exploring Q-Rating by Installation") %>% 
@@ -1462,11 +1518,13 @@ installation_q <- q_group %>%
 installation_q
 
 ```
-<br><br>
+<br>
+
+---
 
 ##### Exploring the age of facilities
 
-<br><br>
+<br>
 
 
 ```{r}
@@ -1481,7 +1539,14 @@ age_q <- df_final %>%
             sd_age = round(sd(age),0),
             max_age = max(age),
             min_age = min(age),
-            range_age = max_age - min_age)
+            range_age = max_age - min_age) %>% 
+   datatable(colnames = c("Q-Rating", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+))
 # %>% 
 #   gt() %>% 
 #   tab_header(title = "Exlploring Facility Age by Q-Rating") %>% 
@@ -1491,10 +1556,37 @@ age_q
 
 ```
 
-<br><br>
+<br>
+
+
+How to read a boxplot:
+
+![Boxplot](images/boxplot4.png)
+
+The box and whiskers chart shows you how your data is spread out. Five pieces of information (the “five number summary“) are generally included in the chart:
+
+-The minimum (the smallest number in the data set). The minimum is shown at the far left of the chart, at the end of the left “whisker.”
+
+-First quartile, Q1, is the far left of the box (or the far right of the left whisker).
+
+-The median is shown as a line in the center of the box.
+
+-Third quartile, Q3, shown at the far right of the box (at the far left of the right whisker).
+
+-The maximum (the largest number in the data set), shown at the far right of the box.
+
+-Inter-quartile Range (IQR): The IQR describes the middle 50% of values when ordered from lowest to highest. To find the interquartile range (IQR), first find the median (middle value) of the lower and upper half of the data. These values are quartile 1 (Q1) and quartile 3 (Q3). The IQR is the difference between Q3 and Q1.
+
+-If outliers are present, the whisker on the appropriate side is drawn to 1.5 * IQR rather than the data minimum or the data maximum. Small dots are drawn on the chart to indicate where suspected outliers lie. Filled circles are used for known outliers.
+
+<br>
+
+##### Facility age by Q-Rating (boxplot)
+
+<br>
 
 ```{r, fig.width = 10, fig.height=5}
-df_final %>% 
+q_box <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1502,20 +1594,31 @@ df_final %>%
   mutate(q_rating = q_rating %>% fct_reorder(age)) %>% 
   ggplot(aes(age, q_rating)) + 
   geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = "Facility Age by Q-Rating",
-       x = "Age",
+    theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(x = "Age",
        y = "Q-Rating")
+
+q_box
   
 ```
 
 
-<br><br>
+<br>
+
+##### Facility age by Program (Table)
+
+<br>
 
 
 ```{r}
-program_age <- df_final %>% 
+program_age <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1526,7 +1629,14 @@ program_age <- df_final %>%
             sd_age = round(sd(age),0),
             max_age = max(age),
             min_age = min(age),
-            range_age = max_age - min_age) 
+            range_age = max_age - min_age) %>% 
+  datatable(colnames = c("Program", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")
+))
 # %>% 
 #   gt() %>% 
 #   tab_header(title = "Exlploring Facility Age by Program") %>% 
@@ -1536,11 +1646,16 @@ program_age
 
 ```
 
-<br><br>
+<br>
+
+##### Facility Age by Program (boxplot)
+
+<br>
+
 
 ```{r, fig.width = 10, fig.height=5}
 
-df_final %>% 
+program_box <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1548,20 +1663,31 @@ df_final %>%
   mutate(op_activity = op_activity %>% fct_reorder(age)) %>% 
   ggplot(aes(age, op_activity)) + 
   geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = "Facility Age by Program",
-       x = "Age",
+  theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(x = "Age",
        y = "Program")
+
+program_box
   
 ```
 
 
-<br><br>
+<br>
+
+##### Facility Age by Region (Table)
+
+<br>
 
 ```{r}
 
-region_age <- df_final %>% 
+region_age <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1572,7 +1698,13 @@ region_age <- df_final %>%
             sd_age = round(sd(age),0),
             max_age = max(age),
             min_age = min(age),
-            range_age = max_age - min_age) 
+            range_age = max_age - min_age) %>%
+  datatable(colnames = c("Region", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}"))) 
 # %>% 
 #   gt() %>% 
 #   tab_header(title = "Exlploring Facility Age by Region") %>% 
@@ -1582,10 +1714,14 @@ region_age
 
 ```
 
-<br><br>
+<br>
+
+##### Facility Age by Region (boxplot)
+
+<br>
 
 ```{r, fig.width = 10, fig.height=5}
-df_final %>% 
+region_box <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1593,19 +1729,30 @@ df_final %>%
   mutate(region = region %>% fct_reorder(age)) %>% 
   ggplot(aes(age, region)) + 
   geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = "Facility Age by Region",
-       x = "Age",
-       y = "Region")
+   theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(x = "Age",
+       y = "")
+
+region_box
   
 ```
 
 
-<br><br>
+<br>
+
+##### Facility Age by Installation (Table)
+
+<br>
 
 ```{r}
-installation_age <- df_final %>% 
+installation_age <- q_group %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1616,7 +1763,13 @@ installation_age <- df_final %>%
             sd_age = round(sd(age),0),
             max_age = max(age),
             min_age = min(age),
-            range_age = max_age - min_age)
+            range_age = max_age - min_age) %>% 
+  datatable(colnames = c("Installation", "Average Age", "Median Age", "Standard Deviation", "Max Age", "min Age", "Range"),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = 0:7)),
+  initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});",
+    "}")))
 # %>% 
 #   gt() %>% 
 #   tab_header(title = "Exlploring Facility Age by Installation") %>% 
@@ -1626,10 +1779,14 @@ installation_age
 
 ```
 
-<br><br>
+<br>
+
+##### Facility Age by Installation (boxplot)
+
+<br>
 
 ```{r, fig.width = 10, fig.height=5}
-df_final %>% 
+int_box <- df_final %>% 
   mutate(age = today() - build_dt,
          age = round(age/365,0),
          age = age %>% as.numeric()) %>% 
@@ -1637,11 +1794,18 @@ df_final %>%
   mutate(installation = installation %>% fct_reorder(age)) %>% 
   ggplot(aes(age, installation)) + 
   geom_boxplot() +
-  theme_clean() +
-  scale_x_reverse() +
-  labs(title = "Facility Age by Installation",
-       x = "Age",
-       y = "Installation")
+  theme_tq() +
+    theme(
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank()
+  ) +
+  labs(x = "Age",
+       y = "")
+
+int_box
   
 ```
 
