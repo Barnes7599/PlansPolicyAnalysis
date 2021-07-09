@@ -1413,6 +1413,8 @@ installation_sqft_pct
 
 # Exploring Q-Rating
 
+## Program
+
 ##### Q-Rating by Program and Categroy (based on facility)
 
 <br>
@@ -1440,6 +1442,8 @@ op_activity_q
 ```
 <br>
 
+## Category
+
 ##### Q-Rating by Category (based on utilizations)
 
 <br>
@@ -1464,7 +1468,9 @@ cat_q
 ```
 <br>
 
-##### Q-Rating by Category (based on facility)
+## Region
+
+##### Q-Rating by Region (based on facility)
 
 <br>
 
@@ -1492,6 +1498,8 @@ region_q
 
 ```
 <br>
+
+## Installation
 
 ##### Q-Rating by Installation (based on facility)
 
@@ -1524,6 +1532,8 @@ installation_q
 ---
 
 # Exploring the age of facilities
+
+## Q-Rating
 
 <br>
 
@@ -1614,6 +1624,8 @@ q_box
 
 <br>
 
+## Program
+
 ##### Facility age by Program (Table)
 
 <br>
@@ -1683,6 +1695,8 @@ program_box
 
 <br>
 
+## Region
+
 ##### Facility Age by Region (Table)
 
 <br>
@@ -1748,6 +1762,8 @@ region_box
 
 
 <br>
+
+## Installation
 
 ##### Facility Age by Installation (Table)
 
