@@ -10,13 +10,20 @@ output:
     number_sections: false
     toc_depth: 2
     code_folding: none
+params:
+  date: "June 17, 2021"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE, echo = FALSE)
+knitr::opts_chunk$set(message = FALSE, 
+                      warning = FALSE, 
+                      cache = TRUE, 
+                      echo = FALSE,
+                      fig.width = 10, 
+                      fig.height=5)
 ```
 
-```{css, echo=FALSE}
+```{css headings, echo=FALSE}
 
 h1 {
   font-weight: bold;
@@ -47,26 +54,24 @@ h5 {
 
 ```
 
-
-```{r}
-# File Setup ----
+```{r load-lib}
 library(tidyverse)
 library(ggthemes)
-library(ggrepel)
-library(extrafont)
 library(readxl)
 library(DT)
 library(gt)
-library(DataExplorer)
 library(tidyquant)
 library(markdown)
 library(writexl)
+```
 
+```{r read-data}
 
 cat_codes <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
   sheet = "Cat_code",
   col_types = c("numeric", "text", "text", "text")
 )
+
 
 fac <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
   sheet = "Facility",
@@ -78,13 +83,17 @@ fac <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Dat
   )
 )
 
-# infads <- read_rds("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/infads_clean") # read in the cleaned data
 
 utl <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
   sheet = "Sheet1",
   skip = 1
 )
 
+```
+
+```{r wrangle}
+
+# Clean Facility Data
 fac <- fac %>%
   janitor::clean_names() %>%
   separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
@@ -261,14 +270,6 @@ fac_mapped <- fac_mapped %>%
   left_join(fac, by = "RPUID") %>%
   filter(naf_cat %in% c("A", "B", "C", "L"))
 
-# RPUID_count <- fac_mapped %>%
-#   group_by(RPUID) %>%
-#   count(RPUID)
-#
-# fac_mapped <- fac_mapped %>%
-#   inner_join((RPUID_count))
-
-
 df_clean <- fac_mapped %>%
   mutate(
     sus = if_else(naf_cat == "C", FY2022 * 2, FY2022),
@@ -278,24 +279,36 @@ df_clean <- fac_mapped %>%
     RM_corrected = RM * fac_use_pct
   )
 
-
 df_final <- df_clean %>%
   select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, fac_usedesc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, other_unit_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
 
-write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/df_finalv3.xlsx")
 ```
+
+```{r output}
+
+# creates a xlsx output file of the cleaned data and stores in output folder
+
+write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Github/PlansPolicyAnalysis/output/df_finalv3.xlsx")
+
+```
+
 
 <br>
 
 <center>
+
 Note: The current report is based on utilization information unless otherwise noted. 
 
 Data dictionary and assumptions are at the end of this report. 
 
+
+Raw data pulled from GoRPM on `r params$date`
+
+
 Download raw data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZhsWc6iB2hCqURhX9S3JiIBdXDp2ROHBV_SQUMwvMrsNw?e=CbGJcA)
 
 
-Download cleaned data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EWkORB0ANilAr76gQ76hMWEBjAenponscgXIvylwZLVRCw?e=iow3Gm)
+Download cleaned data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZBbIUMLoBpFvX7ZBJJHjJUBqCtUcFoPdsdh7LayPGl8pg?e=stGfS6)
 
 </center>
 
@@ -384,6 +397,7 @@ category <- df_final %>%
 
 
 category
+
 ```
 <br>
 
@@ -1468,6 +1482,8 @@ installation_sqft_pct
 ## Program
 
 ```{r}
+q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
+
 utl_q1 <- q_group %>%
   filter(q_rating == "Q1") %>%
   count()
@@ -1511,9 +1527,6 @@ Use the *Search:* box to sort or filter information in each table below.
 <br>
 
 ```{r}
-
-q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
-
 op_activity_q <- q_group %>%
   group_by(op_activity, naf_cat) %>%
   count(q_rating) %>%
@@ -2035,13 +2048,15 @@ __Sustainment:__ Sustainment provides resources for maintenance and repair activ
 periodically throughout the facility life-cycle. 
 
 GENERAL POLICY FOR SUSTAINMENT
+
 1. The work includes regular roof replacement, refinishing wall surfaces, repairing and replacing heating, ventilation and air conditioning (HVAC) systems, replacing tile and carpeting, and similar type work. When sustainment involves replacement of constituent parts, the items installed shall serve the same purpose.
 
 2. Sustainment does not include any construction. Sustainment does not include repairing or replacing non-attached equipment or furniture, or building components that typically last more than 50 years (e.g., foundation and structural members). Sustainment does not include repair work classified as restoration or modernization, environmental compliance, or historical preservation. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included.
 
 3. Replacing landscaping destroyed by a sustainment project shall be classified as sustainment. 
 
-> Sustainment: The calculation in this report for Cat C utilizations is 2x iNFADS (FSM calculated Sustainment costs, for Cat A, Cat B and Lodging utilizations (FSM calculated sustainment costs)
+> *Sustainment*: The calculation in this report for Cat C utilizations is 2x iNFADS FSM calculated Sustainment costs; <br>
+Cat A, Cat B and Lodging utilizations (FSM calculated sustainment costs)
 
 __Restoration and Modernization:__ Restoration and Modernization provides resources for improving facilities. Restoration includes repair
 and replacement work to restore facilities damaged by inadequate sustainment, excessive age, natural disasters, fire, accident, or other cases. Modernization includes construction or alteration of facilities solely to implement a new or higher standard (including regulatory changes), to accommodate new functions, or replace building components that typically last more than 50 years (e.g., foundations and structural members).
@@ -2052,7 +2067,7 @@ GENERAL POLICY FOR RESTORATION AND MODERNIZATION
 
 2. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included. 
 
-> R & M: The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
+> *R & M*: The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
 
 __Adequate Area Measure (adq):__ The capacity or size in area measure of a facility or portion thereof that is in adequate condition and associated with a designated function (use) and a designated user. Adequate is defined as being capable of supporting the designated function without a need for capital improvements.
 
