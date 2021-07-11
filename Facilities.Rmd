@@ -63,31 +63,55 @@ library(gt)
 library(tidyquant)
 library(markdown)
 library(writexl)
+
 ```
 
 ```{r read-data}
 
-cat_codes <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
-  sheet = "Cat_code",
-  col_types = c("numeric", "text", "text", "text")
+# Read in cat codes xlsx data and save data as RDS
+saveRDS(
+  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
+    sheet = "Cat_code",
+    col_types = c("numeric", "text", "text", "text"
+    )
+  ),
+  here::here("data", "Cat_code.rds")
 )
 
+# Assign RDS data to variable
+cat_codes <- read_rds(here::here("data", "Cat_code.rds"))
 
-fac <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
-  sheet = "Facility",
-  skip = 1,
-  col_types = c(
-    "text", "text", "text", "text", "text",
-    "numeric", "numeric", "date", "text", "date",
-    "date"
-  )
+
+# Read in facility xlsx data and save data as RDS
+saveRDS(
+  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
+    sheet = "Facility",
+    skip = 1,
+    col_types = c(
+      "text", "text", "text",
+      "text", "text", "numeric",
+      "numeric", "date", "text",
+      "date", "date"
+    )
+  ),
+  here::here("data", "fac.rds")
 )
 
+# Assign RDS data to variable
+fac <- read_rds(here::here("data", "fac.rds"))
 
-utl <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Data/MCCS_Facility_ Inventory_Report.XLSX",
-  sheet = "Sheet1",
-  skip = 1
+# Read in utilization xlsx data and save data as RDS
+saveRDS(
+  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
+    sheet = "Sheet1",
+    skip = 1
+  ),
+  here::here("data", "utl")
 )
+
+# Assign RDS data to variable
+utl <- read_rds(here::here("data", "utl.rds"))
+
 
 ```
 
@@ -97,6 +121,7 @@ utl <- read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/iNFADS/Dat
 fac <- fac %>%
   janitor::clean_names() %>%
   separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
+  #isolate use categroy code in own column called "usecode"
   separate(i_nfads_predominant_current_use_category_code, c("usecode", "fac_usedesc"), sep = 6) %>%
   select(
     RPUID = i_nfads_real_property_unique_id,
@@ -121,7 +146,7 @@ fac <- fac %>%
     fci <= 89 ~ "Q2",
     TRUE ~ "Q1"
   )) %>%
-  # mutate(Category = Category %>% replace_na("Z")) %>%
+  # shorten installation (location) names
   mutate(installation = case_when(
     installation %>% str_to_lower() %>% str_detect("butler") ~ "MCB Butler",
     installation %>% str_to_lower() %>% str_detect("mcb camp pendleton") ~ "MCB Pendleton",
@@ -152,11 +177,12 @@ fac <- fac %>%
     installation %>% str_to_lower() %>% str_detect("mcsptact") ~ "Kansas City"
   )) %>%
   mutate(RPUID = RPUID %>% as.character()) %>%
+  # create a Restoration and Modernization Column
   mutate(RM = prv * 0.025)
-
 
 `%notin%` <- Negate(`%in%`)
 
+# Clean utilization data
 utl <- utl %>%
   janitor::clean_names() %>%
   janitor::remove_empty(c("rows"), quiet = TRUE) %>%
@@ -181,14 +207,16 @@ utl <- utl %>%
     iadq_other = i_nfads_iadq_other_measure,
     other_unit_measure = i_nfads_other_unit_meas
   ) %>%
+  #isolate use categroy code in own column called "usecode"
   separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
   mutate(use_code = use_code %>% as.numeric()) %>%
-  # Remove divestments
+  # Remove bilieting not being absorbed by MCCS
   filter(RPUID %notin% c(
     21104, 54390, 25139, 24922, 18187, 21378, 21379, 43713, 43714, 35068, 35073, 35080,
     33751, 38891, 38889, 38895, 47139, 40535, 43543, 43544, 43744, 40524, 40529,
     40532, 40526, 40534, 47876, 46374, 39594, 54613
   )) %>%
+  # handling missing data
   mutate(
     adq = adq %>% replace_na(0),
     sub = sub %>% replace_na(0),
@@ -201,11 +229,13 @@ utl <- utl %>%
     iadq_alt = iadq_alt %>% replace_na(0),
     FY2022 = FY2022 %>% replace_na(0)
   ) %>%
+  # create total columns for each type measure
   mutate(
     total_measure = adq + sub + iadq,
     alt_total_measure = adq_alt + sub_alt + iadq_alt,
     other_total_measure = adq_other + sub_other + iadq_other
   ) %>%
+  # finding percentages
   group_by(RPUID) %>%
   mutate(
     use_pct_area = total_measure / sum(total_measure),
@@ -215,6 +245,7 @@ utl <- utl %>%
     use_pct_alt = use_pct_alt %>% replace_na(0),
     use_pct_other = use_pct_other %>% replace_na(0)
   ) %>%
+  # logic to fill in where 
   mutate(fac_use_pct = if_else(use_pct_area > 0, use_pct_area,
     if_else(use_pct_alt > 0, use_pct_alt, use_pct_other)
   )) %>%
@@ -279,6 +310,8 @@ df_clean <- fac_mapped %>%
     RM_corrected = RM * fac_use_pct
   )
 
+# Create Final dataframe
+
 df_final <- df_clean %>%
   select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, fac_usedesc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, other_unit_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
 
@@ -287,8 +320,222 @@ df_final <- df_clean %>%
 ```{r output}
 
 # creates a xlsx output file of the cleaned data and stores in output folder
+write_xlsx(df_final,here::here("output", "df_final.xlsx"))
+saveRDS(df_final,here::here("output", "df_final.rds"))
 
-write_xlsx(df_final, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Github/PlansPolicyAnalysis/output/df_finalv3.xlsx")
+```
+
+```{r Computaions}
+
+# Calculate the total number of SqFt
+sqft_total <- df_final %>%
+  summarise(total = (sum(total_measure))) %>%
+  mutate(total = total %>% scales::number(big.mark = ","))
+
+# Calculate the total number of use descriptions
+num_use_desc <- df_final %>%
+  distinct(use_desc) %>%
+  count()
+
+# Calculate the top 10 Use description % of FSRM
+use_desc_total <- df_final %>%
+  group_by(use_desc) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = total_sus + total_rm
+  ) %>%
+  arrange(desc(total)) %>%
+  ungroup() %>%
+  mutate(pct = total / sum(total)) %>%
+  mutate(use_desc = use_desc %>% fct_reorder(pct)) %>%
+  head(10) %>%
+  summarise(total = sum(pct)) %>%
+  mutate(total = total %>% scales::percent())
+
+# Cat C percenrt of total SqFt
+pct_c_sqft <- df_final %>%
+  group_by(naf_cat) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    naf_cat = naf_cat %>% fct_reorder(pct)
+  ) %>%
+  arrange(naf_cat) %>%
+  ungroup() %>%
+  filter(naf_cat == "C") %>%
+  summarise(pct = sum(pct)) %>%
+  mutate(pct = pct %>% scales::percent())
+
+# Pull top 3 total SqFt Program names 
+top_3_program_names <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  pull(op_activity)
+
+# Calculate the Top 3 Programs % of total SqFt 
+top_3_programs_pct <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  summarise(total = sum(pct)) %>%
+  mutate(total = total %>% scales::percent(accuracy = 2))
+
+# Calculate  F & B (Direct) % of total SqFt
+fb_direct_pct <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    op_activity = op_activity %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(pct = sum(pct)) %>%
+  mutate(pct = pct %>% scales::percent())
+
+# Calulate F & B (Direct) Total FSRM Costs (Text)
+fb_direct_fsrm <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(total = sum(total)) %>%
+  mutate(total = total %>% scales::dollar(big.mark = ","))
+
+# Calculate where F & B (Direct) ranks amoung total FSRM Costs
+fb_direct_rank <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  mutate(rank = dense_rank(desc(total))) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(total = sum(rank))
+
+# Calculate F & B (Direct) % of total FSRM
+fb_direct_pct_fsrm <- df_final %>%
+  group_by(op_activity) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  ungroup() %>%
+  mutate(pct = total / sum(total)) %>%
+  filter(op_activity == "Food & Beverage (Direct)") %>%
+  summarise(pct = sum(pct)) %>%
+  mutate(pct = pct %>% scales::percent())
+
+# Calculate the total FSRM costs per SqFt 
+sqft_cost_program <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(op_activity) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
+  summarise(avg = mean(avg_fsrm_cost)) %>%
+  mutate(avg = avg %>% scales::dollar())
+
+# Calculate the total FSRM costs per SqFt minus F & B (Direct)
+sqft_cost_minus_fb <- df_final %>%
+  mutate(total = RM_corrected + sus) %>%
+  group_by(op_activity) %>%
+  summarise(
+    total = sum(total),
+    total_sqft = sum(total_measure)
+  ) %>%
+  mutate(
+    avg_fsrm_cost = total / total_sqft,
+    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
+  ) %>%
+  arrange(desc(avg_fsrm_cost)) %>%
+  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
+  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
+  filter(op_activity != "Food & Beverage (Direct)") %>%
+  summarise(avg = mean(avg_fsrm_cost)) %>%
+  mutate(avg = avg %>% scales::dollar())
+
+# Calculate top 3 regions % of total SqFt
+top_3_region <- df_final %>%
+  group_by(region) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    region = region %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  summarise(total = sum(pct)) %>%
+  mutate(total = total %>% scales::percent(accuracy = 2))
+
+# Pull the names of the top 3 regions that have the highest % of total Sqft
+top_3_region_names <- df_final %>%
+  group_by(region) %>%
+  summarise(total = sum(total_measure)) %>%
+  mutate(
+    pct = total / sum(total),
+    pct = pct %>% replace_na(0),
+    region = region %>% fct_reorder(pct)
+  ) %>%
+  arrange(desc(pct)) %>%
+  head(3) %>%
+  pull(region)
+
+# Distinct RPUID for Facility
+q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
+
+# Capture Q1 Facilities
+utl_q1 <- q_group %>%
+  filter(q_rating == "Q1") %>%
+  count()
+
+# Capture Q2 Facilities
+utl_q2 <- q_group %>%
+  filter(q_rating == "Q2") %>%
+  count()
+
+# Capture Q3 Facilities
+utl_q3 <- q_group %>%
+  filter(q_rating == "Q3") %>%
+  count()
+
+# Capture Q4 Facilities
+utl_q4 <- q_group %>%
+  filter(q_rating == "Q4") %>%
+  count()
 
 ```
 
@@ -305,10 +552,10 @@ Data dictionary and assumptions are at the end of this report.
 Raw data pulled from GoRPM on `r params$date`
 
 
-Download raw data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZhsWc6iB2hCqURhX9S3JiIBdXDp2ROHBV_SQUMwvMrsNw?e=CbGJcA)
+Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EYGD7HXwwp9BgxI7pWrJNgoBh4ZH8qQkfdtRygAGIaI-BA?e=yQ8Lo8)
 
 
-Download cleaned data [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EZBbIUMLoBpFvX7ZBJJHjJUBqCtUcFoPdsdh7LayPGl8pg?e=stGfS6)
+Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9)
 
 </center>
 
@@ -326,9 +573,8 @@ Facility Sustainment, Restoration and Modernization (FSRM)
 
 <br>
 
-```{r}
+```{r Category FSRM GT}
 
-# Category FSRM ----
 category <- df_final %>%
   group_by(naf_cat) %>%
   summarise(
@@ -408,8 +654,7 @@ category
 <br>
 
 
-```{r}
-# Region FSRM ----
+```{r Region FSRM GT}
 
 region <- df_final %>%
   group_by(region) %>%
@@ -483,9 +728,7 @@ region
 
 <br>
 
-```{r}
-
-# Program FSRM ----
+```{r Program FSRM GT}
 
 program <- df_final %>%
   group_by(op_activity) %>%
@@ -547,52 +790,25 @@ program <- df_final %>%
 
 program
 
-sqft_total <- df_final %>%
-  summarise(total = (sum(total_measure))) %>%
-  mutate(total = total %>% scales::number(big.mark = ","))
+
 ```
 <br>
 
 ---
+
 
 ## Use Category Top 10
 
 
 *Facility Type Code* — The Facility Type Code determines the category code of the facility. The code ranges from category I to category IV and is tied to the DoD FAC Code. Each Category Code has an accompanying category use description. 
 
-
 <br>
-
-```{r}
-# Use Category Helper ----
-
-num_use_desc <- df_final %>%
-  distinct(use_desc) %>%
-  count()
-
-use_desc_total <- df_final %>%
-  group_by(use_desc) %>%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = total_sus + total_rm
-  ) %>%
-  arrange(desc(total)) %>%
-  ungroup() %>%
-  mutate(pct = total / sum(total)) %>%
-  mutate(use_desc = use_desc %>% fct_reorder(pct)) %>%
-  head(10) %>%
-  summarise(total = sum(pct)) %>%
-  mutate(total = total %>% scales::percent())
-```
-
 
 There are a total of **`r num_use_desc`** distinct use categories within data set. The top 10 use category descriptions account for over **`r use_desc_total`** of the total costs in the MCCS portfolio. 
 
 
 
-```{r}
-# Use Category ----
+```{r Use Category GT }
 
 top_10_use_categroy <- df_final %>%
   group_by(use_desc) %>%
@@ -660,16 +876,6 @@ top_10_use_categroy <- df_final %>%
 
 top_10_use_categroy
 
-
-# df_final %>%
-#   select(use_desc, naf_cat) %>%
-#   group_by(use_desc, naf_cat) %>%
-#   count() %>%
-#   ungroup() %>%
-#   mutate(pct = n / sum(n)) %>%
-#   arrange(desc(pct)) %>%
-#   head(10) %>%
-#   janitor::adorn_totals()
 ```
 
 ---
@@ -678,7 +884,7 @@ top_10_use_categroy
 
 ## Program Costs Data Table
 
-```{r}
+```{r Cost by Program DT}
 
 cost_by_Program_DT <- df_final %>%
   mutate(count = 1) %>%
@@ -734,9 +940,8 @@ Exchange Operations, Children and Youth and Semper Fit programs have been adding
 
 
 <br>
-```{r, fig.width = 10, fig.height=5}
+```{r Program Decade SqFt Facet Line, fig.width = 10, fig.height=5}
 
-# Program Decade Sqft ----
 program_decade_sqft <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade, op_activity) %>%
@@ -745,7 +950,6 @@ program_decade_sqft <- df_final %>%
   filter(!is.na(decade)) %>%
   ggplot(aes(decade, total)) +
   geom_line() +
-  # geom_abline() +
   geom_smooth(method = "lm", se = FALSE) +
   facet_wrap(~op_activity, scales = "free_x") +
   theme_tq() +
@@ -764,14 +968,14 @@ program_decade_sqft <- df_final %>%
   )
 
 program_decade_sqft
+
 ```
 <br>
 
 ##### Square Footage by Decade based on Facility Build Date
 
 
-```{r, fig.width = 10, fig.height=5}
-# Sq by Decade----
+```{r SqFt by Decade Bar, fig.width = 10, fig.height=5}
 
 scale <- seq(1900, 2020, by = 10)
 
@@ -802,14 +1006,15 @@ Sqft_by_decade <- df_final %>%
   )
 
 Sqft_by_decade
+
 ```
 
 <br>
 
 ##### Cumulative Sqare Footage by Decade based on Facility Build Date
 
-```{r, fig.width = 10, fig.height=5}
-# Sqft Cumulative ----
+```{r Cumulative SqFt Area, fig.width = 10, fig.height=5}
+
 sq_cumulative <- df_final %>%
   mutate(decade = floor_date(build_dt, years(10)) %>% year()) %>%
   group_by(decade) %>%
@@ -838,6 +1043,7 @@ sq_cumulative <- df_final %>%
   )
 
 sq_cumulative
+
 ```
 
 <br>
@@ -850,26 +1056,10 @@ sq_cumulative
 
 ##### What is the percent of total square foot utilization by Category?
 
-```{r}
-pct_c_sqft <- df_final %>%
-  group_by(naf_cat) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    naf_cat = naf_cat %>% fct_reorder(pct)
-  ) %>%
-  arrange(naf_cat) %>%
-  ungroup() %>%
-  filter(naf_cat == "C") %>%
-  summarise(pct = sum(pct)) %>%
-  mutate(pct = pct %>% scales::percent())
-```
-
 Category C accounts for **`r pct_c_sqft`** of MCCS total utilization. 
 
 <br>
-```{r, fig.width = 10, fig.height=3}
+```{r naf cat pct total SqFt Bar, fig.width = 10, fig.height=3}
 
 naf_cat_sqft_pct_total <- df_final %>%
   group_by(naf_cat) %>%
@@ -907,7 +1097,8 @@ naf_cat_sqft_pct_total
 ##### What is the FSRM cost per square foot utilization by Category?
 
 <br>
-```{r}
+```{r Cat FSRM SqFt Cost GT}
+
 avg_sqft_cat <- df_final %>%
   mutate(total = RM_corrected + sus) %>%
   group_by(naf_cat) %>%
@@ -977,96 +1168,11 @@ avg_sqft_cat
 
 ##### What is percent of total square foot utilization by Program?
 
-```{r}
-# Program Helper SqFt ----
-top_3_program_names <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    op_activity = op_activity %>% fct_reorder(pct)
-  ) %>%
-  arrange(desc(pct)) %>%
-  head(3) %>%
-  pull(op_activity)
-
-
-top_3_programs_pct <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    op_activity = op_activity %>% fct_reorder(pct)
-  ) %>%
-  arrange(desc(pct)) %>%
-  head(3) %>%
-  summarise(total = sum(pct)) %>%
-  mutate(total = total %>% scales::percent(accuracy = 2))
-```
-
-```{r}
-# fb_direct sqft helper ----
-fb_direct_pct <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    op_activity = op_activity %>% fct_reorder(pct)
-  ) %>%
-  arrange(desc(pct)) %>%
-  filter(op_activity == "Food & Beverage (Direct)") %>%
-  summarise(pct = sum(pct)) %>%
-  mutate(pct = pct %>% scales::percent())
-
-fb_direct_fsrm <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %>%
-  arrange(desc(total)) %>%
-  filter(op_activity == "Food & Beverage (Direct)") %>%
-  summarise(total = sum(total)) %>%
-  mutate(total = total %>% scales::dollar(big.mark = ","))
-
-fb_direct_rank <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %>%
-  arrange(desc(total)) %>%
-  mutate(rank = dense_rank(desc(total))) %>%
-  filter(op_activity == "Food & Beverage (Direct)") %>%
-  summarise(total = sum(rank))
-
-
-fb_direct_pct_fsrm <- df_final %>%
-  group_by(op_activity) %>%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %>%
-  arrange(desc(total)) %>%
-  ungroup() %>%
-  mutate(pct = total / sum(total)) %>%
-  filter(op_activity == "Food & Beverage (Direct)") %>%
-  summarise(pct = sum(pct)) %>%
-  mutate(pct = pct %>% scales::percent())
-```
 **`r top_3_program_names`** account for roughly **`r top_3_programs_pct`** of MCCS total square foot utilization.
 
 While Food & Beverage (Direct) only accounts for just over **`r fb_direct_pct`** of the total MCCS sqft utilization it ranks number **`r fb_direct_rank`** in total FSRM costs at a total cost of **`r fb_direct_fsrm`** or **`r fb_direct_pct_fsrm`** of all FSRM costs. 
 
-```{r, fig.width = 10, fig.height=5}
-# Program SqFt Pct----
-
+```{r Program SqFt Pct Total Bar, fig.width = 10, fig.height=5}
 
 program_sqft_pct <- df_final %>%
   group_by(op_activity) %>%
@@ -1103,60 +1209,17 @@ program_sqft_pct
 
 ##### What is the FSRM cost per square foot utilization by Program?
 
+The cost per sqft by program is **`r sqft_cost_program`**
 
-```{r}
-
-# Avg Costs per Sqft Helper ----
-avg_cost_program <- df_final %>%
-  mutate(total = RM_corrected + sus) %>%
-  group_by(op_activity) %>%
-  summarise(
-    total = sum(total),
-    total_sqft = sum(total_measure)
-  ) %>%
-  mutate(
-    avg_fsrm_cost = total / total_sqft,
-    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
-  ) %>%
-  arrange(desc(avg_fsrm_cost)) %>%
-  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
-  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
-  summarise(avg = mean(avg_fsrm_cost)) %>%
-  mutate(avg = avg %>% scales::dollar())
-
-
-
-avg_cost_minus_fb <- df_final %>%
-  mutate(total = RM_corrected + sus) %>%
-  group_by(op_activity) %>%
-  summarise(
-    total = sum(total),
-    total_sqft = sum(total_measure)
-  ) %>%
-  mutate(
-    avg_fsrm_cost = total / total_sqft,
-    avg_cost_text = avg_fsrm_cost %>% scales::dollar()
-  ) %>%
-  arrange(desc(avg_fsrm_cost)) %>%
-  mutate(op_activity = op_activity %>% fct_reorder(avg_fsrm_cost)) %>%
-  select(op_activity, total, total_sqft, avg_fsrm_cost) %>%
-  filter(op_activity != "Food & Beverage (Direct)") %>%
-  summarise(avg = mean(avg_fsrm_cost)) %>%
-  mutate(avg = avg %>% scales::dollar())
-```
-
-The cost per sqft by program is **`r avg_cost_program`**
-
-The cost per sqft by program, excluding Food and Beverage (Direct) is **`r avg_cost_minus_fb`**
+The cost per sqft by program, excluding Food and Beverage (Direct) is **`r sqft_cost_minus_fb`**
 
 Food and Beverage (Direct) costs 2.7x more than the next most expensive cost per square foot. 
 
 <br>
 
-```{r}
+```{r Program Cost per SqFt GT}
 
-# Avg Cost Per SqFt by Prorgam----
-avg_cost_sqft_program <- df_final %>%
+cost_sqft_program <- df_final %>%
   mutate(total = RM_corrected + sus) %>%
   group_by(op_activity) %>%
   summarise(
@@ -1217,7 +1280,7 @@ avg_cost_sqft_program <- df_final %>%
     avg_fsrm_cost = "Cost Per SqFT"
   )
 
-avg_cost_sqft_program
+cost_sqft_program
 ```
 
 <br>
@@ -1225,41 +1288,11 @@ avg_cost_sqft_program
 
 ##### What is the percent of total sqft utilization by Region?
 
-```{r}
-# Region SqFt Top 3 Helpers ----
-top_3_region <- df_final %>%
-  group_by(region) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    region = region %>% fct_reorder(pct)
-  ) %>%
-  arrange(desc(pct)) %>%
-  head(3) %>%
-  summarise(total = sum(pct)) %>%
-  mutate(total = total %>% scales::percent(accuracy = 2))
-
-top_3_region_names <- df_final %>%
-  group_by(region) %>%
-  summarise(total = sum(total_measure)) %>%
-  mutate(
-    pct = total / sum(total),
-    pct = pct %>% replace_na(0),
-    region = region %>% fct_reorder(pct)
-  ) %>%
-  arrange(desc(pct)) %>%
-  head(3) %>%
-  pull(region)
-```
-
 
 **`r top_3_region_names`** account for over **`r top_3_region`** of the total MCCS square feet utilization. 
 
 
-```{r, fig.width = 10, fig.height=5}
-
-# region_sqft Pct ----
+```{r Region SqFt Pct Bar, fig.width = 10, fig.height=5}
 
 region_sqft_pct <- df_final %>%
   group_by(region) %>%
@@ -1271,13 +1304,10 @@ region_sqft_pct <- df_final %>%
   ) %>%
   arrange(desc(pct)) %>%
   ungroup() %>%
-  # mutate(decade = if_else(is.na(year), 2020, decade)) %>%
   ggplot(aes(pct, region)) +
   geom_col(fill = "#2c3e50") +
-  # geom_smooth(method = "lm", se = FALSE) +
   theme_tq() +
   theme(
-    # panel.grid.major = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -1299,7 +1329,8 @@ region_sqft_pct
 Locations without a Region have substantially greater costs for FSRM per square foot utilization. 
 
 
-```{r}
+```{r FSRM Cost SqFt Region GT}
+
 cost_sqft_region <- df_final %>%
   mutate(total = RM_corrected + sus) %>%
   group_by(region) %>%
@@ -1374,9 +1405,7 @@ cost_sqft_region
 Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the total square footage of MCCS, though it should be noted that MCB Butler comes in a close 3rd. The below chart highlights the top 10 installation that account for over 83% of MCCS total infrastructure. 
 
 
-```{r}
-# Installation Sqt Top 10 Table ----
-
+```{r Int Top 10 Pct Total Sqft GT}
 installation_sqft_pct_table <- df_final %>%
   group_by(installation) %>%
   summarise(total = sum(total_measure)) %>%
@@ -1436,9 +1465,8 @@ installation_sqft_pct_table
 MCCS has facilities in 26 different locations. The below graph breaks down the percent of total square foot utilization by each location. 
 
 
-```{r, fig.width = 10, fig.height=8}
+```{r Int SqFt Pct of Total SqFt Bar, fig.width = 10, fig.height=8}
 
-# Installation SqFt Percent ----
 installation_sqft_pct <- df_final %>%
   group_by(installation) %>%
   summarise(total = sum(total_measure)) %>%
@@ -1481,29 +1509,6 @@ installation_sqft_pct
 
 ## Program
 
-```{r}
-q_group <- df_final %>% distinct(RPUID, .keep_all = TRUE)
-
-utl_q1 <- q_group %>%
-  filter(q_rating == "Q1") %>%
-  count()
-
-
-utl_q2 <- q_group %>%
-  filter(q_rating == "Q2") %>%
-  count()
-
-
-utl_q3 <- q_group %>%
-  filter(q_rating == "Q3") %>%
-  count()
-
-
-utl_q4 <- q_group %>%
-  filter(q_rating == "Q4") %>%
-  count()
-```
-
 <br>
 
 ##### Q-Rating by Program and Categroy (based on facility)
@@ -1526,7 +1531,7 @@ Use the *Search:* box to sort or filter information in each table below.
 
 <br>
 
-```{r}
+```{r Pro Cat Q Rating DT}
 op_activity_q <- q_group %>%
   group_by(op_activity, naf_cat) %>%
   count(q_rating) %>%
@@ -1555,7 +1560,7 @@ op_activity_q
 
 <br>
 
-```{r}
+```{r Cat Q Rating DT}
 cat_q <- df_final %>%
   group_by(naf_cat) %>%
   count(q_rating) %>%
@@ -1586,7 +1591,7 @@ cat_q
 
 <br>
 
-```{r}
+```{r Region Q Rating DT}
 region_q <- q_group %>%
   group_by(region) %>%
   count(q_rating) %>%
@@ -1620,7 +1625,7 @@ region_q
 
 <br>
 
-```{r}
+```{r Int Q Rating DT}
 installation_q <- q_group %>%
   group_by(installation) %>%
   count(q_rating) %>%
@@ -1638,10 +1643,6 @@ installation_q <- q_group %>%
     )
   ) %>%
   formatPercentage(c("q_rating_pct"), digits = 2)
-# %>%
-#   gt() %>%
-#    tab_header(title = "Exploring Q-Rating by Installation") %>%
-#   cols_align(align = c("center"))
 
 installation_q
 ```
@@ -1656,7 +1657,7 @@ installation_q
 <br>
 
 
-```{r}
+```{r Q Rating Age DT}
 age_q <- df_final %>%
   mutate(
     age = today() - build_dt,
@@ -1684,12 +1685,10 @@ age_q <- df_final %>%
       )
     )
   )
-# %>%
-#   gt() %>%
-#   tab_header(title = "Exlploring Facility Age by Q-Rating") %>%
-#   cols_align(align = c("center"))
+
 
 age_q
+
 ```
 
 <br>
@@ -1723,7 +1722,7 @@ The box and whiskers chart shows you how your data is spread out. Five pieces of
 
 <br>
 
-```{r, fig.width = 10, fig.height=5}
+```{r Q Rating Age Box, fig.width = 10, fig.height=5}
 q_box <- q_group %>%
   mutate(
     age = today() - build_dt,
@@ -1760,7 +1759,7 @@ q_box
 <br>
 
 
-```{r}
+```{r Pro Age DT}
 program_age <- q_group %>%
   mutate(
     age = today() - build_dt,
@@ -1788,10 +1787,6 @@ program_age <- q_group %>%
       )
     )
   )
-# %>%
-#   gt() %>%
-#   tab_header(title = "Exlploring Facility Age by Program") %>%
-#   cols_align(align = c("center"))
 
 program_age
 ```
@@ -1803,7 +1798,7 @@ program_age
 <br>
 
 
-```{r, fig.width = 10, fig.height=5}
+```{r Pro Age Box, fig.width = 10, fig.height=5}
 
 program_box <- q_group %>%
   mutate(
@@ -1840,7 +1835,7 @@ program_box
 
 <br>
 
-```{r}
+```{r Region Age DT}
 
 region_age <- q_group %>%
   mutate(
@@ -1869,10 +1864,7 @@ region_age <- q_group %>%
       )
     )
   )
-# %>%
-#   gt() %>%
-#   tab_header(title = "Exlploring Facility Age by Region") %>%
-#   cols_align(align = c("center"))
+
 
 region_age
 ```
@@ -1883,7 +1875,7 @@ region_age
 
 <br>
 
-```{r, fig.width = 10, fig.height=5}
+```{r Region Age Box, fig.width = 10, fig.height=5}
 region_box <- q_group %>%
   mutate(
     age = today() - build_dt,
@@ -1919,7 +1911,7 @@ region_box
 
 <br>
 
-```{r}
+```{r Int Age DT}
 installation_age <- q_group %>%
   mutate(
     age = today() - build_dt,
@@ -1961,7 +1953,7 @@ installation_age
 
 <br>
 
-```{r, fig.width = 10, fig.height=5}
+```{r Int Age Box, fig.width = 10, fig.height=5}
 int_box <- df_final %>%
   mutate(
     age = today() - build_dt,

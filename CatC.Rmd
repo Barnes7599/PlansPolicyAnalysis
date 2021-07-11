@@ -44,7 +44,9 @@ Terms of Reference:
 
 ```{r}
 # Utilization Data ----
+
 Utilization <- read_excel(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Utilization/Utilization.xlsx", sheet = "Utilization", col_types = c("text", "text", "text", "text", "numeric"))
+
 # Tidy and Prep for Joining Utilization Data
 
  Utl <- Utilization %>% 
