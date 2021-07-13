@@ -57,11 +57,13 @@ h5 {
 <!-- <div class="col-sm-9"> -->
 
 
-<center>
 
-![](images/16_MCCSlogo_Comp.png)
+```{r,  out.width='50%', fig.align='center', echo=FALSE}
 
-</center>
+knitr::include_graphics("images/16_MCCSlogo_Comp.png")
+
+```
+
 
 <br>
 

@@ -641,10 +641,87 @@ category <- df_final %>%
   )
 
 
-
 category
 
 ```
+
+
+```{r fx_gt_fsrm}
+gt_fsrm <- function(data, vbl){
+  
+  data = data
+  
+ table <- data %>% 
+  group_by({{vbl}}) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange({{vbl}})
+  
+ table_name <- colnames(table)[1]
+
+ table_name_2 <- if_else(table_name %in% c("naf_cat"), "Category",
+       if_else(table_name %in% c("region"), "Region",
+           if_else(table_name %in% c("op_activity"), "Program","")))
+
+ table %>% 
+   gt() %>% 
+ tab_header(
+   title = md(str_glue("*Annual* MCCS FSRM Costs by {table_name_2}")),
+   subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+  ) %>%
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD",
+    decimals = 0
+  ) %>% 
+   cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>% 
+  tab_footnote(
+    footnote = "Funding agnostic",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric)",
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Cat C - 2x iNFADS sustainment costs",
+    locations = cells_column_labels(
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>% 
+  cols_label(
+    
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+ 
+}
+
+```
+
+
 <br>
 
 ---
@@ -2095,4 +2172,4 @@ References:
 [NAVFAC Appendix A P72 ](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) |
 [MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
----
+
