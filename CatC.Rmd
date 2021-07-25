@@ -372,7 +372,7 @@ ggplotly(bowling, tooltip = c("text"), height = 500, width = 900) %>%
  #config(displayModeBar = FALSE)
 
 ```
-*data does not include Okinawa and SDM includes utilization data fro only (FY19 & FY20)
+*data does not include Okinawa and SDM includes utilization data from (FY19 & FY20)
 
 ## Table*  
 
@@ -406,7 +406,7 @@ The below table displays Percent Net Profit (FY18-FY20) and Percent use by Activ
     # Join the population data
     select(FY,Cost_Center, Company_Description, Cost_Center_Description, pct, total_act_pct) %>% 
     rename(
-      "Cost Cener" = Cost_Center, 
+      "Cost Center" = Cost_Center, 
       "Cost Center Desc" = Cost_Center_Description,
       "Company Desc" = Company_Description, 
       #"FY" = FY.x, 
@@ -547,7 +547,7 @@ profit %>%
     # Join the population data
     select(FY, Company_Description, pct, total_act_pct) %>% 
     rename(
-      # "Cost Cener" = Cost_Center, 
+      # "Cost Center" = Cost_Center, 
       # "Cost Center Desc" = Cost_Center_Description,
       "Company Desc" = Company_Description, 
       #"FY" = FY.x, 

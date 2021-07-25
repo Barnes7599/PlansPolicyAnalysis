@@ -70,7 +70,7 @@ library(writexl)
 
 # Read in cat codes xlsx data and save data as RDS
 saveRDS(
-  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
+  read_xlsx(here::here("data/", "MCCS_Facility_ Inventory_Report.XLSX"),
     sheet = "Cat_code",
     col_types = c("numeric", "text", "text", "text"
     )
@@ -79,38 +79,33 @@ saveRDS(
 )
 
 # Assign RDS data to variable
-cat_codes <- read_rds(here::here("data", "Cat_code.rds"))
+cat_codes <- read_rds(here::here("data/", "Cat_code.rds"))
 
 
 # Read in facility xlsx data and save data as RDS
-saveRDS(
-  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
+
+fac <-  read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
     sheet = "Facility",
     skip = 1,
     col_types = c(
       "text", "text", "text",
       "text", "text", "numeric",
-      "numeric", "date", "text",
-      "date", "date"
+      "numeric", "text", "numeric", "date"
     )
-  ),
-  here::here("data", "fac.rds")
-)
+  )
 
-# Assign RDS data to variable
-fac <- read_rds(here::here("data", "fac.rds"))
+
+
 
 # Read in utilization xlsx data and save data as RDS
-saveRDS(
-  read_xlsx(here::here("data", "MCCS_Facility_Inventory_Report.XLSX"),
-    sheet = "Sheet1",
+utl <-  read_xlsx("data/MCCS_Facility_Inventory_Report.XLSX",
+    sheet = "Utilization",
     skip = 1
-  ),
-  here::here("data", "utl")
-)
+  )
 
-# Assign RDS data to variable
-utl <- read_rds(here::here("data", "utl.rds"))
+
+
+
 
 
 ```
@@ -121,23 +116,21 @@ utl <- read_rds(here::here("data", "utl.rds"))
 fac <- fac %>%
   janitor::clean_names() %>%
   separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
-  #isolate use categroy code in own column called "usecode"
-  separate(i_nfads_predominant_current_use_category_code, c("usecode", "fac_usedesc"), sep = 6) %>%
   select(
     RPUID = i_nfads_real_property_unique_id,
-    usecode,
-    fac_usedesc,
     installation,
     prv = i_nfads_current_prv,
     fci = i_nfads_facility_condition_index,
     fci_dt = i_nfads_fci_date,
-    build_dt = i_nfads_facility_built_date
+    infads_area = i_nfads_area
+    
   ) %>%
   # coverting dates to ymd format
   mutate(
-    usecode = usecode %>% as.numeric(),
+    # usecode = usecode %>% as.numeric(),
     fci_dt = ymd(fci_dt) %>% replace_na(ymd(0000 / 00 / 00)),
-    build_dt = ymd(build_dt) %>% replace_na(ymd(0000 / 00 / 00))
+    infads_area = infads_area %>% replace_na(0)
+    # build_dt = ymd(build_dt) %>% replace_na(ymd(0000 / 00 / 00))
   ) %>%
   # adding new column called Q-Rating based on the FCI
   mutate(q_rating = case_when(
@@ -207,7 +200,7 @@ utl <- utl %>%
     iadq_other = i_nfads_iadq_other_measure,
     other_unit_measure = i_nfads_other_unit_meas
   ) %>%
-  #isolate use categroy code in own column called "usecode"
+  #isolate use Category code in own column called "usecode"
   separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
   mutate(use_code = use_code %>% as.numeric()) %>%
   # Remove bilieting not being absorbed by MCCS
@@ -235,21 +228,6 @@ utl <- utl %>%
     alt_total_measure = adq_alt + sub_alt + iadq_alt,
     other_total_measure = adq_other + sub_other + iadq_other
   ) %>%
-  # finding percentages
-  group_by(RPUID) %>%
-  mutate(
-    use_pct_area = total_measure / sum(total_measure),
-    use_pct_other = other_total_measure / sum(other_total_measure),
-    use_pct_alt = alt_total_measure / sum(alt_total_measure),
-    use_pct_area = use_pct_area %>% replace_na(0),
-    use_pct_alt = use_pct_alt %>% replace_na(0),
-    use_pct_other = use_pct_other %>% replace_na(0)
-  ) %>%
-  # logic to fill in where 
-  mutate(fac_use_pct = if_else(use_pct_area > 0, use_pct_area,
-    if_else(use_pct_alt > 0, use_pct_alt, use_pct_other)
-  )) %>%
-  ungroup() %>%
   mutate(region = case_when(
     installation %in% c(
       "M00146 MCAS CHERRY POINT NC",
@@ -305,15 +283,45 @@ df_clean <- fac_mapped %>%
   mutate(
     sus = if_else(naf_cat == "C", FY2022 * 2, FY2022),
     sus = sus %>% replace_na(0)
+  ) %>% 
+  # finding percentages if the facility area is blank on raw facility data
+  
+  # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
+  # if total_measure > 0 use total_measure otherwise
+  # if alt_total_measure > use alt_total_measure otherwise
+  # use other_total_measure
+  mutate(
+    # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
+    # if total_measure > 0 use total_measure otherwise
+    # if alt_total_measure > use alt_total_measure otherwise
+    # use other_total_measure
+    fac_area_measure = if_else(infads_area > 0, infads_area,
+                               if_else(total_measure > 0, total_measure,
+                                       if_else(alt_total_measure > 0, alt_total_measure,
+                                                other_total_measure))
+    )) %>%
+  group_by(RPUID) %>% 
+  mutate(count = n()) %>% 
+  ungroup() %>% 
+  mutate(
+    use_pct_area = if_else(total_measure > 0, total_measure / fac_area_measure, 1)) %>% 
+                           
+                           # if_else(alt_total_measure > 0, alt_total_measure / fac_area_measure,
+                           #         if_else(other_total_measure > 0, other_total_measure / fac_area_measure, 1)))) %>% 
+    
+  mutate(
+    use_pct_area = use_pct_area %>% replace_na(0)
   ) %>%
   mutate(
-    RM_corrected = RM * fac_use_pct
+    RM_corrected = RM * use_pct_area,
+    use_pct_text = use_pct_area %>% scales::percent(),
+    RM_corrected_text = RM_corrected %>% scales::dollar()
   )
 
 # Create Final dataframe
-
+# need to add back in build date
 df_final <- df_clean %>%
-  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, fac_usedesc, asset_name, fci, fci_dt, q_rating, build_dt, adq, sub, iadq, total_measure, adq_alt, sub_alt, sub_other, alt_total_measure, adq_other, sub_other, iadq_other, other_total_measure, other_unit_measure, use_pct_area, use_pct_alt, use_pct_other, fac_use_pct, prv, RM, RM_corrected, sus)
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
 
 ```
 
@@ -546,6 +554,8 @@ utl_q4 <- q_group %>%
 
 Note: The current report is based on utilization information unless otherwise noted. 
 
+Facility sustainment, restoration and modernization (FSRM) calculations are resource agnostic. 
+
 Data dictionary and assumptions are at the end of this report. 
 
 
@@ -602,7 +612,7 @@ category <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -634,7 +644,7 @@ category <- df_final %>%
     decimals = 0
   ) %>%
   cols_label(
-    naf_cat = "Categroy",
+    naf_cat = "Category",
     total_sus = "Sustainment",
     total_rm = "R & M",
     total = "Total"
@@ -686,7 +696,7 @@ gt_fsrm <- function(data, vbl){
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -760,7 +770,7 @@ region <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -834,7 +844,7 @@ program <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -887,7 +897,7 @@ There are a total of **`r num_use_desc`** distinct use categories within data se
 
 ```{r Use Category GT }
 
-top_10_use_categroy <- df_final %>%
+top_10_use_Category <- df_final %>%
   group_by(use_desc) %>%
   summarise(
     total_sus = sum(sus),
@@ -895,7 +905,7 @@ top_10_use_categroy <- df_final %>%
     total = total_sus + total_rm
   ) %>%
   mutate(use_desc = use_desc %>% fct_reorder(total)) %>%
-  arrange(desc(total)) %>%
+  arrange(desc(total)) %>% 
   head(10) %>%
   gt() %>%
   tab_header(
@@ -916,7 +926,7 @@ top_10_use_categroy <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -951,7 +961,7 @@ top_10_use_categroy <- df_final %>%
     total = "Total"
   )
 
-top_10_use_categroy
+top_10_use_Category
 
 ```
 
@@ -1000,9 +1010,9 @@ cost_by_Program_DT
 Total utilization of MCCS according to iNFADS is **`r sqft_total`** square feet (Total Measure = adq + iadq + sub).
 
 <br>
-Note: Utilization such as athletic fields, outdoor playing courts(basketball, volleyball, etc), playgrounds and Marina/Boat Ramp's are typically not included in total measure of square foot utilization)
+Note: Utilization such as athletic fields, outdoor playing courts (basketball, volleyball, etc.), playgrounds and Marina/Boat Ramps are typically not included in total measure of square foot utilization)
 
-Note: The trends are based on MCCS existing utilization by build date. 
+Note: The trends are based on MCCS existing utilization by age. 
 
 <br>
 
@@ -1010,7 +1020,7 @@ Note: The trends are based on MCCS existing utilization by build date.
 
 <br>
 
-##### What is the trend of sqaure foot utilization by decade and Program?
+##### What is the trend of square foot utilization by decade and Program?
 
 
 Exchange Operations, Children and Youth and Semper Fit programs have been adding additional square footage utilization throughout the 2000 and 2010 decades (2000 - 2019). Additionally, Clubs, Commercial Recreation and less so in Lodging from the 2000 to the 2010 have slowed adding additional square footage within their programs. While Food and Beverage (Direct) and Other Business Operations have remained relatively flat. 
@@ -1040,7 +1050,7 @@ program_decade_sqft <- df_final %>%
   labs(
     y = "Total Measure (SqFt)",
     x = "Decade",
-    caption = "*Build dates are grouped by decade (ex. 2010-2019) represents decade 2010.
+    caption = "*Age (based on build dates) are grouped by decade (ex. 2010-2019) represents decade 2010.
                 Decade is based on iNFADS facility build date"
   )
 
@@ -1088,7 +1098,7 @@ Sqft_by_decade
 
 <br>
 
-##### Cumulative Sqare Footage by Decade based on Facility Build Date
+##### Cumulative Square Footage by Decade based on Facility Build Date
 
 ```{r Cumulative SqFt Area, fig.width = 10, fig.height=5}
 
@@ -1401,7 +1411,7 @@ region_sqft_pct
 <br>
 <br>
 
-##### What is the FSRM costs per squre foot utilization by Region? 
+##### What is the FSRM costs per square foot utilization by Region? 
 
 Locations without a Region have substantially greater costs for FSRM per square foot utilization. 
 
@@ -1479,7 +1489,7 @@ cost_sqft_region
 ##### What is the percent of total sqft utilization by Installation? 
 
 
-Not surprisingly, Camp Lejuene and Camp Pendleton account for over 31% of the total square footage of MCCS, though it should be noted that MCB Butler comes in a close 3rd. The below chart highlights the top 10 installation that account for over 83% of MCCS total infrastructure. 
+Not surprisingly, Camp Lejeune and Camp Pendleton account for approximately 32% of the total square footage of MCCS. The below chart highlights the top 10 installation that account for 83% of MCCS total infrastructure. 
 
 
 ```{r Int Top 10 Pct Total Sqft GT}
@@ -1495,7 +1505,7 @@ installation_sqft_pct_table <- df_final %>%
   head(10) %>%
   gt() %>%
   tab_header(
-    title = md("Top 10 Installations based on total sqaure feet utilization aboard the Installation"),
+    title = md("Top 10 Installations based on total square feet utilization aboard the Installation"),
     subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
   ) %>%
   fmt_number(
@@ -1584,14 +1594,6 @@ installation_sqft_pct
 
 <br>
 
-## Program
-
-<br>
-
-##### Q-Rating by Program and Categroy (based on facility)
-
-<br>
-
 Number of **facilities** by Q-Rating
 
 * Q1: `r utl_q1`
@@ -1601,6 +1603,14 @@ Number of **facilities** by Q-Rating
 * Q3: `r utl_q3`
 
 * Q4: `r utl_q4`
+
+<br>
+
+## Program
+
+<br>
+
+##### Q-Rating by Program and Category (based on facility)
 
 <br>
 
@@ -2136,7 +2146,7 @@ GENERAL POLICY FOR RESTORATION AND MODERNIZATION
 
 2. Other tasks associated with facilities operations (such as custodial services, grass cutting, landscaping, waste disposal, and the provision of central utilities) are also not included. 
 
-> *R & M*: The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalizaed and that sustainment costs are being applied annualy to each facility.
+> *R & M*: The calculation in this report is based on 2.5% of the facilities Plant Replacement Value (PRV), this calculation assumes facility is fully recapitalized and that sustainment costs are being applied annually to each facility.
 
 __Adequate Area Measure (adq):__ The capacity or size in area measure of a facility or portion thereof that is in adequate condition and associated with a designated function (use) and a designated user. Adequate is defined as being capable of supporting the designated function without a need for capital improvements.
 
@@ -2172,4 +2182,42 @@ References:
 [NAVFAC Appendix A P72 ](https://www.wbdg.org/ffc/dod/unified-facilities-criteria-ufc/ufc-2-000-05n) |
 [MCO P11000.5G](https://www.marines.mil/Portals/1/Publications/MCO%20P11000.5G%20W%20CH%201.pdf)
 
+
+```{r}
+knitr::knit_exit()
+
+```
+
+
+```{r}
+df_final %>% 
+ filter(use_desc %in% c("GOLF COURSE")) %>% 
+  select(Region = region, Installation = installation, Sustainment = sus, RM = RM_corrected) %>% 
+  mutate(Total = Sustainment + RM,
+         Seven_Yr_Total = Total * 7,
+         Sustainment = Sustainment %>% scales::dollar(),
+         RM = RM %>% scales::dollar(),
+         Total = Total %>% scales::dollar(),
+         Seven_Yr_Total = Seven_Yr_Total %>% scales::dollar())
+
+
+df_final %>%
+  group_by(naf_cat) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(naf_cat) %>% 
+  mutate(APF = if_else(naf_cat == "A", total*.85,
+                       if_else(naf_cat == "B", total*.65, 0))) %>% 
+  mutate(NAF = if_else(naf_cat == "A", total*.15,
+                       if_else(naf_cat == "B", total*.35, total))) %>% 
+  janitor::adorn_totals()
+
+
+
+  
+
+```
 

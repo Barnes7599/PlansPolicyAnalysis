@@ -1,0 +1,95 @@
+---
+title: "Financial"
+author: "Jason Barnes"
+date: "July 17, 2021"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, 
+                      warning = FALSE, 
+                      cache = TRUE, 
+                      echo = FALSE,
+                      fig.width = 10, 
+                      fig.height=5)
+```
+
+
+
+```{r load-lib}
+
+library(tidyverse)
+library(readr)
+library(readxl)
+library(DT)
+library(gt)
+library(tidyquant)
+library(markdown)
+library(writexl)
+library(ggthemes)
+
+```
+
+
+```{r read-data}
+extract <- read_xlsx(here::here("data", "5_yr_extract.xlsx")) %>% 
+  janitor::clean_names()
+
+saveRDS(extract, here::here("data", "5yr_extract.rds"))
+
+extract <- read_rds(here::here("data","5yr_extract.rds"))
+
+apf_naf_matrix <- read_xlsx(here::here("data", "Oct_2020_APF_NAF_Matrix.xlsx")) %>% 
+  janitor::clean_names()
+
+saveRDS(apf_naf_matrix,here::here("data", "apf_naf_matrix.rds"))
+
+apf_naf_matrix <- read_rds(here::here("data", "apf_naf_matrix.rds"))
+
+extract <- extract %>% 
+  left_join(apf_naf_matrix, by = c("cost_center" = "naf_cctr"))
+
+```
+
+```{r}
+resources <- extract %>%
+  select(cost_center, cost_center_description, company, gl_account_description, 
+         title_ar_description, FY20 = x2020, FY19 = x2019, FY18 = x2018, FY17 = x2017, FY16 = x2016, 
+         mcpc, besa, cat, program = program_4, naf_cctr_description, 
+         metric_name = metric_report_category_program_name, grouping = program_11
+         ) %>% 
+  mutate(grouping = if_else(is.na(mcpc), "Other", grouping)) %>% 
+  filter(title_ar_description %in% c("SALES", "UFM REVENUE", "OTHER INCOME")) %>% 
+  filter(grouping != "WWR") %>% 
+  group_by(title_ar_description) %>% 
+  summarise(total = sum(FY19))
+
+costs <- extract %>% 
+
+  select(cost_center, cost_center_description, company, gl_account_description, 
+         title_ar_description, FY20 = x2020, FY19 = x2019, FY18 = x2018, FY17 = x2017, FY16 = x2016, 
+         mcpc, besa, cat, program = program_4, naf_cctr_description, 
+         metric_name = metric_report_category_program_name, grouping = program_11
+         ) %>% 
+  mutate(grouping = if_else(is.na(mcpc), "Other", grouping)) %>% 
+  filter(title_ar_description %in% c("PAYROLL EXPENSES", "OTHER OPERATING EXPENSES", "OTHER EMPLOYEE EXPENSES", "INSURANCE EXPENSES", "HQ'S INSURANCE EXPENSES" )) %>% 
+  filter(grouping != "WWR") %>% 
+  group_by(title_ar_description) %>% 
+  summarise(total = sum(FY19)) 
+
+
+totals <- 
+  rbind(resources, costs) %>% 
+  gt() %>% 
+  fmt_currency(columns = total,
+               decimals = 0) %>% 
+  summary_rows(
+    groups = TRUE, 
+    columns = total,
+    fns = list(total = ".sum"),
+    formatter = fmt_currency
+  )
+
+```
+
