@@ -69,14 +69,13 @@ library(writexl)
 ```{r read-data}
 
 # Read in cat codes xlsx data and save data as RDS
-saveRDS(
-  read_xlsx(here::here("data/", "MCCS_Facility_ Inventory_Report.XLSX"),
+
+cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
     sheet = "Cat_code",
-    col_types = c("numeric", "text", "text", "text"
-    )
-  ),
-  here::here("data", "Cat_code.rds")
+    col_types = c("numeric", "text", "text", "text")
 )
+
+saveRDS(cat_code, "data/Cat_code.rds")
 
 # Assign RDS data to variable
 cat_codes <- read_rds(here::here("data/", "Cat_code.rds"))
@@ -90,7 +89,7 @@ fac <-  read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
     col_types = c(
       "text", "text", "text",
       "text", "text", "numeric",
-      "numeric", "text", "numeric", "date"
+      "numeric", "text", "numeric", "date", "date"
     )
   )
 
@@ -102,10 +101,6 @@ utl <-  read_xlsx("data/MCCS_Facility_Inventory_Report.XLSX",
     sheet = "Utilization",
     skip = 1
   )
-
-
-
-
 
 
 ```
@@ -122,15 +117,16 @@ fac <- fac %>%
     prv = i_nfads_current_prv,
     fci = i_nfads_facility_condition_index,
     fci_dt = i_nfads_fci_date,
-    infads_area = i_nfads_area
+    infads_area = i_nfads_area,
+    build_dt = i_nfads_facility_built_date
     
   ) %>%
   # coverting dates to ymd format
   mutate(
     # usecode = usecode %>% as.numeric(),
     fci_dt = ymd(fci_dt) %>% replace_na(ymd(0000 / 00 / 00)),
-    infads_area = infads_area %>% replace_na(0)
-    # build_dt = ymd(build_dt) %>% replace_na(ymd(0000 / 00 / 00))
+    infads_area = infads_area %>% replace_na(0),
+    build_dt = ymd(build_dt) %>% replace_na(ymd(0000 / 00 / 00))
   ) %>%
   # adding new column called Q-Rating based on the FCI
   mutate(q_rating = case_when(
@@ -321,7 +317,7 @@ df_clean <- fac_mapped %>%
 # Create Final dataframe
 # need to add back in build date
 df_final <- df_clean %>%
-  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
 
 ```
 
