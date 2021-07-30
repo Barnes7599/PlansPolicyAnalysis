@@ -1,6 +1,4 @@
 base
-DT
-readxl
 tidyverse
 ggplot2
 tibble
@@ -11,10 +9,9 @@ dplyr
 stringr
 forcats
 ggthemes
-ggrepel
-plotly
-extrafont
-DataExplorer
+readxl
+DT
+gt
 lubridate
 zoo
 xts
@@ -22,11 +19,5 @@ PerformanceAnalytics
 TTR
 quantmod
 tidyquant
-formattable
-glue
-paletteer
-prettydoc
-kableExtra
-gt
 markdown
 writexl
