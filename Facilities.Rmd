@@ -78,7 +78,7 @@ cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
 saveRDS(cat_code, "data/Cat_code.rds")
 
 # Assign RDS data to variable
-cat_codes <- read_rds(here::here("data/", "Cat_code.rds"))
+cat_code <- read_rds(here::here("data/", "Cat_code.rds"))
 
 
 # Read in facility xlsx data and save data as RDS
@@ -166,7 +166,7 @@ fac <- fac %>%
     installation %>% str_to_lower() %>% str_detect("mcsptact") ~ "Kansas City"
   )) %>%
   mutate(RPUID = RPUID %>% as.character()) %>%
-  # create a Restoration and Modernization Column
+ # create a Restoration and Modernization Column
   mutate(RM = prv * 0.025)
 
 `%notin%` <- Negate(`%in%`)
@@ -203,7 +203,7 @@ utl <- utl %>%
   filter(RPUID %notin% c(
     21104, 54390, 25139, 24922, 18187, 21378, 21379, 43713, 43714, 35068, 35073, 35080,
     33751, 38891, 38889, 38895, 47139, 40535, 43543, 43544, 43744, 40524, 40529,
-    40532, 40526, 40534, 47876, 46374, 39594, 54613
+    40532, 40526, 40534, 46374, 39594, 54613
   )) %>%
   # handling missing data
   mutate(
@@ -268,12 +268,13 @@ utl <- utl %>%
   mutate(RPUID = RPUID %>% as.character())
 
 fac_mapped <- utl %>%
-  inner_join(cat_codes, by = c("use_code" = "use_code"))
+  inner_join(cat_code, by = c("use_code" = "use_code"))
 
 
 fac_mapped <- fac_mapped %>%
   left_join(fac, by = "RPUID") %>%
-  filter(naf_cat %in% c("A", "B", "C", "L"))
+  filter(naf_cat %in% c("A", "B", "C", "L", "L (TDY)", "L (PCS)")) %>% 
+  mutate(naf_cat = if_else(RPUID == 1173406, "L (PCS)", naf_cat))
 
 df_clean <- fac_mapped %>%
   mutate(
@@ -318,6 +319,7 @@ df_clean <- fac_mapped %>%
 # need to add back in build date
 df_final <- df_clean %>%
   select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
+
 
 ```
 
