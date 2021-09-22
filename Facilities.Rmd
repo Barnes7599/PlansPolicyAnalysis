@@ -645,6 +645,7 @@ category <- df_final %>%
 
 category
 
+
 ```
 
 
@@ -2177,39 +2178,6 @@ References:
 
 ```{r}
 knitr::knit_exit()
-
-```
-
-
-```{r}
-df_final %>% 
- filter(use_desc %in% c("GOLF COURSE")) %>% 
-  select(Region = region, Installation = installation, Sustainment = sus, RM = RM_corrected) %>% 
-  mutate(Total = Sustainment + RM,
-         Seven_Yr_Total = Total * 7,
-         Sustainment = Sustainment %>% scales::dollar(),
-         RM = RM %>% scales::dollar(),
-         Total = Total %>% scales::dollar(),
-         Seven_Yr_Total = Seven_Yr_Total %>% scales::dollar())
-
-
-df_final %>%
-  group_by(naf_cat) %>%
-  summarise(
-    total_sus = sum(sus),
-    total_rm = sum(RM_corrected),
-    total = sum(sus) + sum(RM_corrected)
-  ) %>%
-  arrange(naf_cat) %>% 
-  mutate(APF = if_else(naf_cat == "A", total*.85,
-                       if_else(naf_cat == "B", total*.65, 0))) %>% 
-  mutate(NAF = if_else(naf_cat == "A", total*.15,
-                       if_else(naf_cat == "B", total*.35, total))) %>% 
-  janitor::adorn_totals()
-
-
-
-  
 
 ```
 
