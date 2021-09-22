@@ -76,7 +76,6 @@ cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
 )
 
 
-
 # Read in facility xlsx data and save data as RDS
 
 fac <-  read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
@@ -271,10 +270,27 @@ fac_mapped <- fac_mapped %>%
   mutate(naf_cat = if_else(RPUID == 1173406, "L (PCS)", naf_cat))
 
 df_clean <- fac_mapped %>%
-  mutate(
+ mutate(
+    naf_cat = if_else(use_code == 74040 & 
+                        installation.x == "M67400 MCB CAMP S D BUTLER OKINAWA JA" & 
+                        asset_name == "BOWLING CENTER (13 LANES AND MORE)", "C", 
+                      if_else(use_code == 74040 & 
+                        installation.x == "M67001 MCB CAMP LEJEUNE NC" & 
+                        asset_name == "BOWLING ALLEY", "C",
+                        if_else(use_code == 74040 & 
+                        installation.x == "M62613 MCAS IWAKUNI JA", "C",
+                        if_else(use_code == 74040 & 
+                        installation.x == "M00318 MCB HAWAII KANEOHE", "C",
+                        if_else(use_code == 74040 & 
+                        installation.x == "M00681 MCB CAMP PENDLETON CA", "C",
+                        if_else(use_code == 74040 & 
+                        installation.x == "M67399 MCAGCC TWENTYNINE PALMS CA", "C",
+                        naf_cat
+                        ))))))
+  ) %>%  mutate(
     sus = if_else(naf_cat == "C", FY2022 * 2, FY2022),
     sus = sus %>% replace_na(0)
-  ) %>% 
+  ) %>%
   # finding percentages if the facility area is blank on raw facility data
   
   # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
@@ -313,6 +329,7 @@ df_clean <- fac_mapped %>%
 # need to add back in build date
 df_final <- df_clean %>%
   select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
+
 
 
 ```
