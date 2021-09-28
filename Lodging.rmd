@@ -1,0 +1,493 @@
+---
+title: "MCCS Facilities Exploratory Analysis" 
+
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 2
+    code_folding: none
+params:
+  date: "Sep 28, 2021"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, 
+                      warning = FALSE, 
+                      cache = TRUE, 
+                      echo = FALSE,
+                      fig.width = 10, 
+                      fig.height=5)
+```
+
+```{css headings, echo=FALSE}
+
+h1 {
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 22px;
+    text-align: center;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+h5 {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+```
+
+```{r load-lib}
+library(tidyverse)
+library(ggthemes)
+library(readxl)
+library(DT)
+library(gt)
+library(tidyquant)
+library(markdown)
+library(writexl)
+
+```
+
+```{r read-data}
+
+# Read in cat codes xlsx data and save data as RDS
+
+cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
+    sheet = "Cat_code",
+    col_types = c("numeric", "text", "text", "text")
+)
+
+
+# Read in facility xlsx data and save data as RDS
+
+fac <-  read_xlsx(path = "data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+    sheet = "Facility",
+    skip = 1,
+    col_types = c(
+      "text", "text", "text",
+      "text", "text", "numeric",
+      "numeric", "text", "numeric", "date", "date"
+    )
+  )
+
+
+# Read in utilization xlsx data and save data as RDS
+utl <-  read_xlsx("data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+    sheet = "Utilization",
+    skip = 1
+  )
+
+
+```
+
+```{r wrangle}
+
+# Clean Facility Data
+fac_lodging <- fac %>%
+  janitor::clean_names() %>%
+  separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
+  select(
+    RPUID = i_nfads_real_property_unique_id,
+    installation,
+    prv = i_nfads_current_prv,
+    fci = i_nfads_facility_condition_index,
+    fci_dt = i_nfads_fci_date,
+    infads_area = i_nfads_area,
+    build_dt = i_nfads_facility_built_date
+    
+  ) %>%
+  # coverting dates to ymd format
+  mutate(
+    # usecode = usecode %>% as.numeric(),
+    fci_dt = ymd(fci_dt) %>% replace_na(ymd(0000 / 00 / 00)),
+    infads_area = infads_area %>% replace_na(0),
+    build_dt = ymd(build_dt) %>% replace_na(ymd(0000 / 00 / 00))
+  ) %>%
+  # adding new column called Q-Rating based on the FCI
+  mutate(q_rating = case_when(
+    fci <= 59 ~ "Q4",
+    fci <= 79 ~ "Q3",
+    fci <= 89 ~ "Q2",
+    TRUE ~ "Q1"
+  )) %>%
+  # shorten installation (location) names
+  mutate(installation = case_when(
+    installation %>% str_to_lower() %>% str_detect("butler") ~ "MCB Butler",
+    installation %>% str_to_lower() %>% str_detect("mcb camp pendleton") ~ "MCB Pendleton",
+    installation %>% str_to_lower() %>% str_detect("mcb camp lejeune") ~ "MCB Lejeune",
+    installation %>% str_to_lower() %>% str_detect("mcb hawaii") ~ "MCB Hawaii",
+    installation %>% str_to_lower() %>% str_detect("mcas iwakuni") ~ "MCAS Iwakuni",
+    installation %>% str_to_lower() %>% str_detect("mcas cherry") ~ "MCAS Cherry Point",
+    installation %>% str_to_lower() %>% str_detect("marine corps base quantico") ~ "MCB Quantico",
+    installation %>% str_to_lower() %>% str_detect("mcagcc") ~ "MCAGCC 29 Palms",
+    installation %>% str_to_lower() %>% str_detect("miramar") ~ "MCAS Miramar",
+    installation %>% str_to_lower() %>% str_detect("yuma") ~ "MCAS Yuma",
+    installation %>% str_to_lower() %>% str_detect("san diego") ~ "MCRD San Diego",
+    installation %>% str_to_lower() %>% str_detect("mcrd beaufort") ~ "MCRD PI",
+    installation %>% str_to_lower() %>% str_detect("new river") ~ "MCAS New River",
+    installation %>% str_to_lower() %>% str_detect("futenma") ~ "MCAS Futenma",
+    installation %>% str_to_lower() %>% str_detect("mcas beaufort") ~ "MCAS Beaufort",
+    installation %>% str_to_lower() %>% str_detect("barstow") ~ "MCLB Barstow",
+    installation %>% str_to_lower() %>% str_detect("albany") ~ "MCLB Albany",
+    installation %>% str_to_lower() %>% str_detect("orleans") ~ "MARFORRES",
+    installation %>% str_to_lower() %>% str_detect("washington") ~ "MBW (8th & I)",
+    installation %>% str_to_lower() %>% str_detect("garden") ~ "Garden City",
+    installation %>% str_to_lower() %>% str_detect("bridgeport") ~ "MWTC Bridgeport",
+    installation %>% str_to_lower() %>% str_detect("mujuk") ~ "Camp Mujuk",
+    installation %>% str_to_lower() %>% str_detect("mcas camp pendleton") ~ "MCAS Pendleton",
+    installation %>% str_to_lower() %>% str_detect("allen") ~ "Camp Elmore",
+    installation %>% str_to_lower() %>% str_detect("mcsf") ~ "MCSF Blount Island",
+    installation %>% str_to_lower() %>% str_detect("4th mardiv") ~ "HQ 4th MARDIV",
+    installation %>% str_to_lower() %>% str_detect("mcsptact") ~ "Kansas City"
+  )) %>%
+  mutate(RPUID = RPUID %>% as.character()) %>%
+ # create a Restoration and Modernization Column
+  mutate(RM = prv * 0.025)
+
+# Clean utilization data
+utl_lodging <- utl %>%
+  janitor::clean_names() %>%
+  janitor::remove_empty(c("rows"), quiet = TRUE) %>%
+  select(
+    RPUID = i_nfads_real_property_unique_id,
+    use = i_nfads_use_category_code,
+    fac_num = i_nfads_facility_number,
+    installation = mccs_installation_name,
+    program = mccs_business_program,
+    asset_name = i_nfads_real_property_asset_name,
+    fac_use = i_nfads_facility_use,
+    FY2022 = fsm_fy22_sustainment_cost,
+    Cat = i_nfads_naf_category,
+    adq = i_nfads_adq_area_measure,
+    sub = i_nfads_sub_area_measure,
+    iadq = i_nfads_iadq_area_measure,
+    adq_alt = i_nfads_adq_alternate_measure,
+    sub_alt = i_nfads_sub_alternate_measure,
+    iadq_alt = i_nfads_iadq_alternate_measure,
+    adq_other = i_nfads_adq_other_measure,
+    sub_other = i_nfads_sub_other_measure,
+    iadq_other = i_nfads_iadq_other_measure,
+    other_unit_measure = i_nfads_other_unit_meas
+  ) %>%
+  #isolate use Category code in own column called "usecode"
+  separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
+  mutate(use_code = use_code %>% as.numeric()) %>%
+  # Remove bilieting not being absorbed by MCCS
+  filter(RPUID %in% c(
+    47876, 54005, 42721, 42722, 42728,20961,55067, 1402894,624330,31834,1276281,1168519,1171866,55442,985794,985798,33862,33863
+,33864,33866,33867,33868,52828,44509,1418193,39447,1173406,1010443,921138,24975,25335,25336,24976,24977,1102653,18774,14521,547842
+,38897,38886,38888,38887,38901,22706,36823,36814,46880,167081,27560,1289900,26613,26621,27588,46193,51883,51233,45842,18650,42696
+,42695,40527,52004,53326,40533,40523,40525,40531,20073,20590,54396,38687,548411,54004,43715,21578,33314,35077,35078,26800
+)
+) %>%
+  # handling missing data
+  mutate(
+    adq = adq %>% replace_na(0),
+    sub = sub %>% replace_na(0),
+    iadq = iadq %>% replace_na(0),
+    adq_other = adq_other %>% replace_na(0),
+    sub_other = sub_other %>% replace_na(0),
+    iadq_other = iadq_other %>% replace_na(0),
+    adq_alt = adq_alt %>% replace_na(0),
+    sub_alt = sub_alt %>% replace_na(0),
+    iadq_alt = iadq_alt %>% replace_na(0),
+    FY2022 = FY2022 %>% replace_na(0)
+  ) %>%
+  # create total columns for each type measure
+  mutate(
+    total_measure = adq + sub + iadq,
+    alt_total_measure = adq_alt + sub_alt + iadq_alt,
+    other_total_measure = adq_other + sub_other + iadq_other
+  ) %>%
+  mutate(region = case_when(
+    installation %in% c(
+      "M00146 MCAS CHERRY POINT NC",
+      "M00263 MCRD BEAUFORT PI SC",
+      "M60169 MCAS BEAUFORT SC",
+      "M62573 MCAS NEW RIVER JAX NC",
+      "M67001 MCB CAMP LEJEUNE NC",
+      "M67004 MCLB ALBANY GA",
+      "M67695 MCSF BLOUNT ISLAND"
+    ) ~ "MCIEAST",
+    installation %in% c(
+      "M00264 MARINE CORPS BASE QUANTICO VA",
+      "M67029 MARBKS WASHINGTON DC"
+    ) ~ "MCINCR",
+    installation %in% c(
+      "M00318 MCB HAWAII KANEOHE",
+      "M20810 CAMP MUJUK REPUBLIC OF KOREA",
+      "M63026 MCAS FUTENMA JA",
+      "M67400 MCB CAMP S D BUTLER OKINAWA JA",
+      "M62613 MCAS IWAKUNI JA"
+    ) ~ "MCIPAC",
+    installation %in% c(
+      "M00681 MCB CAMP PENDLETON CA",
+      "M62204 MCLB BARSTOW CA",
+      "M62974 MCAS YUMA AZ",
+      "M67604 MCAS CAMP PENDLETON CA",
+      "M67865 MCAS MIRAMAR"
+    ) ~ "MCIWEST",
+    installation %in% c(
+      "M00243 MARCORPRCUITDEP SAN DIEGO CA",
+      "M64495 MARCORPSMWTC BRIDGEPORT CA",
+      "M67399 MCAGCC TWENTYNINE PALMS CA"
+    ) ~ "SLTI",
+    installation %in% c(
+      "M09036 CAMP ALLEN",
+      "M67011 MARCORPS DIST 1 GARDEN CITY NY",
+      "M67386 MCSPTACT KANSAS CITY MO",
+      "M67861 MARCORRESFOR NEW ORLEANS LA",
+      "M68479 HDQTRS 4TH MARDIV NEW ORLEANS"
+    ) ~ "NONE"
+  )) %>%
+  mutate(RPUID = RPUID %>% as.character())
+
+fac_mapped_lodging <- utl_lodging %>%
+  inner_join(cat_code, by = c("use_code" = "use_code"))
+
+fac_mapped_lodging <- fac_mapped_lodging  %>%
+  left_join(fac_lodging, by = c("RPUID")) %>% 
+  filter(naf_cat %in% c("L", "L (TDY)", "L (PCS)")) 
+
+df_clean_lodging <- fac_mapped_lodging %>%
+ mutate(
+    sus =  FY2022,
+    sus = sus %>% replace_na(0)
+  ) %>%
+  # finding percentages if the facility area is blank on raw facility data
+  
+  # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
+  # if total_measure > 0 use total_measure otherwise
+  # if alt_total_measure > use alt_total_measure otherwise
+  # use other_total_measure
+  mutate(
+    # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
+    # if total_measure > 0 use total_measure otherwise
+    # if alt_total_measure > use alt_total_measure otherwise
+    # use other_total_measure
+    fac_area_measure = if_else(infads_area > 0, infads_area,
+                               if_else(total_measure > 0, total_measure,
+                                       if_else(alt_total_measure > 0, alt_total_measure,
+                                                other_total_measure))
+    )) %>%
+  group_by(RPUID) %>% 
+  mutate(count = n()) %>% 
+  ungroup() %>% 
+  mutate(
+    use_pct_area = if_else(total_measure > 0, total_measure / fac_area_measure, 1)) %>% 
+                           
+                           # if_else(alt_total_measure > 0, alt_total_measure / fac_area_measure,
+                           #         if_else(other_total_measure > 0, other_total_measure / fac_area_measure, 1)))) %>% 
+    
+  mutate(
+    use_pct_area = use_pct_area %>% replace_na(0)
+  ) %>%
+  mutate(
+    RM_corrected = RM * use_pct_area,
+    RM_corrected = RM_corrected %>% replace_na(0),
+    use_pct_text = use_pct_area %>% scales::percent(),
+    RM_corrected_text = RM_corrected %>% scales::dollar()
+  )
+
+# Create Final dataframe
+
+df_lodging <- df_clean_lodging %>%
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, 
+         q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
+
+
+
+```
+
+```{r output}
+
+# creates a xlsx output file of the cleaned data and stores in output folder
+write_xlsx(df_lodging,here::here("output", "df_final_lodging.xlsx"))
+saveRDS(df_lodging,here::here("output", "df_final_lodging.rds"))
+
+```
+
+
+
+<br>
+
+<center>
+
+Note: The current report is based on utilization information unless otherwise noted. 
+
+Facility sustainment, restoration and modernization (FSRM) calculations are resource agnostic. 
+
+Data dictionary and assumptions are at the end of this report. 
+
+
+Raw data pulled from GoRPM on `r params$date`
+
+
+Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
+
+
+Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EX4Vdz_H-7tMkHUU2mg_1A4B_r5IUUc4mTZTyR7GGWHi0Q?e=swZIdx)
+
+</center>
+
+<br>
+
+# Exploring Costs 
+
+---
+
+## Costs by Category
+
+<center>
+Facility Sustainment, Restoration and Modernization (FSRM)
+</center>
+
+<br>
+
+```{r Category FSRM GT}
+
+category_lodging <- df_lodging %>%
+  group_by(naf_cat) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(naf_cat) %>%
+  gt() %>%
+  tab_header(
+    title = md("*Annual* MCCS FSRM Costs by Category"),
+    subtitle = md("*iNFADS* data retrieved **Sep 28, 2021**")
+  ) %>%
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>%
+  tab_footnote(
+    footnote = "Lodging NAFI Funding",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+    grand_summary_rows(
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  cols_label(
+    naf_cat = "Category",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+
+
+category_lodging
+
+
+```
+
+<br>
+
+---
+
+## Costs by Region
+
+<br>
+
+
+```{r Region FSRM GT}
+
+region_lodging <- df_lodging %>%
+  group_by(region) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  gt() %>%
+  tab_header(
+    title = md("*Annual* MCCS FSRM Costs by Region"),
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+  ) %>%
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>%
+  tab_footnote(
+    footnote = "Lodging NAFI Funding",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  cols_label(
+    region = "Region",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+
+region_lodging
+
+```
+<br>
+
+---

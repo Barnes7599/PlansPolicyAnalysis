@@ -11,7 +11,7 @@ output:
     toc_depth: 2
     code_folding: none
 params:
-  date: "June 17, 2021"
+  date: "Sep 28, 2021"
 ---
 
 ```{r setup, include=FALSE}
@@ -78,7 +78,7 @@ cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
 
 # Read in facility xlsx data and save data as RDS
 
-fac <-  read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
+fac <-  read_xlsx(path = "data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
     sheet = "Facility",
     skip = 1,
     col_types = c(
@@ -90,7 +90,7 @@ fac <-  read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
 
 
 # Read in utilization xlsx data and save data as RDS
-utl <-  read_xlsx("data/MCCS_Facility_Inventory_Report.XLSX",
+utl <-  read_xlsx("data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
     sheet = "Utilization",
     skip = 1
   )
@@ -111,6 +111,7 @@ fac <- fac %>%
     fci = i_nfads_facility_condition_index,
     fci_dt = i_nfads_fci_date,
     infads_area = i_nfads_area,
+    fac_num = i_nfads_facility_number,
     build_dt = i_nfads_facility_built_date
     
   ) %>%
@@ -192,12 +193,20 @@ utl <- utl %>%
   #isolate use Category code in own column called "usecode"
   separate(use, into = c("use_code", "use_desc"), sep = 6) %>%
   mutate(use_code = use_code %>% as.numeric()) %>%
-  # Remove bilieting not being absorbed by MCCS
+  # Remove bilieting and IOTC
   filter(RPUID %notin% c(
     21104, 54390, 25139, 24922, 18187, 21378, 21379, 43713, 43714, 35068, 35073, 35080,
     33751, 38891, 38889, 38895, 47139, 40535, 43543, 43544, 43744, 40524, 40529,
-    40532, 40526, 40534, 46374, 39594, 54613
+    40532, 40526, 40534, 46374, 39594, 54613, 19613, 47876, 54005, 42721, 42722, 42728, 20961, 55067,    
+    1402894, 624330, 31834, 1276281, 1168519, 1171866, 55442, 985794, 985798, 33862, 33863,  
+    33864,33866,33867,33868,52828,44509,1418193,39447,1173406,1010443,921138,24975,25335,25336,24976,24977,
+    1102653,18774,14521,547842,38897,38886,38888,38887,38901,22706,36823,36814,46880,167081,27560,1289900,
+    26613,26621,27588,46193,51883,51233,45842,18650,42696,42695,40527,52004,53326,40533,40523,40525,40531,
+    20073,20590, 54396,38687,548411,54004,43715,21578,33314,35077,35078,26800, 20077, 48370,
+    31569, 38893
   )) %>%
+  
+  
   # handling missing data
   mutate(
     adq = adq %>% replace_na(0),
@@ -265,9 +274,11 @@ fac_mapped <- utl %>%
 
 
 fac_mapped <- fac_mapped %>%
-  left_join(fac, by = "RPUID") %>%
-  filter(naf_cat %in% c("A", "B", "C", "L", "L (TDY)", "L (PCS)")) %>% 
-  mutate(naf_cat = if_else(RPUID == 1173406, "L (PCS)", naf_cat))
+  left_join(fac, by = c("RPUID", "fac_num")) %>%
+  #Adding Klipper villas and building Q11 and 185 in Barstow to Rec Lodging Cat C
+   mutate(naf_cat = if_else(RPUID %in% c(25898, 25895, 25897, 25896, 25899, 32935, 32790),"C", naf_cat)) %>% 
+  filter(naf_cat %in% c("A", "B", "C"))
+ 
 
 df_clean <- fac_mapped %>%
   #hard coding bowling
@@ -322,6 +333,7 @@ df_clean <- fac_mapped %>%
   ) %>%
   mutate(
     RM_corrected = RM * use_pct_area,
+    RM_corrected = RM_corrected %>% replace_na(0),
     use_pct_text = use_pct_area %>% scales::percent(),
     RM_corrected_text = RM_corrected %>% scales::dollar()
   )
@@ -606,7 +618,7 @@ category <- df_final %>%
   gt() %>%
   tab_header(
     title = md("*Annual* MCCS FSRM Costs by Category"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -637,14 +649,7 @@ category <- df_final %>%
     footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
   ) %>%
-  tab_footnote(
-    footnote = "Category L= Lodging",
-    locations = cells_body(
-      columns = naf_cat,
-      rows = 4
-    )
-  ) %>%
-  grand_summary_rows(
+    grand_summary_rows(
     columns = c(total_sus, total_rm, total),
     fns = list(
       Total = ~ sum(.)
@@ -689,7 +694,7 @@ region <- df_final %>%
   gt() %>%
   tab_header(
     title = md("*Annual* MCCS FSRM Costs by Region"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -763,7 +768,7 @@ program <- df_final %>%
   gt() %>%
   tab_header(
     title = md("*Annual* MCCS FSRM Costs by Program"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -845,7 +850,7 @@ top_10_use_Category <- df_final %>%
   gt() %>%
   tab_header(
     title = md("Top 10 most expensive iNFADS Use Category"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -1138,7 +1143,7 @@ avg_sqft_cat <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Category"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1258,7 +1263,7 @@ cost_sqft_program <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Program"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1370,7 +1375,7 @@ cost_sqft_region <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Region"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1441,7 +1446,7 @@ installation_sqft_pct_table <- df_final %>%
   gt() %>%
   tab_header(
     title = md("Top 10 Installations based on total square feet utilization aboard the Installation"),
-    subtitle = md("*iNFADS* data retrieved **Jun 17, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
   ) %>%
   fmt_number(
     columns = c(total),
