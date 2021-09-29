@@ -194,7 +194,7 @@ utl_lodging <- utl %>%
   filter(RPUID %in% c(
     47876, 54005, 42721, 42722, 42728,20961,55067, 1402894,624330,31834,1276281,1168519,1171866,55442,985794,985798,33862,33863
 ,33864,33866,33867,33868,52828,44509,1418193,39447,1173406,1010443,921138,24975,25335,25336,24976,24977,1102653,18774,14521,547842
-,38897,38886,38888,38887,38901,22706,36823,36814,46880,167081,27560,1289900,26613,26621,27588,46193,51883,51233,45842,18650,42696
+,38897,38886,38888,38887,38901,22706,36823,36814,46880,167081,27560,1289900, 27588,46193,51883,51233, 18650,42696
 ,42695,40527,52004,53326,40533,40523,40525,40531,20073,20590,54396,38687,548411,54004,43715,21578,33314,35077,35078,26800
 )
 ) %>%
@@ -209,7 +209,8 @@ utl_lodging <- utl %>%
     adq_alt = adq_alt %>% replace_na(0),
     sub_alt = sub_alt %>% replace_na(0),
     iadq_alt = iadq_alt %>% replace_na(0),
-    FY2022 = FY2022 %>% replace_na(0)
+    FY2022 = FY2022 %>% replace_na(0),
+    use_code = if_else(RPUID == 1173406, 74020, use_code)
   ) %>%
   # create total columns for each type measure
   mutate(
@@ -333,18 +334,23 @@ saveRDS(df_lodging,here::here("output", "df_final_lodging.rds"))
 
 Note: The current report is based on utilization information unless otherwise noted. 
 
-Facility sustainment, restoration and modernization (FSRM) calculations are resource agnostic. 
-
-Data dictionary and assumptions are at the end of this report. 
-
-
 Raw data pulled from GoRPM on `r params$date`
 
+References:
 
-Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
+Download raw Lodging data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
 
 
-Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EX4Vdz_H-7tMkHUU2mg_1A4B_r5IUUc4mTZTyR7GGWHi0Q?e=swZIdx)
+Download cleaned Lodging data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EX4Vdz_H-7tMkHUU2mg_1A4B_r5IUUc4mTZTyR7GGWHi0Q?e=swZIdx)
+
+DTM 18-007: [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/ESdYYeeOBR9HuWwTxLJjh-gBzrxXlDsDBQFhI68WQ-uqRQ?e=ZkQbAr)
+
+SecNav memo - Department of the Navy Lodging Program [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EStws4SskxdBgIVr5HY8P_QBKnTpqAzHhHtUCg_0DJg3cA?e=lyxRwv)
+
+ASN M&RA (Under Secretary) Consolidation of Permanent Change of Station and Temporary Duty Lodging [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/ETpX52-qbX1AqBBg69tYKS8BT1oYcIZAESvO2WxCUE0DaA?e=YRVYUZ)
+
+PDASN Memo to DC, M&RA [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EYhk3AnPr-5MkWHCCq_llwkBiVyh-EsgD7IH6X_1asJQHA?e=fK5BqR)
+
 
 </center>
 
@@ -362,7 +368,7 @@ Facility Sustainment, Restoration and Modernization (FSRM)
 
 <br>
 
-```{r Category FSRM GT}
+```{r Category Lodging GT}
 
 category_lodging <- df_lodging %>%
   group_by(naf_cat) %>%
@@ -431,7 +437,7 @@ category_lodging
 <br>
 
 
-```{r Region FSRM GT}
+```{r Region Lodging GT}
 
 region_lodging <- df_lodging %>%
   group_by(region) %>%

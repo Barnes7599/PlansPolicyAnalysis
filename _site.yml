@@ -6,7 +6,7 @@ navbar:
       href: index.html
     - text: "Facilities"
       href: Facilities.html
-    - text: "Lodging"
+    - text: "Official Lodging"
       href: Lodging.html
     - text: "Cat C"
       href: CatC.html
