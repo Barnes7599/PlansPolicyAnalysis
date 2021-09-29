@@ -21,6 +21,8 @@ knitr::opts_chunk$set(message = FALSE,
                       echo = FALSE,
                       fig.width = 10, 
                       fig.height=5)
+
+unlink('Lodging_cache', recursive = TRUE)
 ```
 
 ```{css headings, echo=FALSE}
@@ -345,11 +347,11 @@ Download cleaned Lodging data: [here](https://mccsorg-my.sharepoint.com/:x:/g/pe
 
 DTM 18-007: [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/ESdYYeeOBR9HuWwTxLJjh-gBzrxXlDsDBQFhI68WQ-uqRQ?e=ZkQbAr)
 
-SecNav memo - Department of the Navy Lodging Program [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EStws4SskxdBgIVr5HY8P_QBKnTpqAzHhHtUCg_0DJg3cA?e=lyxRwv)
+SecNav memo: Department of the Navy Lodging Program [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EStws4SskxdBgIVr5HY8P_QBKnTpqAzHhHtUCg_0DJg3cA?e=lyxRwv)
 
-ASN M&RA (Under Secretary) Consolidation of Permanent Change of Station and Temporary Duty Lodging [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/ETpX52-qbX1AqBBg69tYKS8BT1oYcIZAESvO2WxCUE0DaA?e=YRVYUZ)
+ASN M&RA (Under Secretary) Consolidation of Permanent Change of Station and Temporary Duty Lodging: [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/ETpX52-qbX1AqBBg69tYKS8BT1oYcIZAESvO2WxCUE0DaA?e=YRVYUZ)
 
-PDASN Memo to DC, M&RA [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EYhk3AnPr-5MkWHCCq_llwkBiVyh-EsgD7IH6X_1asJQHA?e=fK5BqR)
+PDASN Memo to DC, M&RA: [here](https://mccsorg-my.sharepoint.com/:b:/g/personal/jason_barnes_usmc-mccs_org/EYhk3AnPr-5MkWHCCq_llwkBiVyh-EsgD7IH6X_1asJQHA?e=fK5BqR)
 
 
 </center>
