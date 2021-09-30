@@ -72,15 +72,15 @@ library(writexl)
 
 # Read in cat codes xlsx data and save data as RDS
 
-cat_code <- read_xlsx(path = "data/MCCS_Facility_Inventory_Report.XLSX",
+cat_code <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_Facility_Inventory_Report.XLSX",
     sheet = "Cat_code",
-    col_types = c("numeric", "text", "text", "text")
+    col_types = c("numeric", "text", "text", "text"
+                  )
 )
-
 
 # Read in facility xlsx data and save data as RDS
 
-fac <-  read_xlsx(path = "data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+fac <-  read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
     sheet = "Facility",
     skip = 1,
     col_types = c(
@@ -92,7 +92,7 @@ fac <-  read_xlsx(path = "data/MCCS Facility Inventory Report - 2021-09-28_14-56
 
 
 # Read in utilization xlsx data and save data as RDS
-utl <-  read_xlsx("data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+utl <-  read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
     sheet = "Utilization",
     skip = 1
   )
@@ -323,8 +323,9 @@ df_lodging <- df_clean_lodging %>%
 ```{r output}
 
 # creates a xlsx output file of the cleaned data and stores in output folder
-write_xlsx(df_lodging,here::here("output", "df_final_lodging.xlsx"))
-saveRDS(df_lodging,here::here("output", "df_final_lodging.rds"))
+write_xlsx(df_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.xlsx")
+         
+saveRDS(df_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.rds")
 
 ```
 
