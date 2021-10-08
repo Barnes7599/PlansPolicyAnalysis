@@ -497,6 +497,3 @@ region_lodging <- df_lodging %>%
 region_lodging
 
 ```
-<br>
-
----

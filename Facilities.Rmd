@@ -757,6 +757,81 @@ region
 
 ---
 
+<br>
+
+## Costs by Region (Cat C)
+
+```{r Region CAT C FSRM GT}
+
+region_cat_c <- df_final %>%
+  filter(naf_cat == "C") %>% 
+  group_by(region) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  gt() %>%
+  tab_header(
+    title = md("*Annual* Cat C MCCS FSRM Costs by Region"),
+    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+  ) %>%
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>%
+  tab_footnote(
+    footnote = "Funding agnostic",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Cat C - 2x iNFADS sustainment costs",
+    locations = cells_column_labels(
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "Garden City, Camp Elmore, Kansas City, MARFORRES, 4th MARDIV",
+    cells_body(columns = region, rows = 6)
+  ) %>%
+  grand_summary_rows(
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  cols_label(
+    region = "Region",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+
+region_cat_c
+
+```
+
+---
+
 ## Costs by Program
 
 <br>

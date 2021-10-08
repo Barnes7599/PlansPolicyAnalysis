@@ -1,0 +1,127 @@
+---
+title: "7-yr Recapitalization Plan"
+
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 2
+    code_folding: none
+params:
+  date: "Sep 28, 2021"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, 
+                      warning = FALSE, 
+                      cache = TRUE, 
+                      echo = FALSE,
+                      fig.width = 10, 
+                      fig.height=5)
+
+unlink('Lodging_cache', recursive = TRUE)
+```
+
+```{css headings, echo=FALSE}
+
+h1 {
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 22px;
+    text-align: center;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+h5 {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+```
+
+```{r load-lib}
+library(tidyverse)
+library(ggthemes)
+library(readxl)
+library(DT)
+library(gt)
+library(tidyquant)
+library(markdown)
+library(writexl)
+
+
+```
+
+
+```{r read-data}
+
+# Read in cat codes xlsx data and save data as RDS
+
+df_plan <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_ReCap_Plan.xlsx",
+                     sheet = "Planned ReCap Cat C"
+                     )
+                     
+
+```
+
+
+
+
+```{r}
+# df_plan <- df_plan %>% 
+#   arrange(region, fci, fci_dt) %>% 
+#   filter(naf_cat == "C") %>% 
+#   mutate(index = index(1:row),
+#          year = case_when(index < 171 ~ 1,
+#                           index < 342 ~ 2,
+#                           index < 513 ~ 3,
+#                           index < 684 ~ 4,
+#                           index < 855 ~ 5,
+#                           index < 1026 ~ 6,
+#                           index <= 1200 ~ 7
+#                           )) %>% view()
+# 
+# 
+# row <- nrow(df_plan) 
+# 
+# 
+# df_plan_east <- df_plan %>% 
+#   arrange(region, fci, fci_dt) %>% 
+#   filter(naf_cat == "C") %>% 
+#   filter(region == "MCIEAST") %>% 
+#   mutate(index = index(1:363),
+#          year = case_when(index < 52 ~ 1,
+#                           index < 104 ~ 2,
+#                           index < 156 ~ 3,
+#                           index < 208 ~ 4,
+#                           index < 260 ~ 5,
+#                           index < 312 ~ 6,
+#                           index <= 363 ~ 7
+#                           ))
+
+#write_xlsx(df_plan, path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_plan.xlsx", list(mysheet = df_plan_east))
+
+
+
+
+
+
+
+```
