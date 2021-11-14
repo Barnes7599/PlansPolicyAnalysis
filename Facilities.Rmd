@@ -74,7 +74,7 @@ library(writexl)
 
 cat_code <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_Facility_Inventory_Report.XLSX",
     sheet = "Cat_code",
-    col_types = c("numeric", "text", "text", "text"
+    col_types = c("numeric", "text", "text", "text", "numeric"
                   )
 )
 
@@ -345,7 +345,7 @@ df_clean <- fac_mapped %>%
 # Create Final dataframe
 # need to add back in build date
 df_final <- df_clean %>%
-  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected)
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected, recap_cycle)
 
 
 
@@ -590,10 +590,10 @@ Data dictionary and assumptions are at the end of this report.
 Raw data pulled from GoRPM on `r params$date`
 
 
-Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
+<!-- Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q) -->
 
 
-Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9)
+<!-- Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9) -->
 
 </center>
 

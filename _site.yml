@@ -5,7 +5,9 @@ navbar:
     - text: "Home"
       href: index.html
     - text: "Facilities"
-      href: Facilities.html
+      href: Facilities.html 
+    - text: "Facilities ReCap Plan"
+      href: recap.html
     - text: "Official Lodging"
       href: Lodging.html
     - text: "Cat C"
