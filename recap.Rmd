@@ -114,9 +114,9 @@ recap <-
   str_detect(asset_name, "COURT") ~ "No-Recap",
   str_detect(asset_name, "COURTS") ~ "No-Recap",
   str_detect(asset_name, "FIELD") ~ "No-Recap",
-  str_detect(asset_name,"PINIC") ~ "No-Recap",
+  str_detect(asset_name,"PICNIC") ~ "No-Recap",
   str_detect(asset_name, "POND") ~ "No-Recap",
-  str_detect(asset_name, "BATH HOUSE") ~ "No-Recap",
+  # str_detect(asset_name, "BATH HOUSE") ~ "No-Recap",
   str_detect(asset_name, "REC GROUND") ~ "No-Recap",
   str_detect(asset_name, "PUMP") ~ "No-Recap",
   str_detect(asset_name, "TRAIL") ~ "No-Recap",
@@ -130,6 +130,9 @@ recap <-
   str_detect(fac_use, "TURN OVER") ~ "No-Recap",
   str_detect(fac_use, "TRANSFERRED") ~ "No-Recap",
   str_detect(fac_use, "STORAGE") ~ "No-Recap",
+  
+  # Facility Number 
+  str_detect(fac_num, "T") ~ "No-Recap",
   #Adding back facilities to recap plan that were removed by plain text above
   str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
  
@@ -171,7 +174,7 @@ min_cycle <- cat_c_recap %>%
 cat_c_recap <- cat_c_recap %>% 
   left_join(min_cycle) %>% 
   mutate(min_cycle = if_else(min_cycle <= 7, 7, min_cycle)) %>% 
-  arrange( min_cycle, fci, desc(rpuid), desc(fci_dt))
+  arrange(min_cycle, fci, desc(fci_dt), desc(rpuid))
 
 write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recap.xlsx")
 
