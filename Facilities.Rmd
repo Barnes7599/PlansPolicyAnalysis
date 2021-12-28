@@ -11,7 +11,7 @@ output:
     toc_depth: 2
     code_folding: none
 params:
-  date: "Sep 28, 2021"
+  date: "Dec 28, 2021"
 ---
 
 ```{r setup, include=FALSE}
@@ -80,7 +80,7 @@ cat_code <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/
 
 # Read in facility xlsx data and save data as RDS
 
-fac <-  read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+fac <-  read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-12-28_14-51-44.XLSX",
     sheet = "Facility",
     skip = 1,
     col_types = c(
@@ -92,7 +92,7 @@ fac <-  read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data
 
 
 # Read in utilization xlsx data and save data as RDS
-utl <-  read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-09-28_14-56-08.XLSX",
+utl <-  read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS Facility Inventory Report - 2021-12-28_14-51-44.XLSX",
     sheet = "Utilization",
     skip = 1
   )
@@ -165,7 +165,7 @@ fac <- fac %>%
   )) %>%
   mutate(RPUID = RPUID %>% as.character()) %>%
  # create a Restoration and Modernization Column
-  mutate(RM = prv * 0.025)
+  mutate(RM = (prv * 0.025) *(1.02)^3)
 
 `%notin%` <- Negate(`%in%`)
 
@@ -181,7 +181,7 @@ utl <- utl %>%
     program = mccs_business_program,
     asset_name = i_nfads_real_property_asset_name,
     fac_use = i_nfads_facility_use,
-    FY2022 = fsm_fy22_sustainment_cost,
+    FY2024 = fsm_fy24_sustainment_cost,
     Cat = i_nfads_naf_category,
     adq = i_nfads_adq_area_measure,
     sub = i_nfads_sub_area_measure,
@@ -222,7 +222,7 @@ utl <- utl %>%
     adq_alt = adq_alt %>% replace_na(0),
     sub_alt = sub_alt %>% replace_na(0),
     iadq_alt = iadq_alt %>% replace_na(0),
-    FY2022 = FY2022 %>% replace_na(0)
+    FY2024 = FY2024 %>% replace_na(0)
   ) %>%
   # create total columns for each type measure
   mutate(
@@ -304,7 +304,7 @@ df_clean <- fac_mapped %>%
                         naf_cat
                         ))))))
   ) %>%  mutate(
-    sus = if_else(naf_cat == "C", FY2022 * 2, FY2022),
+    sus = if_else(naf_cat == "C", FY2024 * 2, FY2024),
     sus = sus %>% replace_na(0)
   ) %>%
   # finding percentages if the facility area is blank on raw facility data
@@ -623,8 +623,8 @@ category <- df_final %>%
   arrange(naf_cat) %>%
   gt() %>%
   tab_header(
-    title = md("*Annual* MCCS FSRM Costs by Category"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    title = md("*FY24* MCCS FSRM Costs by Category"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -640,7 +640,7 @@ category <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -672,6 +672,7 @@ category <- df_final %>%
   )
 
 
+
 category
 
 
@@ -699,8 +700,8 @@ region <- df_final %>%
   arrange(desc(total)) %>%
   gt() %>%
   tab_header(
-    title = md("*Annual* MCCS FSRM Costs by Region"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    title = md("*FY24* MCCS FSRM Costs by Region"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -716,7 +717,7 @@ region <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -774,8 +775,8 @@ region_cat_c <- df_final %>%
   arrange(desc(total)) %>%
   gt() %>%
   tab_header(
-    title = md("*Annual* Cat C MCCS FSRM Costs by Region"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    title = md("*FY24* Cat C MCCS FSRM Costs by Region"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -791,7 +792,7 @@ region_cat_c <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -848,8 +849,8 @@ program <- df_final %>%
   arrange(desc(total)) %>%
   gt() %>%
   tab_header(
-    title = md("*Annual* MCCS FSRM Costs by Program"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    title = md("*FY24* MCCS FSRM Costs by Program"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -865,7 +866,7 @@ program <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -931,7 +932,7 @@ top_10_use_Category <- df_final %>%
   gt() %>%
   tab_header(
     title = md("Top 10 most expensive iNFADS Use Category"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(total_sus, total_rm, total),
@@ -947,7 +948,7 @@ top_10_use_Category <- df_final %>%
     locations = cells_title(groups = "title")
   ) %>%
   tab_footnote(
-    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction)",
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
     )
@@ -1224,7 +1225,7 @@ avg_sqft_cat <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Category"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1344,7 +1345,7 @@ cost_sqft_program <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Program"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1456,7 +1457,7 @@ cost_sqft_region <- df_final %>%
   gt() %>%
   tab_header(
     title = md("FSRM SqFt Utilization Costs by Region"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_currency(
     columns = c(avg_fsrm_cost),
@@ -1527,7 +1528,7 @@ installation_sqft_pct_table <- df_final %>%
   gt() %>%
   tab_header(
     title = md("Top 10 Installations based on total square feet utilization aboard the Installation"),
-    subtitle = md("**iNFADS* data retrieved **Sep 28, 2021**")
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
   ) %>%
   fmt_number(
     columns = c(total),
@@ -2206,6 +2207,78 @@ References:
 
 ```{r}
 knitr::knit_exit()
+
+```
+
+```{r}
+
+installation_cat_C <- df_final %>%
+  filter(naf_cat == "C") %>% 
+  group_by(installation) %>%
+  summarise(
+    total_sus = sum(sus),
+    total_rm = sum(RM_corrected),
+    total = sum(sus) + sum(RM_corrected)
+  ) %>%
+  arrange(desc(total)) %>%
+  gt() %>%
+  tab_header(
+    title = md("*FY24* Cat C MCCS FSRM Costs by Installation"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
+  ) %>%
+  fmt_currency(
+    columns = c(total_sus, total_rm, total),
+    currency = "USD",
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>%
+  tab_footnote(
+    footnote = "Funding agnostic",
+    locations = cells_title(groups = "title")
+  ) %>%
+  tab_footnote(
+    footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
+    locations = cells_column_labels(
+      columns = total_rm
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Cat C - 2x iNFADS sustainment costs",
+    locations = cells_column_labels(
+      columns = total_sus
+    )
+  ) %>%
+  tab_footnote(
+    footnote = "Nominal dollars",
+    locations = cells_title(groups = "title")
+  ) %>%
+   grand_summary_rows(
+    columns = c(total_sus, total_rm, total),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "FSRM",
+    formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  cols_label(
+    installation = "Installation",
+    total_sus = "Sustainment",
+    total_rm = "R & M",
+    total = "Total"
+  )
+
+installation_cat_C
+
+
+df_final %>%
+  filter(naf_cat == "C") %>% 
+  summarise(
+    total_rm = sum(RM_corrected)) #FV=PV(1+i)n
+
 
 ```
 
