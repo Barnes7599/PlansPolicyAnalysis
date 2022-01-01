@@ -274,17 +274,7 @@ df_clean_lodging <- fac_mapped_lodging %>%
     sus =  FY2024,
     sus = sus %>% replace_na(0)
   ) %>%
-  # finding percentages if the facility area is blank on raw facility data
-  
-  # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
-  # if total_measure > 0 use total_measure otherwise
-  # if alt_total_measure > use alt_total_measure otherwise
-  # use other_total_measure
   mutate(
-    # facility_area-measure = if_else(if facility area is > 0 then use facility areas otherwise 
-    # if total_measure > 0 use total_measure otherwise
-    # if alt_total_measure > use alt_total_measure otherwise
-    # use other_total_measure
     fac_area_measure = if_else(infads_area > 0, infads_area,
                                if_else(total_measure > 0, total_measure,
                                        if_else(alt_total_measure > 0, alt_total_measure,
@@ -295,10 +285,6 @@ df_clean_lodging <- fac_mapped_lodging %>%
   ungroup() %>% 
   mutate(
     use_pct_area = if_else(total_measure > 0, total_measure / fac_area_measure, 1)) %>% 
-                           
-                           # if_else(alt_total_measure > 0, alt_total_measure / fac_area_measure,
-                           #         if_else(other_total_measure > 0, other_total_measure / fac_area_measure, 1)))) %>% 
-    
   mutate(
     use_pct_area = use_pct_area %>% replace_na(0)
   ) %>%
@@ -311,8 +297,9 @@ df_clean_lodging <- fac_mapped_lodging %>%
 
 # Create Final dataframe
 
-df_lodging <- df_clean_lodging %>%
-  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected) %>% arrange(fci, desc(fci_dt))
+df_final_lodging <- df_clean_lodging %>%
+  select(region, installation = installation.y, RPUID, use_code, use_desc, fac_use, naf_cat, op_activity, fac_num, facility_desc, asset_name, fci, fci_dt, build_dt, q_rating, total_measure, alt_total_measure, other_total_measure, other_unit_measure, fac_area_measure, prv,sus, RM, use_pct_area, RM_corrected, recap_cycle) %>% arrange(fci, desc(fci_dt))
+
 
 
 
@@ -321,9 +308,9 @@ df_lodging <- df_clean_lodging %>%
 ```{r output}
 
 # creates a xlsx output file of the cleaned data and stores in output folder
-write_xlsx(df_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.xlsx")
+write_xlsx(df_final_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.xlsx")
          
-saveRDS(df_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.rds")
+saveRDS(df_final_lodging, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/df_final_lodging.rds")
 
 ```
 
@@ -371,7 +358,7 @@ Facility Sustainment, Restoration and Modernization (FSRM)
 
 ```{r Category Lodging GT}
 
-category_lodging <- df_lodging %>%
+category_lodging <- df_final_lodging %>%
   group_by(naf_cat) %>%
   summarise(
     total_sus = sum(sus),
@@ -440,7 +427,7 @@ category_lodging
 
 ```{r Region Lodging GT}
 
-region_lodging <- df_lodging %>%
+region_lodging <- df_final_lodging %>%
   group_by(region) %>%
   summarise(
     total_sus = sum(sus),

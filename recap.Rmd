@@ -505,6 +505,122 @@ cat_c_recap <- cat_c_recap_7 %>%
          FY42 = case_when(plan_cycle_1 == 19 | plan_cycle_2 == 19 | plan_cycle_3 == 19 ~ 1, TRUE ~ 0),
          FY43 = case_when(plan_cycle_1 == 20 | plan_cycle_2 == 20 | plan_cycle_3 == 20 ~ 1, TRUE ~ 0))
 
+
+#-------------- Get Location Data ---------------------
+
+location_data <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_COA_LOCATION_2020_CONSOLIDATED12.16.2020_EY.XLSX",
+    sheet = "LOCATION DATA CALL"
+)
+
+location_data <- location_data %>% janitor::clean_names() %>% 
+  select(company, org, updated_location_description, rpuid) %>% 
+  filter(!is.na(rpuid)) 
+
+#-------------- Get Financial Data -------------------
+
+financial_extract <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/PL001 - Cost Center Profit and Loss Extract - 5 year actuals.xlsx",
+                               skip = 1)
+																		
+financial_extract <- financial_extract %>% janitor::clean_names() %>% 
+  select(cost_center, cost_center_description, company, org, org_description, gl_account_description, x454_2020, x454_2019, x454_2018, x454_2017, x454_2016) %>% 
+# Only select the rows that contain Net Sales and Net Profit then save as profit
+  filter(gl_account_description %in% c("NET PROFIT")) %>%  
+  rename("FY20" = x454_2020, 
+         "FY19" = x454_2019,
+         "FY18" = x454_2018,
+         "FY17" = x454_2017,
+         "FY16" = x454_2016) %>% 
+  mutate(net_profit = FY20 + FY19 + FY18 + FY17 + FY16)
+
+
+#------------- Join Location and Finanacial Data ----------------
+
+joined_loc_np <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(net_profit = sum(net_profit)) %>% 
+ungroup()
+
+#FY16 ----
+
+joined_loc_FY16 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY16 = sum(FY16)) %>% 
+ungroup()
+
+#FY17 ----
+
+joined_loc_FY17 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY17 = sum(FY17)) %>% 
+ungroup()
+
+#FY18 ----
+
+joined_loc_FY18 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY18 = sum(FY18)) %>% 
+ungroup()
+
+#FY19 ----
+
+joined_loc_FY19 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY19 = sum(FY19)) %>% 
+ungroup()
+
+#FY20 ----
+
+joined_loc_FY20 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY20 = sum(FY20)) %>% 
+ungroup()
+
+# Joined FY and Rolled up distinct RPUID
+
+joined_loc <- joined_loc_FY16 %>% 
+  left_join(joined_loc_FY17) %>% 
+  left_join(joined_loc_FY18) %>% 
+  left_join(joined_loc_FY19) %>% 
+  left_join(joined_loc_FY20) %>% 
+  left_join(joined_loc_np)
+
+
+write_xlsx(joined_loc, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/joined_loc.xlsx")
+
+#------------- Join Location, Financial and Facility Data ---------------
+
+cat_c_recap <- cat_c_recap %>% 
+  left_join(joined_loc, by = c("rpuid" = "rpuid"))
+
+#----------- Account for duplicates when adding in cost centers ----------------
+
+cat_c_recap <- cat_c_recap %>% 
+  group_by(rpuid, fac_area_measure) %>% 
+  mutate(count = n()) %>% 
+  ungroup() %>% 
+  mutate(net_profit = (net_profit / count))
+
+cat_c_recap <- cat_c_recap %>% 
+  select(-count)
+
 write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recap.xlsx")
 
 
