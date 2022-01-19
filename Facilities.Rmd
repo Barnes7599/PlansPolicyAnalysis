@@ -88,7 +88,8 @@ fac <-  read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data
       "text", "text", "numeric",
       "numeric", "text", "numeric", "date", "date"
     )
-  )
+  ) %>%
+  janitor::clean_names()
 
 #---------- Read in utilization xlsx data and save data as RDS ------------
 
@@ -105,8 +106,7 @@ utl <-  read_xlsx("/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github
 
 #----------------- Clean Facility Data -------------------
 
-fac <- fac %>%
-  janitor::clean_names() %>%
+fac <- fac  %>%
   separate(mccs_installation_name, c("num", "installation"), sep = 7) %>%
   select(
     RPUID = i_nfads_real_property_unique_id,
@@ -116,8 +116,8 @@ fac <- fac %>%
     fci_dt = i_nfads_fci_date,
     infads_area = i_nfads_area,
     fac_num = i_nfads_facility_number,
-    build_dt = i_nfads_facility_built_date
-    
+    build_dt = i_nfads_facility_built_date,
+    everything()
   ) %>%
   # coverting dates to ymd format
   mutate(

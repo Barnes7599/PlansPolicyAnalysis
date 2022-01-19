@@ -135,6 +135,7 @@ recap <-
   str_detect(fac_num, "T") ~ "No-Recap",
   #Adding back facilities to recap plan that were removed by plain text above
   str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
+  str_detect(use_desc, "WAREHOUSE") ~ "No-Recap",
  
   
   #Discrepancy
@@ -169,6 +170,14 @@ cat_c_recap <- recap %>%
 min_cycle <- cat_c_recap %>% 
   group_by(rpuid) %>% 
   summarise(min_cycle = recap_cycle %>% min())
+
+
+
+
+
+
+
+
 
 # Join min cycle time to date frame, if any
 cat_c_recap <- cat_c_recap %>% 
@@ -510,11 +519,25 @@ cat_c_recap <- cat_c_recap_7 %>%
 
 location_data <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_COA_LOCATION_2020_CONSOLIDATED12.16.2020_EY.XLSX",
     sheet = "LOCATION DATA CALL"
-)
+) %>% janitor::clean_names()
 
-location_data <- location_data %>% janitor::clean_names() %>% 
-  select(company, org, updated_location_description, rpuid) %>% 
-  filter(!is.na(rpuid)) 
+#---------- Adding new cost center column ----------------------
+
+new_cctr <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/03. 2021 Cost Center Quick Reference as of Oct 1 2021.xlsx",
+                      skip = 2)
+
+new_cctr <- new_cctr %>% 
+  janitor::clean_names()
+
+location_data <- location_data %>% separate(org, sep = "-", into = c("company", "old_cctr", "drop"), remove = FALSE) %>% 
+  full_join(new_cctr, by = c("old_cctr" = "old_naf_cost_center"), keep = TRUE) %>% 
+select(current_org, location_validation, company, old_cctr, new_naf_cost_center, org, current_org_description, updated_location_description, rpuid, updated_area_of_installation_if_applicable) %>% 
+  filter(!is.na(rpuid))
+
+# location_data <- location_data  %>% 
+#   select(company, org, updated_location_description, rpuid)
+  
+
 
 #-------------- Get Financial Data -------------------
 
@@ -537,7 +560,7 @@ financial_extract <- financial_extract %>% janitor::clean_names() %>%
 
 joined_loc_np <- financial_extract %>%
  left_join(location_data,
-           by = c("company", "org")) %>% 
+           by = c("org" = "current_org")) %>% 
   filter(!is.na(rpuid)) %>% 
   group_by(rpuid) %>% 
   summarise(net_profit = sum(net_profit)) %>% 
@@ -619,9 +642,31 @@ cat_c_recap <- cat_c_recap %>%
   mutate(net_profit = (net_profit / count))
 
 cat_c_recap <- cat_c_recap %>% 
-  select(-count)
+  select(-count) %>% 
+  mutate(Asset = if_else(net_profit >= 0, 1, 0)) %>% 
+  arrange(desc(net_profit, Asset)) 
+
+
 
 write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recap.xlsx")
+
+
+   
+
+```
+
+
+```{r}
+
+cat_c_recap %>% 
+  select(region, installation, rpuid, op_activity, fci, fci_dt, build_dt, q_rating,net_profit, Asset) %>% 
+  arrange(desc(net_profit), fci, fci_dt) %>% 
+  filter(Asset == 1)
+
+cat_c_recap %>% 
+  select(region, installation, rpuid, op_activity, fci, fci_dt, build_dt, q_rating,net_profit, Asset) %>% 
+  arrange(net_profit, fci, fci_dt) %>% 
+  filter(Asset == 0)
 
 
 
