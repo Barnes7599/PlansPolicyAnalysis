@@ -103,8 +103,11 @@ recap <-
   str_detect(facility_desc, "Playground") ~ "No-Recap",
   str_detect(facility_desc, "Outdoor Recreation Area") ~ "No-Recap",
   str_detect(facility_desc, "Field") ~ "No-Recap",
+  # str_detect(facility_desc, "Clothing Sales Store") ~ "No-Recap",
+  
   # Asset Name
   str_detect(asset_name, "STORAGE") ~ "No-Recap",
+  
   str_detect(asset_name, "VACANT") ~ "No-Recap",
   str_detect(asset_name, "CANOPY") ~ "No-Recap",
   str_detect(asset_name, "TRAILER") ~ "No-Recap", 
@@ -116,7 +119,9 @@ recap <-
   str_detect(asset_name, "FIELD") ~ "No-Recap",
   str_detect(asset_name,"PICNIC") ~ "No-Recap",
   str_detect(asset_name, "POND") ~ "No-Recap",
-  # str_detect(asset_name, "BATH HOUSE") ~ "No-Recap",
+  
+  
+  str_detect(asset_name, "BATH HOUSE") ~ "No-Recap",
   str_detect(asset_name, "REC GROUND") ~ "No-Recap",
   str_detect(asset_name, "PUMP") ~ "No-Recap",
   str_detect(asset_name, "TRAIL") ~ "No-Recap",
@@ -125,11 +130,50 @@ recap <-
   str_detect(asset_name, "RV STORAGE") ~ "No-Recap",
   str_detect(asset_name, "SHED") ~ "No-Recap",
   str_detect(asset_name, "GAZEBO") ~ "No-Recap",
+  str_detect(asset_name, "ADMIN OFF") ~ "No-Recap",
+  str_detect(asset_name, "MCCS ADMIN") ~ "No-Recap",
+  str_detect(asset_name, "ADMIN BASE") ~ "No-Recap",
+  str_detect(asset_name, "ADMIN BUILDING") ~ "No-Recap",
+  str_detect(asset_name, "ADMINISTRATION BUILDING") ~ "No-Recap",
+  str_detect(asset_name, "ADM BLDG") ~ "No-Recap",
+  str_detect(asset_name, "VISITORS CENTER - LIBRARY") ~ "No-Recap",
+  str_detect(asset_name, "SKEET") ~ "No-Recap",
+  str_detect(asset_name, "MAINT") ~ "No-Recap",
+  str_detect(asset_name, "MAINTENANCE") ~ "No-Recap",
+  str_detect(asset_name, "CLINIC") ~ "No-Recap",
+  str_detect(asset_name, "BARRACKS") ~ "No-Recap",
+  str_detect(asset_name, "SINGLE MARINE") ~ "No-Recap", 
+  str_detect(asset_name, "AVIATION WAREHOUSE") ~ "No-Recap",
+  str_detect(asset_name, "REEFER") ~ "No-Recap",
+  str_detect(asset_name, "HOSPITAL") ~ "No-Recap",
+  str_detect(asset_name, "MANAGER'S RESIDENCE") ~ "No-Recap",
+  str_detect(asset_name, "RESERVATION") ~ "No-Recap",
+  str_detect(asset_name, "REWORK") ~ "No-Recap", 
+  str_detect(asset_name, "MEDICAL") ~ "No-Recap",
+  str_detect(asset_name, "COMPRESSOR") ~ "No-Recap",                        
+  str_detect(asset_name, "SERVMART") ~ "No-Recap",   
+  str_detect(asset_name, "JOINT FORCES BRIG") ~ "No-Recap", 
+  str_detect(asset_name, "AUSTIN") ~ "No-Recap", 
+  str_detect(asset_name, "DUNLAP") ~ "No-Recap", 
+  str_detect(asset_name, "FREE") ~ "No-Recap", 
+  str_detect(asset_name, "REGT") ~ "No-Recap", 
+  str_detect(asset_name, "REFRESHMENT") ~ "No-Recap", 
+  str_detect(asset_name, "RESERVE") ~ "No-Recap", 
+  str_detect(asset_name, "GUN") ~ "No-Recap", 
+  str_detect(asset_name, "PARKING") ~ "No-Recap", 
+  
+  
   #Facility Use
   str_detect(fac_use, "VACANT") ~ "No-Recap",
   str_detect(fac_use, "TURN OVER") ~ "No-Recap",
   str_detect(fac_use, "TRANSFERRED") ~ "No-Recap",
   str_detect(fac_use, "STORAGE") ~ "No-Recap",
+  
+  #Use Description 
+  str_detect(use_desc, "EXCHANGE MAINTENANCE SHOP") ~ "No-Recap", 
+  str_detect(use_desc, "EXCHANGE CENTRAL ADMINISTRATION") ~ "No-Recap",
+  str_detect(use_desc, "EXCHANGE INSTALLATION WAREHOUSE") ~ "No-Recap",
+  # str_detect(use_desc, "GOLF COURSE") ~ "No-Recap",
   
   # Facility Number 
   str_detect(fac_num, "T") ~ "No-Recap",
@@ -139,12 +183,16 @@ recap <-
  
   
   #Discrepancy
-  str_detect(facility_desc, "Transient  Lodging") ~ "Discrepancy",
+  # str_detect(facility_desc, "Transient  Lodging") ~ "Discrepancy",
   str_detect(asset_name, "UNACC ENL HSG") ~ "Discrepancy",
   str_detect(asset_name, "SCOUT BLDG")  ~ "Discrepancy",
   str_detect(asset_name, "HSG") ~ "Discrepancy",
   str_detect(asset_name, "BHC")  ~ "Discrepancy",
   str_detect(asset_name, "MOUT")  ~ "Discrepancy",
+  
+  #Planned to be demo'd
+  rpuid %in% c(26688, 1296139, 24890, 30066, 30070, 27382, 31024, 32631, 35629)  ~ "No-Recap", # CPEN
+  
   
   TRUE ~ "Planned ReCap"
 )) %>% 
@@ -153,7 +201,7 @@ recap <-
          build_dt = build_dt %>% ymd()
          )
            
-write_xlsx(recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/recap.xlsx")        
+     
     
 
 ```
@@ -166,37 +214,205 @@ cat_c_recap <- recap %>%
   mutate(fci_dt = fci_dt %>% ymd(),
          build_dt = build_dt %>% ymd()
          )
+
 # If utilizations are in same facililty get the min cycle time
 min_cycle <- cat_c_recap %>% 
   group_by(rpuid) %>% 
   summarise(min_cycle = recap_cycle %>% min())
 
+#-------------- Get Location Data ---------------------
+
+location_data <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_COA_LOCATION_2020_CONSOLIDATED12.16.2020_EY.XLSX",
+    sheet = "LOCATION DATA CALL"
+) %>% janitor::clean_names()
+
+#---------- Adding new cost center column ----------------------
+
+new_cctr <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/03. 2021 Cost Center Quick Reference as of Oct 1 2021.xlsx",
+                      skip = 2)
+
+new_cctr <- new_cctr %>% 
+  janitor::clean_names()
+
+`%notin%` <- Negate(`%in%`)
+
+location_data <- location_data %>% separate(org, sep = "-", into = c("company", "old_cctr", "drop"), remove = FALSE) %>% 
+  filter(old_cctr %notin% c(9001, 9003, 9010, 9011, 9012, 9014, 9015, 9016, 9017, 9018, 9019, 9023, 9097, 9098, 9099, 9900)) %>% 
+  full_join(new_cctr, by = c("old_cctr" = "old_naf_cost_center"), keep = TRUE) %>% 
+  select(current_org, location_validation, company, old_cctr, new_naf_cost_center, org, current_org_description, updated_location_description, rpuid, updated_area_of_installation_if_applicable) %>% 
+  filter(!is.na(rpuid))
+
+#-------------- Get Financial Data -------------------
+
+financial_extract <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/PL001 - Cost Center Profit and Loss Extract - 5 year actuals.xlsx",
+                               skip = 1)
+																		
+financial_extract <- financial_extract %>% janitor::clean_names() %>% 
+  select(cost_center, cost_center_description, company, org, org_description, gl_account_description, x454_2020, x454_2019, x454_2018, x454_2017, x454_2016) %>% 
+# Only select the rows that contain Net Sales and Net Profit then save as profit
+  filter(gl_account_description %in% c("NET PROFIT")) %>%  
+  rename("FY20" = x454_2020, 
+         "FY19" = x454_2019,
+         "FY18" = x454_2018,
+         "FY17" = x454_2017,
+         "FY16" = x454_2016) %>% 
+  mutate(net_profit = FY20 + FY19 + FY18 + FY17 + FY16)
 
 
+#------------- Join Location and Finanacial Data ----------------
+
+joined_loc_np <- financial_extract %>%
+ left_join(location_data,
+           by = c("org" = "current_org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(net_profit = sum(net_profit)) %>% 
+ungroup() 
 
 
+#FY16 ----
+
+joined_loc_FY16 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY16 = sum(FY16)) %>% 
+ungroup()
+
+#FY17 ----
+
+joined_loc_FY17 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY17 = sum(FY17)) %>% 
+ungroup()
 
 
+#FY18 ----
+
+joined_loc_FY18 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY18 = sum(FY18)) %>% 
+ungroup()
+
+#FY19 ----
+
+joined_loc_FY19 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY19 = sum(FY19)) %>% 
+ungroup()
+
+
+#FY20 ----
+
+joined_loc_FY20 <- financial_extract %>%
+ left_join(location_data,
+           by = c("company", "org")) %>% 
+  filter(!is.na(rpuid)) %>% 
+  group_by(rpuid) %>% 
+  summarise(FY20 = sum(FY20)) %>% 
+ungroup()
+
+
+# Joined FY and Rolled up distinct RPUID
+
+joined_loc <- joined_loc_FY16 %>% 
+  left_join(joined_loc_FY17) %>% 
+  left_join(joined_loc_FY18) %>% 
+  left_join(joined_loc_FY19) %>% 
+  left_join(joined_loc_FY20) %>% 
+  left_join(joined_loc_np) %>% 
+  mutate(rpuid = rpuid %>% as.character())
+
+
+#------------- Join Location, Financial and Facility Data ---------------
+
+cat_c_recap <- cat_c_recap %>% 
+  left_join(joined_loc, by = c("rpuid" = "rpuid"))
+
+
+#----------- Account for duplicates when adding in cost centers ----------------
+
+cat_c_recap <- cat_c_recap %>% 
+  group_by(rpuid) %>% 
+  mutate(count = n()) %>% 
+  ungroup() %>% 
+  mutate(net_profit = (net_profit / count)) 
+
+
+cat_c_recap <- cat_c_recap %>% 
+  select(-count) %>% 
+  mutate(Asset = if_else(net_profit >= 0, 1, 0))
+ 
 
 
 # Join min cycle time to date frame, if any
 cat_c_recap <- cat_c_recap %>% 
   left_join(min_cycle) %>% 
-  mutate(min_cycle = if_else(min_cycle <= 7, 7, min_cycle)) %>% 
-  arrange(min_cycle, fci, desc(fci_dt), desc(rpuid))
+  mutate(min_cycle = if_else(min_cycle <= 7, 7, min_cycle),
+         min_cycle = if_else(rpuid %in% c(1139510, 24951, 26424, 26424, 23122, 35401, 1447933, 29386, 29386, 29442, 28984), 7, min_cycle )) %>%
+  arrange(desc(net_profit)) %>% 
+  mutate(exchange = case_when(rpuid %in% c(39223, 31932, 35401, 1127026, 31988, 37171, 42536, 36028, 39432, 31932, 1277258, 43644, 39880, 43234, 1173443, 42536, 42656, 1205483, 21073,
+19803, 69806,46441,1337750,35328,25482,1162659,24951,21927,1063503,24700,1431203,55438,1321242,1139510,293228,33483,1071474,985425,29442,31264,28984,28322,34994,1200448,1188424,
+23122,23130,26424,25341,30529,27435,27438,23501,1447933,27072,29386,29387,31023,27156,30496,25342,29073,20824,1084000,1407179,26332,1148335,21412,625024,34781,19618,52630,1063332,55928,
+33304,48183,44869,1322743,1043841,1213015,32415,1431331,35377, 26184, 21052, 22740) ~ "Store", 
+rpuid %in% c(1086138, 48249, 69803,39929,1138253,19298,22530,1342483,56548,987340,26331,52611,1033816) ~"Main",
+TRUE ~ ""))
 
 write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recap.xlsx")
 
 
 ```
 
-```{r schedule}
+```{r Old Schedule}
 
-#Create a Schedule
 
-cat_c_recap_7 <- cat_c_recap %>% 
-  filter(min_cycle == 7) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 7))) %>% 
+
+#Creating Facility List----
+
+cat_c_fac_recap <- cat_c_recap %>% 
+  select(rpuid, op_activity) %>% 
+  group_by(rpuid, op_activity) %>%
+  mutate(count = 1) %>% 
+  mutate(op_activity = if_else(op_activity %in% c("PCS Lodging", "TDY Lodging"), "Commercial Recreation", op_activity)) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  pivot_wider(names_from = op_activity, values_from = utilizations) %>% 
+  janitor::clean_names() %>%
+  ungroup() %>% 
+  mutate(commercial_recreation = commercial_recreation %>% replace_na(0),
+         exchange_operations = exchange_operations %>% replace_na(0),
+         food_beverage_direct = food_beverage_direct %>% replace_na(0),
+         clubs = clubs %>% replace_na(0),
+         utilizations = (commercial_recreation + exchange_operations + food_beverage_direct + clubs)) %>% 
+  filter(!is.na(rpuid)) %>% 
+  select(rpuid, utilizations, everything()) %>% 
+  # Left Join distint rpuid net_profit
+left_join(cat_c_recap %>% 
+   select(region, installation, rpuid, asset_name, fac_num, fci, fci_dt, min_cycle, exchange, net_profit) %>% 
+   group_by(region, installation, asset_name, fac_num, fci, fci_dt, rpuid, min_cycle, exchange) %>% 
+   mutate(exchange = if_else(exchange == "", 0,1)) %>% 
+   summarise(net_profit = sum(net_profit)) %>% 
+   filter(rpuid != "") %>% 
+   ungroup()) %>% 
+   select(region, installation, rpuid, asset_name, fac_num, fci, fci_dt, min_cycle,exchange, net_profit, "utl" = utilizations, "comm_rec" = commercial_recreation, "exch_ops" = exchange_operations, "fb_direct" = food_beverage_direct, everything()) %>% 
+  arrange(fci, desc(fci_dt))
+
+
+
+#Create ReCap V1 Schedule----
+
+cat_c_recap_7 <- cat_c_fac_recap %>%
+  filter(min_cycle == 7) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 7))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7*3 ~ 3,
@@ -218,10 +434,10 @@ cat_c_recap_7 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7*5 ~ 19,
                                   index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7*6 ~ 20,
                                   index <= cat_c_recap %>% filter(min_cycle == 7) %>%  nrow()/7*7 ~ 21))
-                                 
-cat_c_recap_8 <- cat_c_recap %>% 
-  filter(min_cycle == 8) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 8))) %>% 
+
+cat_c_recap_8 <- cat_c_fac_recap %>%
+  filter(min_cycle == 8) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 8))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*3 ~ 3,
@@ -245,13 +461,13 @@ cat_c_recap_8 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*5 ~ 21,
                                   index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*6 ~ 22,
                                   index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*7 ~ 23,
-                                  index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*8 ~ 24)) 
+                                  index <= cat_c_recap %>% filter(min_cycle == 8) %>%  nrow()/8*8 ~ 24))
 
 
 
-cat_c_recap_9 <- cat_c_recap %>% 
-  filter(min_cycle == 9) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 9))) %>% 
+cat_c_recap_9 <- cat_c_fac_recap %>%
+  filter(min_cycle == 9) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 9))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 9) %>%  nrow()/9 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 9) %>%  nrow()/9*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 9) %>%  nrow()/9*3 ~ 3,
@@ -280,9 +496,9 @@ cat_c_recap_9 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 9) %>%  nrow()/9*8 ~ 26,
                                   index <= cat_c_recap %>% filter(min_cycle == 9) %>%  nrow()/9*9 ~ 27))
 
-cat_c_recap_10 <- cat_c_recap %>% 
-  filter(min_cycle == 10) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 10))) %>% 
+cat_c_recap_10 <- cat_c_fac_recap %>%
+  filter(min_cycle == 10) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 10))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 10) %>%  nrow()/10 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 10) %>%  nrow()/10*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 10) %>%  nrow()/10*3 ~ 3,
@@ -315,9 +531,9 @@ cat_c_recap_10 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 10) %>%  nrow()/10*10 ~ 30))
 
 
-cat_c_recap_11 <- cat_c_recap %>% 
-  filter(min_cycle == 11) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 11))) %>% 
+cat_c_recap_11 <- cat_c_fac_recap %>%
+  filter(min_cycle == 11) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 11))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 11) %>%  nrow()/11 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 11) %>%  nrow()/11*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 11) %>%  nrow()/11*3 ~ 3,
@@ -353,9 +569,9 @@ cat_c_recap_11 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 11) %>%  nrow()/11*11 ~ 33))
 
 
-cat_c_recap_12 <- cat_c_recap %>% 
-  filter(min_cycle == 12) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 12))) %>% 
+cat_c_recap_12 <- cat_c_fac_recap %>%
+  filter(min_cycle == 12) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 12))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 12) %>%  nrow()/12 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 12) %>%  nrow()/12*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 12) %>%  nrow()/12*3 ~ 3,
@@ -394,9 +610,9 @@ cat_c_recap_12 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 12) %>%  nrow()/12*12 ~ 36))
 
 
-cat_c_recap_13 <- cat_c_recap %>% 
-  filter(min_cycle == 13) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 13))) %>% 
+cat_c_recap_13 <- cat_c_fac_recap %>%
+  filter(min_cycle == 13) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 13))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 13) %>%  nrow()/13 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 13) %>%  nrow()/13*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 13) %>%  nrow()/13*3 ~ 3,
@@ -437,9 +653,9 @@ cat_c_recap_13 <- cat_c_recap %>%
                                   index <= cat_c_recap %>% filter(min_cycle == 13) %>%  nrow()/13*12 ~ 38,
                                   index <= cat_c_recap %>% filter(min_cycle == 13) %>%  nrow()/13*13 ~ 39))
 
-cat_c_recap_14 <- cat_c_recap %>% 
-  filter(min_cycle == 14) %>% 
-  mutate(index = index(cat_c_recap %>% filter(min_cycle == 14))) %>% 
+cat_c_recap_14 <- cat_c_fac_recap %>%
+  filter(min_cycle == 14) %>%
+  mutate(index = index(cat_c_fac_recap %>% filter(min_cycle == 14))) %>%
   mutate(plan_cycle_1 = case_when(index <= cat_c_recap %>% filter(min_cycle == 14) %>%  nrow()/14 ~ 1,
                                   index <= cat_c_recap %>% filter(min_cycle == 14) %>%  nrow()/14*2 ~ 2,
                                   index <= cat_c_recap %>% filter(min_cycle == 14) %>%  nrow()/14*3 ~ 3,
@@ -485,14 +701,14 @@ cat_c_recap_14 <- cat_c_recap %>%
 
 
 
-cat_c_recap <- cat_c_recap_7 %>% 
-  union(cat_c_recap_8) %>% 
-  union(cat_c_recap_9) %>% 
-  union(cat_c_recap_10) %>% 
-  union(cat_c_recap_11) %>% 
-  union(cat_c_recap_12) %>% 
-  union(cat_c_recap_13) %>% 
-  union(cat_c_recap_14) %>% 
+cat_c_recapv1 <- cat_c_recap_7 %>%
+  union(cat_c_recap_8) %>%
+  union(cat_c_recap_9) %>%
+  union(cat_c_recap_10) %>%
+  union(cat_c_recap_11) %>%
+  union(cat_c_recap_12) %>%
+  union(cat_c_recap_13) %>%
+  union(cat_c_recap_14) %>%
   mutate(FY24 = case_when(plan_cycle_1 == 1 ~ 1, TRUE ~ 0),
          FY25 = case_when(plan_cycle_1 == 2 ~ 1, TRUE ~ 0),
          FY26 = case_when(plan_cycle_1 == 3 ~ 1, TRUE ~ 0),
@@ -514,171 +730,270 @@ cat_c_recap <- cat_c_recap_7 %>%
          FY42 = case_when(plan_cycle_1 == 19 | plan_cycle_2 == 19 | plan_cycle_3 == 19 ~ 1, TRUE ~ 0),
          FY43 = case_when(plan_cycle_1 == 20 | plan_cycle_2 == 20 | plan_cycle_3 == 20 ~ 1, TRUE ~ 0))
 
+write_xlsx(cat_c_recapv1, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recapv1.xlsx")
 
-#-------------- Get Location Data ---------------------
 
-location_data <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/MCCS_COA_LOCATION_2020_CONSOLIDATED12.16.2020_EY.XLSX",
-    sheet = "LOCATION DATA CALL"
-) %>% janitor::clean_names()
+cat_c_recapv1 %>% count(plan_cycle_1)
+cat_c_recapv1 %>% count(FY24, installation) %>% filter(FY24 == 1) %>% select(installation, n) %>% arrange(desc(n))
+cat_c_recapv1 %>% count(installation) %>% arrange(desc(n))
 
-#---------- Adding new cost center column ----------------------
-
-new_cctr <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/03. 2021 Cost Center Quick Reference as of Oct 1 2021.xlsx",
-                      skip = 2)
-
-new_cctr <- new_cctr %>% 
+   
+  left_join(cat_c_recapv1 %>% select(region, installation, rpuid, fci, fci_dt))
+  # select(region, installation, rpuid, fci, fci_dt, net_profit, exchange, min_cycle, plan_cycle_1, plan_cycle_2, plan_cycle_3,FY24:FY43) %>% 
+  # mutate(plan_cycle_1 = if_else(rpuid == 952132, 11, plan_cycle_1),
+  #        plan_cycle_2 = if_else(rpuid ==952132, 22, plan_cycle_2),
+  #        plan_cycle_3 = if_else(rpuid == 952132, 33, plan_cycle_3)) %>% 
+  mutate(utilizations = 1) %>%
+  group_by(region, installation, rpuid, fci, fci_dt, exchange, min_cycle, plan_cycle_1, plan_cycle_2, plan_cycle_3,FY24:FY43) %>% 
+  summarise(net_profit = sum(net_profit),
+            utilizations = sum(utilizations)) %>% 
   janitor::clean_names()
-
-location_data <- location_data %>% separate(org, sep = "-", into = c("company", "old_cctr", "drop"), remove = FALSE) %>% 
-  full_join(new_cctr, by = c("old_cctr" = "old_naf_cost_center"), keep = TRUE) %>% 
-select(current_org, location_validation, company, old_cctr, new_naf_cost_center, org, current_org_description, updated_location_description, rpuid, updated_area_of_installation_if_applicable) %>% 
-  filter(!is.na(rpuid))
-
-# location_data <- location_data  %>% 
-#   select(company, org, updated_location_description, rpuid)
   
 
 
-#-------------- Get Financial Data -------------------
-
-financial_extract <- read_xlsx(path = "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/PL001 - Cost Center Profit and Loss Extract - 5 year actuals.xlsx",
-                               skip = 1)
-																		
-financial_extract <- financial_extract %>% janitor::clean_names() %>% 
-  select(cost_center, cost_center_description, company, org, org_description, gl_account_description, x454_2020, x454_2019, x454_2018, x454_2017, x454_2016) %>% 
-# Only select the rows that contain Net Sales and Net Profit then save as profit
-  filter(gl_account_description %in% c("NET PROFIT")) %>%  
-  rename("FY20" = x454_2020, 
-         "FY19" = x454_2019,
-         "FY18" = x454_2018,
-         "FY17" = x454_2017,
-         "FY16" = x454_2016) %>% 
-  mutate(net_profit = FY20 + FY19 + FY18 + FY17 + FY16)
-
-
-#------------- Join Location and Finanacial Data ----------------
-
-joined_loc_np <- financial_extract %>%
- left_join(location_data,
-           by = c("org" = "current_org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(net_profit = sum(net_profit)) %>% 
-ungroup()
-
-#FY16 ----
-
-joined_loc_FY16 <- financial_extract %>%
- left_join(location_data,
-           by = c("company", "org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(FY16 = sum(FY16)) %>% 
-ungroup()
-
-#FY17 ----
-
-joined_loc_FY17 <- financial_extract %>%
- left_join(location_data,
-           by = c("company", "org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(FY17 = sum(FY17)) %>% 
-ungroup()
-
-#FY18 ----
-
-joined_loc_FY18 <- financial_extract %>%
- left_join(location_data,
-           by = c("company", "org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(FY18 = sum(FY18)) %>% 
-ungroup()
-
-#FY19 ----
-
-joined_loc_FY19 <- financial_extract %>%
- left_join(location_data,
-           by = c("company", "org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(FY19 = sum(FY19)) %>% 
-ungroup()
-
-#FY20 ----
-
-joined_loc_FY20 <- financial_extract %>%
- left_join(location_data,
-           by = c("company", "org")) %>% 
-  filter(!is.na(rpuid)) %>% 
-  group_by(rpuid) %>% 
-  summarise(FY20 = sum(FY20)) %>% 
-ungroup()
-
-# Joined FY and Rolled up distinct RPUID
-
-joined_loc <- joined_loc_FY16 %>% 
-  left_join(joined_loc_FY17) %>% 
-  left_join(joined_loc_FY18) %>% 
-  left_join(joined_loc_FY19) %>% 
-  left_join(joined_loc_FY20) %>% 
-  left_join(joined_loc_np)
+cat_c_recap %>% 
+  select(rpuid, op_activity) %>% 
+  group_by(rpuid, op_activity) %>% 
+  mutate(count = 1) %>%
+  mutate(op_activity = if_else(op_activity %in% c("PCS Lodging", "TDY Lodging"), "Commercial Recreation", op_activity)) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  pivot_wider(names_from = op_activity, values_from = utilizations) %>% 
+  janitor::clean_names() %>% 
+  left_join(fydp_recap) %>% 
+  select(region, installation, rpuid, fci, fci_dt, utilizations, min_cycle, everything()) %>% 
+  mutate(commercial_recreation = commercial_recreation %>% replace_na(0),
+         exchange_operations = exchange_operations %>% replace_na(0),
+         food_beverage_direct = food_beverage_direct %>% replace_na(0),
+         clubs = clubs %>%replace_na(0),
+         FY24 = FY24 %>% replace_na(0),
+         FY25 = FY25 %>% replace_na(0),
+         FY26 = FY26 %>% replace_na(0),
+         FY27 = FY27 %>% replace_na(0),
+         FY28 = FY28 %>% replace_na(0),
+         FY29 = FY29 %>% replace_na(0),
+         FY30 = FY30 %>% replace_na(0),
+         FY31 = FY31 %>% replace_na(0),
+         FY32 = FY32 %>% replace_na(0),
+         FY33 = FY33 %>% replace_na(0),
+         FY34 = FY34 %>% replace_na(0),
+         FY35 = FY35 %>% replace_na(0),
+         FY36 = FY36 %>% replace_na(0),
+         FY37 = FY37 %>% replace_na(0)) %>% 
+  left_join(cat_c_recap %>% select(rpuid, net_profit) %>% group_by(rpuid) %>% summarise(sum_profit = sum(net_profit))) # %>% 
+  # pivot_longer(FY24:FY37,names_to = "year", values_to = "count") %>% 
+  # filter(count == 1) %>% 
+  # select(region, installation, rpuid, fci, fci_dt, min_cycle, sum_profit, everything(), -count)
 
 
-write_xlsx(joined_loc, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/joined_loc.xlsx")
 
-#------------- Join Location, Financial and Facility Data ---------------
+```
 
-cat_c_recap <- cat_c_recap %>% 
-  left_join(joined_loc, by = c("rpuid" = "rpuid"))
 
-#----------- Account for duplicates when adding in cost centers ----------------
+```{r}
+----# Buidling Alternate Planning Schedule (smoothing) ----
 
-cat_c_recap <- cat_c_recap %>% 
-  group_by(rpuid, fac_area_measure) %>% 
-  mutate(count = n()) %>% 
+cat_c_recapv2 <- cat_c_fac_recap %>%
+   mutate(min_cycle = if_else(min_cycle >7 & min_cycle <= 10, 10, min_cycle),
+          min_cycle = if_else(min_cycle > 10, 14, min_cycle))
+
+
+
+cat_c_7_RM <- cat_c_recapv2 %>% 
+  arrange(fci, desc(fci_dt)) %>% 
+  filter(min_cycle == 7) %>% 
+  select(region, installation, rpuid, fci, fci_dt) %>% 
+  mutate(count = 1) %>% 
+  group_by(region, installation, rpuid, fci, fci_dt, count) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  ungroup()
+
+#------------ Creating Sequence to apply to number of facilities by instllations 
+
+group7_1 <- seq(1, 99, by = 7)
+group7_2 <- seq(2, 99, by = 7)
+group7_3 <- seq(3, 99, by = 7)
+group7_4 <- seq(4,99, by = 7)
+group7_5 <- seq(5, 99, by = 7)
+group7_6 <- seq(6, 99, by = 7)
+group7_7 <-  seq(7, 99, by = 7)
+
+
+cat_c_7_RM <- cat_c_7_RM %>%
+  arrange(installation, fci, desc(fci_dt)) %>% 
+  mutate(index = index(cat_c_7_RM$installation)) %>% 
+  group_by(installation) %>% 
+  mutate(min = min(index), 
+         max = max(index),
+         total = max - min + 1) %>% 
+  select(region, installation, rpuid, fci, fci_dt, utilizations, "num_fac" = total) %>% 
   ungroup() %>% 
-  mutate(net_profit = (net_profit / count))
+  group_by(installation) %>% 
+  mutate(index = index(num_fac)) %>% 
+  ungroup() %>% 
+   mutate(min_cycle = 7) %>% 
+  mutate(year = case_when(index %in% group1 ~ "FY24",
+                          index %in% group2 ~ "FY25",
+                          index %in% group3 ~ "FY26",
+                          index %in% group4 ~ "FY27",
+                          index %in% group5 ~ "FY28",
+                          index %in% group6 ~ "FY29",
+                          index %in% group7 ~ "FY30")) %>% 
+  mutate(value = 1) %>% 
+  pivot_wider(names_from = year, values_from = value) %>% 
+  select(-num_fac, -index)  %>% 
+  mutate(FY31 = as.numeric(NA),
+         FY32 = as.numeric(NA),
+         FY33 = as.numeric(NA),
+         FY34 = as.numeric(NA),
+         FY35 = as.numeric(NA),
+         FY36 = as.numeric(NA),
+         FY37 = as.numeric(NA))
 
-cat_c_recap <- cat_c_recap %>% 
-  select(-count) %>% 
-  mutate(Asset = if_else(net_profit >= 0, 1, 0)) %>% 
-  arrange(desc(net_profit, Asset)) 
+cat_c_7_RM %>% 
+   pivot_longer(FY24:FY30, names_to = "year", values_to = "count") %>% 
+  filter(count == 1) %>% 
+  ggplot(aes(year)) + 
+  geom_bar()
+
+cat_c_7_RM %>% 
+   pivot_longer(FY24:FY30, names_to = "year", values_to = "count") %>% 
+  filter(count == 1) %>% 
+  ggplot(aes(installation)) + 
+  geom_bar() +
+  coord_flip() +
+  facet_wrap(~year)
+
+
+# Buidling Planning Schedule for min cycle time of 10
+
+cat_c_10_RM <- cat_c_recap %>% 
+  arrange(fci, desc(fci_dt)) %>% 
+  mutate(min_cycle = if_else(min_cycle >7 & min_cycle <= 10, 10, min_cycle)) %>%
+  filter(min_cycle == 10) %>% 
+  select(region, installation, rpuid, fci, fci_dt) %>% 
+  mutate(count = 1) %>% 
+  group_by(region, installation, rpuid, fci, fci_dt, count) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  ungroup()
+
+#Creating Sequence to apply to number of facilities by instllations 
+
+group10_1 <- seq(1, 76, by = 10)
+group10_2 <- seq(2, 76, by = 10)
+group10_3 <- seq(3, 76, by = 10)
+group10_4 <- seq(4,76, by = 10)
+group10_5 <- seq(5, 76, by = 10)
+group10_6 <- seq(6, 76, by = 10)
+group10_7 <-  seq(7, 76, by = 10)
+group10_8 <- seq(8, 76, by = 10)
+group10_9 <- seq(9, 76, by = 10)
+group10_10 <- seq(10, 76, by = 10)
+
+
+cat_c_10_RM <- cat_c_10_RM %>%
+  arrange(installation, fci, desc(fci_dt)) %>% 
+  mutate(index = index(cat_c_10_RM$installation)) %>% 
+  group_by(installation) %>% 
+  mutate(min = min(index), 
+         max = max(index),
+         total = max - min + 1) %>% 
+  select(region, installation, rpuid, fci, fci_dt, utilizations, "num_fac" = total) %>% 
+  ungroup() %>% 
+  group_by(installation) %>% 
+  mutate(index = index(num_fac)) %>% 
+  ungroup() %>% 
+   mutate(min_cycle = 10) %>% 
+  mutate(year = case_when(index %in% group10_1 ~ "FY24",
+                          index %in% group10_2 ~ "FY25",
+                          index %in% group10_3 ~ "FY26",
+                          index %in% group10_4 ~ "FY27",
+                          index %in% group10_5 ~ "FY28",
+                          index %in% group10_6 ~ "FY29",
+                          index %in% group10_7 ~ "FY30",
+                          index %in% group10_8 ~ "FY31",
+                          index %in% group10_9 ~ "FY32",
+                          index %in% group10_10 ~ "FY33")) %>% 
+  mutate(value = 1) %>% 
+  pivot_wider(names_from = year, values_from = value) %>% 
+  select(-num_fac, -index) %>%
+  mutate(FY34 = as.numeric(NA),
+         FY35 = as.numeric(NA),
+         FY36 = as.numeric(NA),
+         FY37 = as.numeric(NA))
 
 
 
-write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recap.xlsx")
 
 
-   
+# -------- Buidling Planning Schedule for min cycle time of 14 
+
+cat_c_14_RM <- cat_c_recap %>% 
+  arrange(fci, desc(fci_dt)) %>% 
+  filter(min_cycle == 14) %>% 
+  select(region, installation, rpuid, fci, fci_dt) %>% 
+  mutate(count = 1) %>% 
+  group_by(region, installation, rpuid, fci, fci_dt, count) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  ungroup()
+
+#Creating Sequence to apply to number of facilities by instllations 
+
+group14_1 <- seq(1, 137, by = 14)
+group14_2 <- seq(2, 138, by = 14)
+group14_3 <- seq(3, 139, by = 14)
+group14_4 <- seq(4, 140, by = 14)
+group14_5 <- seq(5, 141, by = 14)
+group14_6 <- seq(6, 142, by = 14)
+group14_7 <-  seq(7,143, by = 14)
+group14_8 <- seq(8, 144, by = 14)
+group14_9 <- seq(9, 145, by = 14)
+group14_10 <- seq(10, 146, by = 14)
+group14_11 <- seq(11, 147, by = 14) 
+group14_12 <- seq(12, 148, by = 14)
+group14_13 <- seq(13, 149, by = 14)
+group14_14 <- seq(14, 150, by = 14)
+
+
+cat_c_14_RM <- cat_c_14_RM %>%
+  arrange(installation, fci, desc(fci_dt)) %>% 
+  mutate(index = index(cat_c_14_RM$installation)) %>% 
+  group_by(installation) %>% 
+  mutate(min = min(index), 
+         max = max(index),
+         total = max - min + 1) %>% 
+  select(region, installation, rpuid, fci, fci_dt, utilizations, "num_fac" = total) %>% 
+  ungroup() %>% 
+  group_by(installation) %>% 
+  mutate(index = index(num_fac)) %>% 
+  ungroup() %>% 
+   mutate(min_cycle = 14) %>% 
+  mutate(year = case_when(index %in% group14_1 ~ "FY24",
+                          index %in% group14_2 ~ "FY25",
+                          index %in% group14_3 ~ "FY26",
+                          index %in% group14_4 ~ "FY27",
+                          index %in% group14_5 ~ "FY28",
+                          index %in% group14_6 ~ "FY29",
+                          index %in% group14_7 ~ "FY30",
+                          index %in% group14_8 ~ "FY31",
+                          index %in% group14_9 ~ "FY32",
+                          index %in% group14_10 ~ "FY33",
+                          index %in% group14_11 ~ "FY34",
+                          index %in% group14_12 ~ "FY35",
+                          index %in% group14_13 ~ "FY36",
+                          index %in% group14_14 ~ "FY37")) %>% 
+  mutate(value = 1) %>% 
+  pivot_wider(names_from = year, values_from = value) %>% 
+  select(-num_fac, -index)
+
+fydp_recap <- cat_c_7_RM %>% 
+  union(cat_c_10_RM) %>% 
+  union(cat_c_14_RM)
+
+
+
 
 ```
 
-
-```{r}
-
-cat_c_recap %>% 
-  select(region, installation, rpuid, op_activity, fci, fci_dt, build_dt, q_rating,net_profit, Asset) %>% 
-  arrange(desc(net_profit), fci, fci_dt) %>% 
-  filter(Asset == 1)
-
-cat_c_recap %>% 
-  select(region, installation, rpuid, op_activity, fci, fci_dt, build_dt, q_rating,net_profit, Asset) %>% 
-  arrange(net_profit, fci, fci_dt) %>% 
-  filter(Asset == 0)
-
-
-
-```
-
-
-```{r}
-fydp_recap <- cat_c_recap %>% 
-  select(-FY29, -FY30, -FY31, -FY32, -FY33, -FY34, -FY35, -FY36, -FY37, -FY38, -FY39, -FY40, -FY41, -FY42, -FY43) %>% 
-  filter(FY24 == 1 | FY25 == 1 | FY26 == 1 | FY27 == 1 | FY28 == 1)
-
-```
 
 
 
@@ -723,6 +1038,7 @@ fydp_plan <- fydp_recap %>%
     )
   ) 
 
+
 fydp_plan
 
 
@@ -739,183 +1055,77 @@ fydp_plan
 <br>
 
 ```{r}
-#use description
-proj_use <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  filter(count == 1) %>% 
-  group_by(use_desc) %>% 
-  summarise(total = sum(count)) %>% 
-  arrange(desc(total)) %>% 
-  mutate(use_desc = use_desc %>% as_factor() %>% fct_reorder(total)) %>% 
-  ggplot(aes(use_desc,total)) +
-  geom_col(fill = "#2c3e50")+
-  coord_flip()+
-  labs(y = "Total number of scheduled projects FY24-FY28",
-       x = "Use Description
-       ") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0)
-  )
+#Installations
 
 
+# fydp_recap_long <- fydp_recap %>% 
+#   select(-FY31:-FY37) %>% 
+#   pivot_longer(FY24:FY30,names_to = "year", values_to = "count") %>% 
+#   filter(count == 1)
+#  
+# 
+# 
+# inst_fydp <- fydp_recap_long %>% 
+#   group_by(installation) %>% 
+#   summarise(total = sum(count)) %>% 
+#   ungroup() %>% 
+#   arrange(desc(total)) %>% 
+#   mutate(installation = as_factor(installation) %>% fct_reorder(total)) %>% 
+#   ggplot(aes(installation, total)) +
+#   geom_col(fill = "#2c3e50") +
+#   coord_flip() +
+#   theme_tq() +
+#   theme(
+#     # panel.grid.major = element_blank(),
+#     panel.grid.major.y = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     panel.background = element_blank(),
+#     panel.border = element_blank(),
+#     plot.title = element_text(hjust = .5)
+#     
+#   ) +
+#   labs(
+#     y = "Total Number of Projects",
+#     x = "",
+#     title = "Total Number of Scheduled Projects FY24-FY28")
 
 
-# Facility Description 
-proj_fac <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  filter(count == 1) %>% 
-  group_by(facility_desc) %>% 
-  summarise(total = sum(count)) %>% 
-  arrange(desc(total)) %>% 
-  mutate(facility_desc = facility_desc %>% as_factor() %>% fct_reorder(total)) %>% 
-  ggplot(aes(facility_desc,total)) +
-  geom_col(fill = "#2c3e50")+
-  coord_flip()+
-  labs(y = "Total number of scheduled projects FY24-FY28",
-       x = "Facility Description") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0)
-  )
+fydp_recap_plan <- cat_c_recap %>% 
+  select(rpuid, op_activity) %>% 
+  group_by(rpuid, op_activity) %>% 
+  mutate(count = 1) %>%
+  mutate(op_activity = if_else(op_activity %in% c("PCS Lodging", "TDY Lodging"), "Commercial Recreation", op_activity)) %>% 
+  summarise(utilizations = sum(count)) %>% 
+  pivot_wider(names_from = op_activity, values_from = utilizations) %>% 
+  janitor::clean_names() %>% 
+  left_join(fydp_recap) %>% 
+  select(region, installation, rpuid, fci, fci_dt, utilizations, min_cycle, everything()) %>% 
+  mutate(commercial_recreation = commercial_recreation %>% replace_na(0),
+         exchange_operations = exchange_operations %>% replace_na(0),
+         food_beverage_direct = food_beverage_direct %>% replace_na(0),
+         clubs = clubs %>%replace_na(0),
+         FY24 = FY24 %>% replace_na(0),
+         FY25 = FY25 %>% replace_na(0),
+         FY26 = FY26 %>% replace_na(0),
+         FY27 = FY27 %>% replace_na(0),
+         FY28 = FY28 %>% replace_na(0),
+         FY29 = FY29 %>% replace_na(0),
+         FY30 = FY30 %>% replace_na(0),
+         FY31 = FY31 %>% replace_na(0),
+         FY32 = FY32 %>% replace_na(0),
+         FY33 = FY33 %>% replace_na(0),
+         FY34 = FY34 %>% replace_na(0),
+         FY35 = FY35 %>% replace_na(0),
+         FY36 = FY36 %>% replace_na(0),
+         FY37 = FY37 %>% replace_na(0)) %>% 
+  left_join(cat_c_recap %>% select(rpuid, net_profit) %>% group_by(rpuid) %>% summarise(sum_profit = sum(net_profit))) # %>% 
+  # pivot_longer(FY24:FY37,names_to = "year", values_to = "count") %>% 
+  # filter(count == 1) %>% 
+  # select(region, installation, rpuid, fci, fci_dt, min_cycle, sum_profit, everything(), -count)
 
 
-
-
-# By Operating Activity
-
-proj_op <- fydp_recap%>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  filter(count == 1) %>% 
-  group_by(op_activity) %>% 
-  summarise(total = sum(count)) %>% 
-  arrange(desc(total)) %>% 
-  mutate(op_activity = op_activity %>% as_factor() %>% fct_reorder(total)) %>% 
-  ggplot(aes(op_activity, total)) +
-  geom_col(fill = "#2c3e50")+
-  coord_flip()+
-  labs(y = "Total number of scheduled projects FY24-FY28",
-       x = "") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0)
-  )
-
-
-
-# By Region
-
-proj_region <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  filter(count == 1) %>% 
-  group_by(region) %>% 
-  summarise(total = sum(count)) %>% 
-  arrange(desc(total)) %>% 
-  mutate(region = region %>% as_factor() %>% fct_reorder(total)) %>% 
-  ggplot(aes(region, total)) +
-  geom_col(fill = "#2c3e50")+
-  coord_flip()+
-  labs(y = "Total number of scheduled projects FY24-FY28",
-       x = "") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0)
-  )
-
-proj_region
-
-# By installation
-
-proj_inst <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  filter(count == 1) %>% 
-  group_by(installation) %>% 
-  summarise(total = sum(count)) %>% 
-  arrange(desc(total)) %>% 
-  mutate(installation = installation %>% as_factor() %>% fct_reorder(total)) %>% 
-  ggplot(aes(installation, total)) +
-  geom_col(fill = "#2c3e50")+
-  coord_flip()+
-  labs(y = "Total number of scheduled projects FY24-FY28",
-       x = "") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0)
-  )
-
-
-
-```
-
-
-```{r}
-recap_op_fy <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  ggplot(aes(year,count, fill = op_activity)) +
-  geom_col() + 
-  scale_fill_brewer() +
-  labs(title = "Total number of scheduled projects by FY and Operating Activity (FY24-FY28)",
-       y = "",
-       x = "") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.x =  element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0),
-    legend.title = element_blank()
-  )
-
-
-recap_op_fy
-
-recap_facet <- fydp_recap %>% 
-  pivot_longer(cols= starts_with("FY"), names_to = "year", values_to = "count") %>% 
-  ggplot(aes(year,count)) +
-  geom_col(fill = "#2c3e50") + 
-  facet_wrap(~op_activity) +
-  labs(title = "Total number of scheduled projects by FY and Operating Activity (FY24-FY28)
-       ",
-       y = "",
-       x = "") +
-  theme_tq() +
-  theme(
-    # panel.grid.major = element_blank(),
-    panel.grid.major.x =  element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.title = element_text(hjust = 0),
-    legend.title = element_blank()
-  )
-
+write_xlsx(fydp_recap_plan, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/fydp_recap_plan")
+ 
 
 
 ```
