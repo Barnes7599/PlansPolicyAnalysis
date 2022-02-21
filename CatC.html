@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Category C Profit vs Utilization Report</title>
+
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.19/datatables.js"></script>
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<script src="site_libs/plotly-binding-4.9.4.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.57.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.57.1/plotly-latest.min.js"></script>
+<link href="site_libs/dt-ext-rowgroup-1.10.20/css/rowGroup.dataTables.min.css" rel="stylesheet" />
+<script src="site_libs/dt-ext-rowgroup-1.10.20/js/dataTables.rowGroup.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PPBEA</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="Facilities.html">Facilities</a>
+</li>
+<li>
+  <a href="recap.html">Facilities ReCap Plan</a>
+</li>
+<li>
+  <a href="Lodging.html">Official Lodging</a>
+</li>
+<li>
+  <a href="CatC.html">Cat C</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Category C Profit vs Utilization Report</h1>
+
+</div>
+
+
+<p>Terms of Reference:</p>
+<ol style="list-style-type: decimal">
+<li><p>Active Duty Percent = Active Duty + Family Members / All Patrons</p></li>
+<li><p>Net Profit Percent = Net Profit / Net Sales</p></li>
+</ol>
+<div id="data-dictionary" class="section level1">
+<h1>Data Dictionary</h1>
+<div id="cost-center-descriptions" class="section level2">
+<h2>Cost Center Descriptions</h2>
+<div id="htmlwidget-e4788902d0d0637abcfb" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e4788902d0d0637abcfb">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342"],["0000","0003","0010","0012","0040","0045","0050","0098","0101","1001","1002","1005","1006","1011","1018","1020","1021","1022","1024","1030","1031","1032","1033","1034","1039","1041","1048","1051","1052","1053","1055","1057","1058","1060","1073","1075","1076","1077","1078","1096","1097","1098","1113","1122","1130","1141","1148","1151","1152","1153","1154","1155","1156","1157","1176","1177","1178","1179","1195","1196","1198","2003","2011","2015","2025","2030","2040","2050","2051","2060","2070","2075","2080","2081","2098","2110","2111","2112","2114","2115","2116","2120","2210","2211","2212","2213","2214","2215","2220","2310","2311","2312","2313","2314","2315","2316","2320","2409","2410","2411","2412","2413","2414","2415","2416","2417","2418","2419","2420","2601","2602","2603","2604","2605","2620","3900","3910","3920","3930","3940","3950","3960","3970","3980","4900","5010","5011","5020","5051","5093","5094","5095","5096","5097","5098","5100","5150","5209","5309","5340","5401","5509","5510","5511","5512","5513","5514","5515","5516","5517","5520","5530","5531","5535","5540","5541","5542","5548","5550","5551","5552","5553","5554","5555","5560","5565","5566","5570","5572","5573","5575","5580","5598","5617","5642","5643","5644","5700","5710","5811","5812","5815","5820","5830","5840","5841","5842","5850","5851","5852","5853","5860","5865","5870","5871","5880","5890","5902","6005","6010","6020","6030","6040","6050","6055","6060","6065","6066","6070","6078","6079","6080","6090","6091","6092","6093","6094","6095","6096","6097","6098","6100","6101","6105","6110","6120","6130","6140","6150","6160","6171","6181","6182","6183","6190","6231","6261","6281","6301","6311","6331","6900","6901","6902","6903","6904","7000","7003","7008","7010","7012","7013","7014","7015","7016","7017","7018","7019","7021","7022","7023","7024","7026","7033","7039","7040","7076","7077","7078","7079","7098","7700","7701","7702","7703","7704","7705","7706","7707","7708","7710","7712","7713","7714","7715","7717","7718","7719","7720","7721","7723","7724","7725","7726","7728","7729","7730","7731","7732","7733","7734","7735","7741","7742","7745","7746","7747","7748","7750","7760","7761","7762","7763","7771","7781","7782","7783","7784","7785","7786","7798","7799","9001","9003","9010","9011","9012","9013","9014","9015","9016","9017","9018","9019","9020","9021","9023","9097","9098","9900","9901","9911"],["OPERATING ACTIVITIES","DSCP WAREHOUSE","DSCP-MIL CLOTHING-MCSS","DSCP-MIL CLOTHING-BRANCH","782 GEAR","MILITARY CLOTHING MCCUU","RECOVERED MILITARY CLOTH","MILITARY CLOTHING O/H","EPOS ERROR CLEARING CC","RETURN ORDER RETAIL WHSE","MAIN RETAIL WHSE","RETAIL BUYERS","VISUAL MERCHANDISE","MAIN STORE","STOCK CONTROL","SECURITY","BOOK STORE","PHOTO PROCESSING","COMMERCIAL UNIFORMS","SERVICE STATION O/H","SERVICE FUEL","AUTO REPAIR &amp; MAINT","AUTO PARTS STORE","SERVICE STATION","GEN MDSE  SPECIALS","CERAMICS RESALE","WOOD WORKING RESALE","GOLF RESALE","BOWLING RESALE","REC SHOOTING RETAIL","FITNESS CENTER RESALE","OUTDOOR RECREATION RESALE","MARINE MART","RECRUIT SALES","BRANCH STORE","PACKAGE ALCOHOL SALES","MARINA RESALE","AUTO SKILLS RESALE","MARINA FUEL","COMMAND SPECIAL EVENT","INDIRECT OTHER RETAIL","MCX RETAIL OVERHEAD","SWIMMING RESALE","PORTRAIT STUDIO RESALE","RECREATION CENTER RESALE","CERAMICS RESALE","COMMERCIAL REC VARIOUS RESALE COST","GOLF RESALE","BOWLING RESALE","REC SHOOTING RESALE","STABLES RESALE","FITNESS CENTER RESALE","SCUBA RESALE","OUTDOOR REC RESALE","MARINA RESALE","AUTO SKILLS RESALE","MARINA FUEL RESALE","CUSTOM SHOP RESALE","AIR SHOWS RESALE","COMMAND SPECIAL EVENTS RESALE","MWR RESALE OVERHEAD","FOOD AND HOSPITALITY WHS","BAKERY","SNACK BARS","MOBILE UNITS","INDIRECT FAST FOOD","SPECIALTY FOODS","AAFES FAST FOOD CONCEPTS","FRANCHISE/LICENSE FAST FOOD","ARMY FOOD CONCEPTS","REC LODGING FACILITY","RV PARKS","PCS TEMP LODGING FACILITY","COMMAND SPECIAL EVENT","F &amp; H OVERHEAD","OFFICERS CLUB OVERHEAD","OFFICERS CLUB RESTAURANT FOOD","OFFICERS CLUB BAR","OFFICERS CLUB BINGO","OFFICERS CLUB SPECIAL EVENTS","OFFICERS CLUB POOL","OFFICERS CLUB SUNDRIES","SNCO CLUB OVERHEAD","SNCO RESTAURANT FOOD","SNCO BAR","SNCO GAMING DEVICE &amp; MACH","SNCO CLUB BINGO","SNCO CLUB SPECIAL EVENTS","SNCO CLUB SUNDRIES","ENLISTED CLUB OVERHEAD","ENLISTED CLUB RESTAURANT","ENLISTED BAR","ENLISTED CLUB GAMING DEVICES","ENLISTED BINGO","ENLISTED SPECIAL EVENTS","BARRACKS VENDING","ENLISTED CLUB SUNDRIES","CONSOLIDATED AMUSEMENTS","CONSOLIDATED CLUB O/H","CONSOLIDATED CLUB RESTAURANT","CONSOLIDATED CLUB OFFICER BAR","CONSOL CLUB GAMING DEVIC","CONSOLIDATED CLUB BINGO","CONSOLIDATED CLUB SPECIAL EVENT","CONSOLIDATED CLUB STAFF BAR","CONSOLIDATED CLUB ENLISTED BAR","CONSOLIDATED CLUB BAR","CONSOLIDATED CLUB BANQUET BAR","CONSOLIDATED CLUB SUNDRIES","RESTAURANT/BAR","RESTAURANT/MESS","RESTAURANT/GAMING DEVICE","RESTAURANT/SPECIAL EVENT","RESTAURANT/OVERHEAD","RESTAURANT SUNDRIES","CHILD DEVELOPMENT CENTERS","FAMILY CHILD CARE","RESOURCE &amp; REFERRAL","SCHOOL AGE CARE","YOUTH SPORTS PROGRAM","FAMILY CARE PROGRAMS MANAGEMENT/OTH","YOUTH &amp; TEEN ACTIVITIES","SCHOOL LIAISON PROGRAM","RESPITE CHILD CARE","BILLETING FUND","SPORTS &amp; ATHLETICS O'HEA","SPORTS &amp; ATHLETICS ABOVE INTRAMURAL","FAMILY SERVICES","CISM HOSTING","RACE SERIES CAT C","AIR SHOWS","CMD RECREATION SPC EVTS","SPECIAL REC CMTY EVENT","DEP SPORTS PROG","CMTY COMPETITIVE EVENTS","INTRAMURALS SPORTS","SPORTS &amp; ATHLETICS","REG/ALL MARINE COMP","ARMED FORCES SPORTS","SEMPER FIT MGMT/OTHER","HEALTH PROMOTIONS","IND PHYS FIT ACT O/H","GYMNASIUM","FITNESS CENTERS","PLAYING FIELDS &amp; COURTS","CAT B SWIMMING","RECREATIONAL SCUBA","CAT A SWIMMING","FITNESS PROGRAMS","COMMUNITY CENTERS","MCCS LIBRARY PROGRAM","RECREATION CENTER","PERFORMING ARTS","AUTO SKILLS","ARTS &amp; CRAFTS OVERHEAD","ARTS &amp; CRAFTS CERAMICS","ARTS &amp; CRAFTS MISCELLANEOUS","ARTS &amp; CRAFTS WOODWORKIN","OUTDOOR REC AREAS O/H","REC PICNIC/PARK AREAS","CAMPING","GUARDED OPEN WATER AREAS","OUTDOOR REC EQUIP CENTER","DIRECTED OUTDOOR RECREATION","YOUTH ACT &amp; TEEN CENTERS","YOUTH SPORTS PROGRAM","MCCS COORDINATORS","INFO- TICKETS &amp; TOURS O/H","ITT TICKET","ITT TOURS","DIRECT LEISURE TRAVEL","OUTDOOR REC EQUP CHECKOUT","RECREATION BUSINESS MGMNT/OTHER","COMMUNITY REC PROGRAMS","UNITS/BATTALIONS","MARINE CORPS BALL","UNIT REC &amp; DEPOYMENT","RECREATION SPORTS","SINGLE MARINE PROGRAM","BOWLING (16 LANES OR LESS)","BOWLING (17 LANES OR MORE)","COMM SPONSORSHIP- REC","REC GAME ROOM","RECREATIONAL SHOOTING","THEATER MOVIE PROGRAM","ENCRYPTED DIGITAL VIDEO DISC (NDVD)","OFFICIAL USE OF MWR FACILITIES","MARINA OVERHEAD","PRIVATE BERTHING","BOATING PROGRAM","VEHICLE STORAGE","GOLF COURSE","MINIATURE GOLF","PRIVATE BOARDING STABLES (CAT C)","HORSEBACK RIDING CAT B","CAT C REC EQUIPMENT RENTAL","GYMNASTICS","KEY VOLUNTEER NETWORK","READINESS &amp; DEPLOYMENT SUPPORT","L.I.N.K.S.","C.R.E.D.O.","P.R.E.P.","SPOUSES' LEARNING SERIES","MCFTB MANAGEMENT/OTHER","MCFTB TRAINING","LIFESKILLS TRAINING &amp; EDUCATION","UNIT,P&amp;F READINESS (UPFRP)UNIT FUND","UNIT, P&amp;F READINESS - DRC PROGRAM","MCFTB CHILD CARE","FAMILY ADVOCACY PROG NPSP HOME VIST","PERSONAL FINANCIAL MANAGEMENT","SUICIDE PREVENTION PROGRAM","FAMILY ADVOCACY PROGRAM","FAMILY ADVOCACY PROG CLINIC STAFF","FAMILY ADVOCACY PROG PREVENT STAFF","FAMILY ADVOCACY PROG GEN ADMIN","EMBEDDED PREV BEHAV HLTH CAP(EPBHC)","COMBAT OPERATIONAL STRESS CONTROL","CLINICAL COUNSELING CENTERS","INTEGRATION","BEHAVIORAL HEALTH PROGRAMS MGMT/OTH","EXCEPTIONAL FAMILY MEMBER PROGRAM","RESPITE CARE","SEXUAL ASSAULT PREVENT &amp; RESPONSE","SUBSTANCE ABUSE (NON-DDR)","OTHER PREVENTION PROGRAMS","CLINICAL COUNSEL(DOMESTIC VIOLENCE)","CLINICAL COUNSEL(INDIVIDUAL)","ALCOHOL TREATMENT","RELOCATION ASSISTANCE","TRANSITION ASSISTANCE","PPR PROGRAMS MANAGEMENT/OTHER","MARINE FOR LIFE","INFORMATION AND REFERRAL","FAMILY MEMBER EMPLOYMENT ASSISTANCE","EDUCATION CENTER PROGRAMS","LIFELONG LEARNING MANAGEMENT/OTHER","SEMPER FIT MANAGEMENT/OTHER","COMMUNITY CENTERS","BKS REC ROOM EQUIPMENT","SPORTS &amp; ATHLETICS ABOVE INTRAMURAL","WWR MANAGEMENT/OTHER","WWR TRANSITION ASSISTANCE","WWR FAMILY SUPPORT","WWR RECREATION","WWR AQUATICS","VENDING OVERHEAD","VENDING WAREHOUSE","DVD RENTAL VENDING","VENDING OVERHEAD","COLD DRINK VENDING","DIRECT COLD DRINK VENDING","HOT DRINK VENDING","COLD FOOD VENDING","FROZEN VENDING","SNACK VENDING","VENDING CONCEPTS (MICRO MARKET)","VENDING SOAP &amp; BLEACH","PHOTO VENDING","HOT FOOD VENDING","WATER VENDING-BULK","VENDING RECYCLING MACHINE","PREPAID CALLING CARD","CAR WASH VENDING","OTHER PRODUCT VENDING","BULK VENDING","AMUSEMENT VENDING","MUSIC VENDING","LAUNDROMATS","OTHER NON PRODUCT VENDIN","SERVICES OVERHEAD","PERSONAL SERVICES O/H","BARBER SHOP","BEAUTY SHOP","EYE CARE","DENTAL CLINICS","WATCH &amp; JEWELRY REPAIR","ENGRAVING AND KEY MAKING","SHOE AND BOOT REPAIR","VIDEO RENTALS","FURNITURE RENTAL CENTER","AUTO RENTAL","EQUIPMENT RENTAL","OTHER RENTAL","TRUCK RENTALS","PACKING &amp; WRAPPING","FLOWERS","HUNTING/FISHING LICENSE","PHOTOGRAPHY","PHOTO STUDIO-PHOTOME","IND CLASS BOOK &amp; ANNUALS","PRINTING AND REPRODUCTION","RECRUIT SERVICES","TAX PREPARATION SERVICES","MONEY ORDERS","NAIL SALON","ELECTRONIC FUNDS TRANSFER","PERSONAL TELECOM SERVICES","LEISURE TRAVEL CAT C REC","CARPET CLEANER RENTAL","TRAVEL CHECKS","GAME BUYING, SELLING OR TRADING","LAUNDROMAT","LAUNDRY &amp; DRY CLEANING","MOBILE CLEANERS","TAILOR SHOP","CONTRACTED AUTO SERVICES","COMPUTER REPAIR &amp; HOME INSTALLATION","RECYCLING PROGRAM","HOME IMPROVEMENT SERVICES","TOWING SERVICES","TELECOMMUNICATIONS SERVICES","VEHICLE RENTAL SERVICE","DELIVERY &amp; INSTALLATION","ANIMAL BOARDING/KENNEL","ANIMAL EQUIP &amp; GOODS","ANIMAL KENNELS","CABLE/SATELLITE TV","OTHER SERVICES","SELF STORAGE FACILITY","ONE TIME CONCESSIONS","SERVICES OVERHEAD","SPT ACT RETURN ORDER W/HSA","LOGISTICS","ACCOUNTING","HUMAN RESOURCES","INFORMATION TECHNOLOGY","ADMINISTRATIVE","CONSTRUCTION &amp; FACILITIES MAINT","MARKETING","COMPLIANCE &amp; RISK MANAGEMENT","CUSTODIAL &amp; GROUNDS MAINTENANCE","PROCUREMENT","COMMERCIAL SPONSORSHIP","OPERATIONS","ENTERPRISE ARCHITECTURE","TRAINING","EMPLOYEE BENEFITS PROGRAM HQ ONLY","COMPOSITE INSURANCE PROGRAM HQ ONLY","ADMINISTRATION","MOTOR TRANSPORT","PERSONNEL UNIT"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Cost_Center<\/th>\n      <th>Cost_Center_Description<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="company-abb-desc" class="section level2">
+<h2>Company Abb &amp; Desc</h2>
+<div id="htmlwidget-d3ffabd48809b4b82f40" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d3ffabd48809b4b82f40">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38"],["ALM","BAM","BUM","CLM","CPM","EIM","ELM","GCM","H01","H02","H03","H05","H07","H09","HHM","IWM","KBM","MCM","MRM","NRM","PNM","QUM","RGM","SCM","SDM","TWM","YUM","BNM","H06","MAM","JTM","H35","RCM","H21","B10","H04","H08","H10"],["ALBANY","BARSTOW","BUTLER","MCCS LEJEUNE-NEW RIVER","CHERRY POINT","8TH AND I","ALLEN","GARDEN CITY","HEADQUARTERS OPERATING FUND","BANK FUND","HEADQUARTERS IT FUND","EMPLOYEE BENEFITS COMPANY FUND","CENTRAL CONSTRUCTION FUND","RETAIL OPERATIONS","HENDERSON HALL","IWAKUNI","HAWAII","MARINE CORPS MARATHON","MIRAMAR","NEW RIVER","PENDLETON","QUANTICO","KANSAS CITY","SOUTH CAROLINA","SAN DIEGO","TWENTYNINE PALMS","YUMA","BANGOR","MARINE &amp; FAMILY PROGRAMS","MARRESFOR","JOINT SERVICE TRAVEL PROGRAM","CMC MC BALL","MCRC","WOUNDED WARRIORS REGIMENT","SHARED SERVICE CENTER JAPAN","INSURANCE COMPANY FUND","NAF INSTITUTIONAL RESOURCE","SHARED SERVICE CENTER"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Company<\/th>\n      <th>Company_Description<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="golf-courses-plot" class="section level1">
+<h1>Golf Courses Plot</h1>
+<div id="quad-plot" class="section level2">
+<h2>Quad Plot</h2>
+<p><div id="htmlwidget-c06b3cb29489ee24c8dc" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c06b3cb29489ee24c8dc">{"x":{"data":[{"x":[0.119925444378779],"y":[-1.04050337911996],"text":"Company: BAM<br /> Percent Active Duty: 11.99%<br /> Percent Net Profit: -104.1%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"BAM","legendgroup":"BAM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.589132363020602],"y":[-0.365438228282617],"text":"Company: CLM<br /> Percent Active Duty: 58.91%<br /> Percent Net Profit: -36.5%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(211,146,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(211,146,0,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.255589393151601],"y":[-0.210370767583954],"text":"Company: CPM<br /> Percent Active Duty: 25.56%<br /> Percent Net Profit: -21.0%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(147,170,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(147,170,0,1)"}},"hoveron":"points","name":"CPM","legendgroup":"CPM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.39950341351395],"y":[-0.0993281357315875],"text":"Company: KBM<br /> Percent Active Duty: 39.95%<br /> Percent Net Profit: -9.9%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.214380984794827],"y":[-0.131815394685938],"text":"Company: MRM<br /> Percent Active Duty: 21.44%<br /> Percent Net Profit: -13.2%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,193,159,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,193,159,1)"}},"hoveron":"points","name":"MRM","legendgroup":"MRM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.30983687509939],"y":[-0.0827196080688559],"text":"Company: PNM<br /> Percent Active Duty: 30.98%<br /> Percent Net Profit: -8.3%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,185,227,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,185,227,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.26768972227136],"y":[-0.574413378378802],"text":"Company: QUM<br /> Percent Active Duty: 26.77%<br /> Percent Net Profit: -57.4%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.204846044364217],"y":[-0.328299618146905],"text":"Company: SCM<br /> Percent Active Duty: 20.48%<br /> Percent Net Profit: -32.8%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(219,114,251,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(219,114,251,1)"}},"hoveron":"points","name":"SCM","legendgroup":"SCM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.54399684762511],"y":[-2.35269833771989],"text":"Company: TWM<br /> Percent Active Duty: 54.40%<br /> Percent Net Profit: -235.3%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,97,195,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,97,195,1)"}},"hoveron":"points","name":"TWM","legendgroup":"TWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982,0.322766787579982],"y":[-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,-2.47033325460589,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995,0.117634916885995],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.47033325460589,0.117634916885995],"tickmode":"array","ticktext":["-200%","-150%","-100%","-50%","0%"],"tickvals":[-2,-1.5,-1,-0.5,0],"categoryorder":"array","categoryarray":["-200%","-150%","-100%","-50%","0%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac28a72b7b":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac467078ec":{"xintercept":{}},"27ac6e221dc":{"yintercept":{}}},"cur_data":"27ac28a72b7b","visdat":{"27ac28a72b7b":["function (y) ","x"],"27ac467078ec":["function (y) ","x"],"27ac6e221dc":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script> *Active duty includes Dependents</p>
+</div>
+<div id="table" class="section level2">
+<h2>Table</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program.</p>
+<div id="htmlwidget-6d8cbe901c8428b09521" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6d8cbe901c8428b09521">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860","5860"],["BARSTOW","BARSTOW","BARSTOW","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","CHERRY POINT","CHERRY POINT","CHERRY POINT","HAWAII","HAWAII","HAWAII","MIRAMAR","MIRAMAR","MIRAMAR","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","TWENTYNINE PALMS","TWENTYNINE PALMS","TWENTYNINE PALMS"],["GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE","GOLF COURSE"],["-119.59%","-118.98%","-57.97%","-42.77%","-39.93%","-34.68%","-39.12%","-25.82%","-13.86%","-27.95%","-10.01%","-22.86%","-21.29%","-26.81%","5.81%","-9.35%","-15.58%","3.07%","-78.97%","-66.78%","-43.65%","-20.05%","-16.36%","-109.91%","-246.67%","-304.23%","-215.22%"],["7.668%","8.778%","16.341%","54.756%","55.905%","64.522%","26.560%","25.190%","25.067%","36.638%","35.715%","47.537%","18.886%","19.966%","24.589%","31.883%","31.029%","30.001%","22.004%","25.900%","31.353%","16.314%","17.000%","31.679%","48.548%","53.278%","60.481%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="private-berthing" class="section level1">
+<h1>Private Berthing</h1>
+<div id="quad-plot-1" class="section level2">
+<h2>Quad Plot</h2>
+<div id="htmlwidget-3bef3d6943fa9669c4cb" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3bef3d6943fa9669c4cb">{"x":{"data":[{"x":[0.915966386554622],"y":[0.593078278580955],"text":"Company: CLM<br /> Percent Active Duty: 91.6%<br /> Percent Net Profit: 59.31%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.333333333333333],"y":[0.677834573016949],"text":"Company: CPM<br /> Percent Active Duty: 33.3%<br /> Percent Net Profit: 67.78%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(183,159,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(183,159,0,1)"}},"hoveron":"points","name":"CPM","legendgroup":"CPM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1],"y":[0.362502469856383],"text":"Company: KBM<br /> Percent Active Duty: 100.0%<br /> Percent Net Profit: 36.25%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.411214953271028],"y":[0.223104594881526],"text":"Company: PNM<br /> Percent Active Duty: 41.1%<br /> Percent Net Profit: 22.31%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.162162162162162],"y":[0.23261781776727],"text":"Company: QUM<br /> Percent Active Duty: 16.2%<br /> Percent Net Profit: 23.26%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.498721227621483],"y":[0.789662011384677],"text":"Company: SDM<br /> Percent Active Duty: 49.9%<br /> Percent Net Profit: 78.97%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(245,100,227,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(245,100,227,1)"}},"hoveron":"points","name":"SDM","legendgroup":"SDM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771,0.553566343823771],"y":[-0.0394831005692338,-0.0394831005692338,-0.0394831005692338,-0.0394831005692338,-0.0394831005692338,-0.0394831005692338,0.82914511195391,0.82914511195391,0.82914511195391,0.82914511195391,0.82914511195391,0.82914511195391],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":43.1050228310502},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0394831005692338,0.82914511195391],"tickmode":"array","ticktext":["0%","20%","40%","60%","80%"],"tickvals":[0,0.2,0.4,0.6,0.8],"categoryorder":"array","categoryarray":["0%","20%","40%","60%","80%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac9502eba":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac2cfb255d":{"xintercept":{}},"27ac67ca253e":{"yintercept":{}}},"cur_data":"27ac9502eba","visdat":{"27ac9502eba":["function (y) ","x"],"27ac2cfb255d":["function (y) ","x"],"27ac67ca253e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>*Active duty includes Dependents</p>
+</div>
+<div id="table-1" class="section level2">
+<h2>Table</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program.</p>
+<div id="htmlwidget-9f34c721cc42cbfa8f09" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9f34c721cc42cbfa8f09">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851","5851"],["MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","CHERRY POINT","CHERRY POINT","CHERRY POINT","HAWAII","HAWAII","HAWAII","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SAN DIEGO","SAN DIEGO","SAN DIEGO"],["PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING","PRIVATE BERTHING"],["66.02%","61.57%","71.44%","68.98%","59.85%","68.16%","54.81%","42.36%","31.42%","20.91%","20.21%","29.46%","13.24%","7.86%","0.32%","66.92%","79.94%","85.09%"],["85.271%","90.741%","95.397%","27.273%","36.000%","37.313%","100.000%","100.000%","100.000%","35.294%","50.794%","38.554%","28.571%","6.667%","20.000%","51.908%","45.669%","51.880%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="boating-program-plot" class="section level1">
+<h1>Boating Program Plot</h1>
+<div id="quad-plot-2" class="section level2">
+<h2>Quad Plot</h2>
+<div id="htmlwidget-00aaa3196eab60d570e2" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-00aaa3196eab60d570e2">{"x":{"data":[{"x":[0.972429786137593],"y":[-0.292613244255457],"text":"Company: CLM<br /> Percent Active Duty: 97.2%<br /> Percent Net Profit: -29.3%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.936863543788187],"y":[0.972344099511202],"text":"Company: CPM<br /> Percent Active Duty: 93.7%<br /> Percent Net Profit: 97.2%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(196,154,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(196,154,0,1)"}},"hoveron":"points","name":"CPM","legendgroup":"CPM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.998584321359052],"y":[0.223720401021904],"text":"Company: KBM<br /> Percent Active Duty: 99.9%<br /> Percent Net Profit: 22.4%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(83,180,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(83,180,0,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.592656216448357],"y":[0.176194878408634],"text":"Company: PNM<br /> Percent Active Duty: 59.3%<br /> Percent Net Profit: 17.6%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,192,148,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,192,148,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.609271523178808],"y":[0.383479892166101],"text":"Company: QUM<br /> Percent Active Duty: 60.9%<br /> Percent Net Profit: 38.3%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,182,235,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,182,235,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.780593531177059],"y":[0.476785045170505],"text":"Company: SDM<br /> Percent Active Duty: 78.1%<br /> Percent Net Profit: 47.7%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(165,138,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(165,138,255,1)"}},"hoveron":"points","name":"SDM","legendgroup":"SDM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.722375690607735],"y":[-1.54662817580907],"text":"Company: YUM<br /> Percent Active Duty: 72.2%<br /> Percent Net Profit: -154.7%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(251,97,215,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(251,97,215,1)"}},"hoveron":"points","name":"YUM","legendgroup":"YUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097,0.80182494467097],"y":[-1.67257678957508,-1.67257678957508,-1.67257678957508,-1.67257678957508,-1.67257678957508,-1.67257678957508,-1.67257678957508,1.09829271327722,1.09829271327722,1.09829271327722,1.09829271327722,1.09829271327722,1.09829271327722,1.09829271327722],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.67257678957508,1.09829271327722],"tickmode":"array","ticktext":["-150%","-100%","-50%","0%","50%","100%"],"tickvals":[-1.5,-1,-0.5,0,0.5,1],"categoryorder":"array","categoryarray":["-150%","-100%","-50%","0%","50%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ace37f34":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac2b8a643":{"xintercept":{}},"27ac5cc65d6f":{"yintercept":{}}},"cur_data":"27ace37f34","visdat":{"27ace37f34":["function (y) ","x"],"27ac2b8a643":["function (y) ","x"],"27ac5cc65d6f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>*Active duty includes Dependents</p>
+</div>
+<div id="table-2" class="section level2">
+<h2>Table</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program.</p>
+<div id="htmlwidget-9f2b62d9de1083077eb6" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9f2b62d9de1083077eb6">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852","5852"],["MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","CHERRY POINT","CHERRY POINT","CHERRY POINT","HAWAII","HAWAII","HAWAII","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SAN DIEGO","SAN DIEGO","SAN DIEGO","YUMA","YUMA","YUMA"],["BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM","BOATING PROGRAM"],["-25.32%","-65.13%","-260.17%","99.43%","100.00%","100.00%","18.06%","25.98%","9.35%","24.60%","19.58%","31.81%","-97.80%","-3.21%","67.91%","59.42%","1.36%","-276.01%","-74.80%","-296.66%","-222.88%"],["97.688%","96.706%","97.240%","92.473%","94.891%","94.048%","99.878%","99.805%","99.913%","51.196%","54.156%","63.838%","46.512%","58.586%","66.250%","79.554%","74.591%","88.055%","74.677%","65.741%","77.159%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="vehicle-storage-plot" class="section level1">
+<h1>Vehicle Storage Plot</h1>
+<div id="quad-plot-3" class="section level2">
+<h2>Quad Plot</h2>
+<div id="htmlwidget-ffa44c04b0f148cc6f00" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ffa44c04b0f148cc6f00">{"x":{"data":[{"x":[0.704347826086957],"y":[0.831451170224709],"text":"Company: MRM<br /> Percent Active Duty: 70.43%<br /> Percent Net Profit: 83.15%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"MRM","legendgroup":"MRM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.74031007751938],"y":[0.576074063010189],"text":"Company: PNM<br /> Percent Active Duty: 74.03%<br /> Percent Net Profit: 57.61%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(183,159,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(183,159,0,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.821192052980132],"y":[0.987315343827321],"text":"Company: QUM<br /> Percent Active Duty: 82.12%<br /> Percent Net Profit: 98.73%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.708333333333333],"y":[0.994330526544035],"text":"Company: SCM<br /> Percent Active Duty: 70.83%<br /> Percent Net Profit: 99.43%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"hoveron":"points","name":"SCM","legendgroup":"SCM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.631944444444444],"y":[0.94648581957366],"text":"Company: SDM<br /> Percent Active Duty: 63.19%<br /> Percent Net Profit: 94.65%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"SDM","legendgroup":"SDM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.813432835820896],"y":[0.582635924930505],"text":"Company: YUM<br /> Percent Active Duty: 81.34%<br /> Percent Net Profit: 58.26%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(245,100,227,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(245,100,227,1)"}},"hoveron":"points","name":"YUM","legendgroup":"YUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419,0.73659342836419],"y":[-0.0497165263272018,-0.0497165263272018,-0.0497165263272018,-0.0497165263272018,-0.0497165263272018,-0.0497165263272018,1.04404705287124,1.04404705287124,1.04404705287124,1.04404705287124,1.04404705287124,1.04404705287124],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":48.9497716894977},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0497165263272018,1.04404705287124],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac69167d1f":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac5bd1770":{"xintercept":{}},"27ac7230dcd":{"yintercept":{}}},"cur_data":"27ac69167d1f","visdat":{"27ac69167d1f":["function (y) ","x"],"27ac5bd1770":["function (y) ","x"],"27ac7230dcd":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>*Active duty includes Dependents</p>
+</div>
+<div id="table-3" class="section level2">
+<h2>Table</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) members against all patrons that utilized the program.</p>
+<div id="htmlwidget-d5b648e15548329da430" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d5b648e15548329da430">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853","5853"],["MIRAMAR","MIRAMAR","MIRAMAR","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","SAN DIEGO","SAN DIEGO","SAN DIEGO","YUMA","YUMA","YUMA"],["VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE","VEHICLE STORAGE"],["84.588%","82.926%","81.507%","50.370%","62.840%","61.879%","96.520%","99.501%","99.527%","100.000%","100.000%","100.000%","95.831%","95.470%","92.846%","62.579%","47.971%","44.205%"],["77.657%","75.033%","58.881%","73.346%","75.097%","73.653%","64.286%","87.500%","85.333%","56.000%","98.077%","52.941%","63.636%","49.020%","77.551%","77.108%","73.077%","90.654%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="auto-skills" class="section level1">
+<h1>Auto Skills</h1>
+<div id="quad-plot-4" class="section level2">
+<h2>Quad Plot</h2>
+<p><div id="htmlwidget-3e016d280fe01b7dc900" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3e016d280fe01b7dc900">{"x":{"data":[{"x":[0.427098150782361],"y":[0.40097189871936],"text":"Company: ALM<br /> Percent Active Duty: 42.71%<br /> Percent Net Profit: 40.1%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"ALM","legendgroup":"ALM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.915280037793292],"y":[-0.412158308305361],"text":"Company: CLM<br /> Percent Active Duty: 91.53%<br /> Percent Net Profit: -41.2%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(219,142,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(219,142,0,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.793351206434316],"y":[-0.620164752448309],"text":"Company: CPM<br /> Percent Active Duty: 79.34%<br /> Percent Net Profit: -62.0%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(174,162,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(174,162,0,1)"}},"hoveron":"points","name":"CPM","legendgroup":"CPM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.705861581920904],"y":[0.166658114143874],"text":"Company: IWM<br /> Percent Active Duty: 70.59%<br /> Percent Net Profit: 16.7%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(100,178,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(100,178,0,1)"}},"hoveron":"points","name":"IWM","legendgroup":"IWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.877507670521596],"y":[0.372736834802133],"text":"Company: KBM<br /> Percent Active Duty: 87.75%<br /> Percent Net Profit: 37.3%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,189,92,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,189,92,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.695896220531371],"y":[0.18828820854066],"text":"Company: MRM<br /> Percent Active Duty: 69.59%<br /> Percent Net Profit: 18.8%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,193,167,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,193,167,1)"}},"hoveron":"points","name":"MRM","legendgroup":"MRM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.890616567728009],"y":[-0.179808380631552],"text":"Company: PNM<br /> Percent Active Duty: 89.06%<br /> Percent Net Profit: -18.0%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,222,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,222,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.62980165704243],"y":[-0.102363012590145],"text":"Company: QUM<br /> Percent Active Duty: 62.98%<br /> Percent Net Profit: -10.2%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,166,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,166,255,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.766736090449271],"y":[-0.157937392867247],"text":"Company: SCM<br /> Percent Active Duty: 76.67%<br /> Percent Net Profit: -15.8%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(179,133,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(179,133,255,1)"}},"hoveron":"points","name":"SCM","legendgroup":"SCM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.941004292962144],"y":[-1.48876276922451],"text":"Company: TWM<br /> Percent Active Duty: 94.10%<br /> Percent Net Profit: -148.9%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(239,103,235,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(239,103,235,1)"}},"hoveron":"points","name":"TWM","legendgroup":"TWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.812262958280657],"y":[-2.06611721294504],"text":"Company: YUM<br /> Percent Active Duty: 81.23%<br /> Percent Net Profit: -206.6%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,99,182,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,99,182,1)"}},"hoveron":"points","name":"YUM","legendgroup":"YUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305,0.768674221313305],"y":[-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,-2.18947166852826,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258,0.52432635430258],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.18947166852826,0.52432635430258],"tickmode":"array","ticktext":["-200%","-150%","-100%","-50%","0%","50%"],"tickvals":[-2,-1.5,-1,-0.5,0,0.5],"categoryorder":"array","categoryarray":["-200%","-150%","-100%","-50%","0%","50%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac35402696":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac19dc2ddf":{"xintercept":{}},"27ac41fe494a":{"yintercept":{}}},"cur_data":"27ac35402696","visdat":{"27ac35402696":["function (y) ","x"],"27ac19dc2ddf":["function (y) ","x"],"27ac41fe494a":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script> *Active duty includes Dependents</p>
+</div>
+<div id="table-4" class="section level2">
+<h2>Table</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilized the program.</p>
+<div id="htmlwidget-ef01e7fa7a2c497e1760" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ef01e7fa7a2c497e1760">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535","5535"],["ALBANY","ALBANY","ALBANY","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","CHERRY POINT","CHERRY POINT","CHERRY POINT","IWAKUNI","IWAKUNI","IWAKUNI","HAWAII","HAWAII","HAWAII","MIRAMAR","MIRAMAR","MIRAMAR","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","TWENTYNINE PALMS","TWENTYNINE PALMS","TWENTYNINE PALMS","YUMA","YUMA","YUMA"],["AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS","AUTO SKILLS"],["40.10%","27.77%","98.83%","-70.96%","-61.11%","-94.15%","4.70%","-140.71%","-15.26%","13.49%","-20.19%","26.67%","56.73%","-8.22%","45.52%","21.78%","-3.62%","25.10%","-87.35%","-27.03%","-27.25%","-9.98%","-111.83%","-117.43%","-7.59%","16.29%","-3.21%","-172.72%","-138.45%","-106.78%","-127.13%","-271.88%","-218.72%"],["45.827%","42.535%","35.810%","92.124%","90.687%","92.027%","77.481%","79.622%","81.484%","71.117%","70.931%","68.858%","84.969%","89.916%","90.193%","68.662%","67.011%","76.158%","91.086%","85.802%","91.448%","64.769%","63.088%","59.561%","72.736%","76.426%","83.408%","94.854%","93.595%","93.664%","73.139%","82.714%","86.062%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Cener<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"buttons":["copy","print",{"extend":"collection","buttons":["csv","excel","pdf"],"text":"download"}]},"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="bowling-plot" class="section level1">
+<h1>Bowling Plot</h1>
+<div id="quad-plot-5" class="section level2">
+<h2>Quad Plot</h2>
+<p>5811 - Bowling (16 lanes or less)<br />
+5812 - Bowling (17 lanes or more)</p>
+<p><div id="htmlwidget-a4fe07a616df8fabd7cb" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a4fe07a616df8fabd7cb">{"x":{"data":[{"x":[0.723883546753716],"y":[-0.0153244114864875],"text":"Company: CLM<br /> Percent Active Duty: 72.4%<br /> Percent Net Profit: -1.5%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.201964632695913],"y":[-0.304250721503536],"text":"Company: IWM<br /> Percent Active Duty: 20.2%<br /> Percent Net Profit: -30.4%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(205,150,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(205,150,0,1)"}},"hoveron":"points","name":"IWM","legendgroup":"IWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.843831331484219],"y":[-0.459706020080406],"text":"Company: KBM<br /> Percent Active Duty: 84.4%<br /> Percent Net Profit: -46.0%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(124,174,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(124,174,0,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.367297498058547],"y":[-0.217575704318258],"text":"Company: PNM<br /> Percent Active Duty: 36.7%<br /> Percent Net Profit: -21.8%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,190,103,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,190,103,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.863248807209754],"y":[0.453692799654938],"text":"Company: QUM<br /> Percent Active Duty: 86.3%<br /> Percent Net Profit: 45.4%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.382720983090641],"y":[-0.175696035525875],"text":"Company: SCM<br /> Percent Active Duty: 38.3%<br /> Percent Net Profit: -17.6%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,169,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,169,255,1)"}},"hoveron":"points","name":"SCM","legendgroup":"SCM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.628336010778878],"y":[0.171052456828175],"text":"Company: SDM<br /> Percent Active Duty: 62.8%<br /> Percent Net Profit: 17.1%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(199,124,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(199,124,255,1)"}},"hoveron":"points","name":"SDM","legendgroup":"SDM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.952216889226821],"y":[-1.03742781361699],"text":"Company: YUM<br /> Percent Active Duty: 95.2%<br /> Percent Net Profit: -103.7%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,97,204,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,97,204,1)"}},"hoveron":"points","name":"YUM","legendgroup":"YUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44],"y":[-1.11198384428058,-1.11198384428058,-1.11198384428058,-1.11198384428058,-1.11198384428058,-1.11198384428058,-1.11198384428058,-1.11198384428058,0.528248830318535,0.528248830318535,0.528248830318535,0.528248830318535,0.528248830318535,0.528248830318535,0.528248830318535,0.528248830318535],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.11198384428058,0.528248830318535],"tickmode":"array","ticktext":["-100%","-50%","0%","50%"],"tickvals":[-1,-0.5,0,0.5],"categoryorder":"array","categoryarray":["-100%","-50%","0%","50%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac6d2458d8":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac3a0a6bdc":{"xintercept":{}},"27ac66ba38eb":{"yintercept":{}}},"cur_data":"27ac6d2458d8","visdat":{"27ac6d2458d8":["function (y) ","x"],"27ac3a0a6bdc":["function (y) ","x"],"27ac66ba38eb":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script> *data does not include Okinawa and SDM includes utilization data from (FY19 &amp; FY20)</p>
+</div>
+<div id="table-5" class="section level2">
+<h2>Table*</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize both 5811 - Bowling (16 lanes or less) and/or 5812 - Bowling (17 lanes or more)</p>
+<p><div id="htmlwidget-0b15ee6c55b230787e93" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0b15ee6c55b230787e93">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5811","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812","5812"],["MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","SAN DIEGO","SAN DIEGO","SAN DIEGO","YUMA","YUMA","YUMA","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","IWAKUNI","IWAKUNI","IWAKUNI","HAWAII","HAWAII","HAWAII","PENDLETON","PENDLETON","PENDLETON","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA"],["BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (16 LANES OR LESS)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)","BOWLING (17 LANES OR MORE)"],["46.50%","50.37%","-24.69%","-274.51%","-177.83%","-585.32%","22.08%","19.60%","-18.38%","7.79%","34.15%","-15.47%","9.96%","7.65%","-120.56%","-8.47%","-95.39%","-539.17%","-7.48%","-29.48%","-45.79%","-22.97%","-5.29%","-190.90%","-37.98%","-39.42%","-270.31%","0.14%","14.95%","-235.25%",null,null,null],["70.941%","66.432%","83.903%","45.343%","28.877%","25.452%","87.385%","87.740%","79.635%","39.807%","27.064%","76.284%","0.000%","59.228%","72.218%","94.783%","94.878%","97.527%","70.941%","66.432%","83.903%","0.042%","37.669%","38.136%","75.549%","89.236%","99.009%","45.343%","28.877%","25.452%","39.807%","27.064%","76.284%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>FY<\/th>\n      <th>Cost Center<\/th>\n      <th>Company Desc<\/th>\n      <th>Cost Center Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":3,"columnDefs":[{"className":"dt-center","targets":[0,1,2,3,4,5]},{"targets":5,"visible":true}],"pageLength":10,"autowidth":false},"selection":"none","order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script> *Utilization metrics are combined for both 5811 and 5812.<br />
+If Net Profit is blank, there is no bowling (&lt; 16 or &gt; 17 Lanes) program for that installation.<br />
+RecTrac (Utilization) data was not collected for San Diego until FY19</p>
+</div>
+</div>
+<div id="itt-direct-leisure-travel" class="section level1">
+<h1>ITT / Direct Leisure Travel</h1>
+<div id="quad-plot-6" class="section level2">
+<h2>Quad Plot</h2>
+<p>The below plot displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize<br />
+5572 - ITT Ticket, 5573 - ITT Tours and 5575 Direct Leisure Travel</p>
+<div id="htmlwidget-2b45e77d0c3bec003772" style="width:900px;height:500px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2b45e77d0c3bec003772">{"x":{"data":[{"x":[0.290638606676343],"y":[0.0188198655723786],"text":"Company: ALM<br /> Percent Active Duty: 29.064%<br /> Percent Net Profit: 1.88%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"ALM","legendgroup":"ALM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.784268511401486],"y":[0.0466164968377025],"text":"Company: CLM<br /> Percent Active Duty: 78.427%<br /> Percent Net Profit: 4.66%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(222,140,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(222,140,0,1)"}},"hoveron":"points","name":"CLM","legendgroup":"CLM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.791297000422476],"y":[0.0598715821744709],"text":"Company: ELM<br /> Percent Active Duty: 79.130%<br /> Percent Net Profit: 5.99%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(183,159,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(183,159,0,1)"}},"hoveron":"points","name":"ELM","legendgroup":"ELM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.559490778521299],"y":[0.157949596235178],"text":"Company: IWM<br /> Percent Active Duty: 55.949%<br /> Percent Net Profit: 15.79%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(124,174,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(124,174,0,1)"}},"hoveron":"points","name":"IWM","legendgroup":"IWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.788286901646914],"y":[0.000341929281456168],"text":"Company: KBM<br /> Percent Active Duty: 78.829%<br /> Percent Net Profit: 0.03%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"KBM","legendgroup":"KBM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.673526241942371],"y":[0.0291240649585244],"text":"Company: MRM<br /> Percent Active Duty: 67.353%<br /> Percent Net Profit: 2.91%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,192,139,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,192,139,1)"}},"hoveron":"points","name":"MRM","legendgroup":"MRM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.730601619745469],"y":[0.0484192108570598],"text":"Company: PNM<br /> Percent Active Duty: 73.060%<br /> Percent Net Profit: 4.84%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"hoveron":"points","name":"PNM","legendgroup":"PNM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.554753847136198],"y":[0.107345696256132],"text":"Company: QUM<br /> Percent Active Duty: 55.475%<br /> Percent Net Profit: 10.73%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,180,240,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,180,240,1)"}},"hoveron":"points","name":"QUM","legendgroup":"QUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.731576596694953],"y":[0.0964355832171457],"text":"Company: SCM<br /> Percent Active Duty: 73.158%<br /> Percent Net Profit: 9.64%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"SCM","legendgroup":"SCM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.426544717559632],"y":[0.00857517313129661],"text":"Company: SDM<br /> Percent Active Duty: 42.654%<br /> Percent Net Profit: 0.86%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(199,124,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(199,124,255,1)"}},"hoveron":"points","name":"SDM","legendgroup":"SDM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.828376068376068],"y":[-0.0455345170102353],"text":"Company: TWM<br /> Percent Active Duty: 82.838%<br /> Percent Net Profit: -4.55%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(245,100,227,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(245,100,227,1)"}},"hoveron":"points","name":"TWM","legendgroup":"TWM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.639398998330551],"y":[-0.0181991837673918],"text":"Company: YUM<br /> Percent Active Duty: 63.940%<br /> Percent Net Profit: -1.82%","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,100,176,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,100,176,1)"}},"hoveron":"points","name":"YUM","legendgroup":"YUM","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147,0.649896657371147],"y":[-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,-0.055708722672506,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449,0.168123801897449],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,-0.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05,1.05],"y":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":29.1506849315069,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"white","family":"","size":15,"fmaily":"Computer Modern"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.05,1.05],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Percent use by Active Duty (Avg FY18-FY20)*","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.055708722672506,0.168123801897449],"tickmode":"array","ticktext":["-5.0%","0.0%","5.0%","10.0%","15.0%"],"tickvals":[-0.05,0,0.05,0.1,0.15],"categoryorder":"array","categoryarray":["-5.0%","0.0%","5.0%","10.0%","15.0%"],"nticks":null,"ticks":"outside","tickcolor":"rgba(204,204,204,1)","ticklen":3.65296803652968,"tickwidth":0.22139200221392,"showticklabels":true,"tickfont":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Percent Net Profit (Avg FY16-FY20)","font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(44,62,80,1)","width":0.33208800332088,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(44,62,80,1)","family":"","size":11.689497716895},"y":0.937637795275591},"annotations":[{"text":"Company","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(44,62,80,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","width":900,"height":500,"barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"27ac25d34376":{"x":{},"y":{},"text":{},"colour":{},"type":"scatter"},"27ac16373ed4":{"xintercept":{}},"27ac26fc40cc":{"yintercept":{}}},"cur_data":"27ac25d34376","visdat":{"27ac25d34376":["function (y) ","x"],"27ac16373ed4":["function (y) ","x"],"27ac26fc40cc":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="table-6" class="section level2">
+<h2>Table*</h2>
+<p>The below table displays Percent Net Profit (FY18-FY20) and Percent use by Active duty (FY18-FY20) against all patrons that utilize<br />
+5572 - ITT Ticket, 5573 - ITT Tours and 5575 Direct Leisure Travel</p>
+<p><div id="htmlwidget-ec8ae50d826d103d12ef" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ec8ae50d826d103d12ef">{"x":{"filter":"none","vertical":false,"extensions":["RowGroup"],"data":[["ALM","ALM","ALM","CLM","CLM","CLM","ELM","ELM","ELM","IWM","IWM","IWM","KBM","KBM","KBM","MRM","MRM","MRM","PNM","PNM","PNM","QUM","QUM","QUM","SCM","SCM","SCM","SDM","SDM","SDM","TWM","TWM","TWM","YUM","YUM","YUM"],["FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20","FY18","FY19","FY20"],["ALBANY","ALBANY","ALBANY","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","MCCS LEJEUNE-NEW RIVER","ALLEN","ALLEN","ALLEN","IWAKUNI","IWAKUNI","IWAKUNI","HAWAII","HAWAII","HAWAII","MIRAMAR","MIRAMAR","MIRAMAR","PENDLETON","PENDLETON","PENDLETON","QUANTICO","QUANTICO","QUANTICO","SOUTH CAROLINA","SOUTH CAROLINA","SOUTH CAROLINA","SAN DIEGO","SAN DIEGO","SAN DIEGO","TWENTYNINE PALMS","TWENTYNINE PALMS","TWENTYNINE PALMS","YUMA","YUMA","YUMA"],["0.6%","-12.2%","-18.4%","7.3%","5.9%","-14.9%","31%","4%","-27%","16%","41%","-74%","2%","Inf","-Inf","3%","19%","-32%","3.92%","53.94%","4.78%","12.0%","7.4%","4.6%","3.0%","11.5%","50.8%","0%","37%","-503%","-3%","-169%","-2 149%","3%","-Inf","-Inf"],["30.65%","27.89%","27.00%","81.7%","75.7%","78.0%","80.43%","78.26%","79.12%","72%","46%","26%","83.9%","78.8%","42.2%","68.772%","66.391%","66.427%","73.45%","73.96%","68.73%","56.608%","54.048%","56.518%","73.1%","70.4%","79.5%","46.4%","38.5%","48.9%","83.20%","82.28%","83.86%","62.0%","65.3%","67.7%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Company<\/th>\n      <th>FY<\/th>\n      <th>Company Desc<\/th>\n      <th>Percent Net Profit<\/th>\n      <th>Percent use by Active Duty<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"rowGroup":{"dataSrc":0},"columnDefs":[{"className":"dt-center","targets":[1,2,3,4]},{"targets":4,"visible":false}],"pageLength":10,"autowidth":true,"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'color':isNaN(parseFloat(value)) ? '' : value <= 0 ? \"red\" : \"black\"});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script> *Table combines CCTR's 5575, 5572 and 5573 as one program (Net Profit and Utilization)</p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
