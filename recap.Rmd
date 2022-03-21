@@ -66,7 +66,6 @@ library(tidyquant)
 library(markdown)
 library(writexl)
 
-
 ```
 
 
@@ -89,8 +88,21 @@ recap <- recap_plan %>%
 #Filter out facilities/utilizations that are not planned to be recapped using key word search
 recap <- 
   recap %>% 
-  # Facility Description
-  mutate(plan = case_when(str_detect(facility_desc, "Pavilion") ~ "No-Recap",
+  
+  
+  mutate(plan = case_when(
+  
+  #Adding back facilities to recap plan that were removed by plain text above
+  str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
+
+#---CLNC---
+ # adding back facilities based on CLNC comments on CLNC 02_25_2022 edited in data folder
+  rpuid %in% c(1162846, 42656, 32131, 1169395, 39880) ~ "Planned ReCap", 
+  fac_num %in% c("DD30") ~"Planned ReCap",  
+
+#---Removing Facilities---   
+  # Facility Description  
+  str_detect(facility_desc, "Pavilion") ~ "No-Recap",
   str_detect(facility_desc,"Storage")  ~ "No-Recap",
   str_detect(facility_desc, "Pier") ~ "No-Recap",
   str_detect(facility_desc, "Kennel") ~ "No-Recap", 
@@ -107,7 +119,6 @@ recap <-
   
   # Asset Name
   str_detect(asset_name, "STORAGE") ~ "No-Recap",
-  
   str_detect(asset_name, "VACANT") ~ "No-Recap",
   str_detect(asset_name, "CANOPY") ~ "No-Recap",
   str_detect(asset_name, "TRAILER") ~ "No-Recap", 
@@ -119,8 +130,6 @@ recap <-
   str_detect(asset_name, "FIELD") ~ "No-Recap",
   str_detect(asset_name,"PICNIC") ~ "No-Recap",
   str_detect(asset_name, "POND") ~ "No-Recap",
-  
-  
   str_detect(asset_name, "BATH HOUSE") ~ "No-Recap",
   str_detect(asset_name, "REC GROUND") ~ "No-Recap",
   str_detect(asset_name, "PUMP") ~ "No-Recap",
@@ -177,17 +186,17 @@ recap <-
   str_detect(use_desc, "EXCHANGE MAINTENANCE SHOP") ~ "No-Recap", 
   str_detect(use_desc, "EXCHANGE CENTRAL ADMINISTRATION") ~ "No-Recap",
   str_detect(use_desc, "EXCHANGE INSTALLATION WAREHOUSE") ~ "No-Recap",
-  
-  # str_detect(use_desc, "GOLF COURSE") ~ "No-Recap",
+
   
   # Facility Number 
   str_detect(fac_num, "T") ~ "No-Recap",
-  #Adding back facilities to recap plan that were removed by plain text above
-  str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
   str_detect(use_desc, "WAREHOUSE") ~ "No-Recap",
- 
   
-  #Discrepancy
+#---Removing RPUID based on installation comments---
+ #CLNC - 02_25_2022 edited in data folder
+  rpuid %in% c(35518, 36210, 37459, 31593, 31596, 33207, 33208, 43635, 43647, 1321959, 38565, 43175, 41233, 46408, 41528) ~ "No-Recap", 
+ 
+#---Discrepancy---
   # str_detect(facility_desc, "Transient  Lodging") ~ "Discrepancy",
   str_detect(asset_name, "UNACC ENL HSG") ~ "Discrepancy",
   str_detect(asset_name, "SCOUT BLDG")  ~ "Discrepancy",
@@ -195,10 +204,12 @@ recap <-
   str_detect(asset_name, "BHC")  ~ "Discrepancy",
   str_detect(asset_name, "MOUT")  ~ "Discrepancy",
   
-  #Planned to be demo'd
-  rpuid %in% c(26688, 1296139, 24890, 30066, 30070, 27382, 31024, 32631, 35629)  ~ "No-Recap", # CPEN
-  
-  
+#---Planned to be demo'd---
+ # CPEN
+  rpuid %in% c(26688, 1296139, 24890, 30066, 30070, 27382, 31024, 32631, 35629)  ~ "No-Recap",
+ # CLNC
+  rpuid %in% c(37909, 37910, 37911, 37912, 37913, 37914, 37915, 37916, 31932)  ~ "No-Recap",
+
   TRUE ~ "Planned ReCap"
 )) %>% 
   filter(use_code != 75040, #golf course
@@ -381,8 +392,6 @@ write_xlsx(cat_c_recap, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/
 ```
 
 ```{r Schedule}
-
-
 
 #Creating Facility List----
 

@@ -165,7 +165,7 @@ fac <- fac  %>%
   )) %>%
   mutate(RPUID = RPUID %>% as.character()) %>%
  # create a Restoration and Modernization Column
-  mutate(RM = (prv * 0.025) *(1.02)^3)
+  mutate(RM = (prv * 0.025)*(1.02)^3)
 
 
 
@@ -310,7 +310,7 @@ df_clean <- fac_mapped %>%
                         ))))))
   ) %>%  
   mutate(
-    sus = if_else(naf_cat == "C", FY2024 * 2, FY2024),
+    sus = FY2024,
     sus = sus %>% replace_na(0)
   ) %>%
   mutate(
