@@ -1,5 +1,5 @@
 ---
-title: "FY24-FY28 Recapitalization Plan"
+title: "FY24 Recapitalization Plan"
 
 output:
   html_document:
@@ -1038,10 +1038,10 @@ Data dictionary and assumptions are at the end of this report
 Raw data pulled from GoRPM on `r params$date`
 
 
-Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
+Download raw data: [here](https://mccsusmc-my.sharepoint.us/:x:/g/personal/jason_barnes_usmc-mccs_org/EY1s-HpXD31AjTk07BSm3pkB8GHkZBObn2gwR8Q6I4y0tA?e=8x0e22)
 
 
-Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9)
+Download cleaned data: [here](https://mccsusmc-my.sharepoint.us/:x:/g/personal/jason_barnes_usmc-mccs_org/EWBVsltrHzNGqFmeFjc1DPoBnvl4ZUiCMCYljKfXimW2Kg?e=3gq36y)
 
 </center>
 
@@ -1072,7 +1072,7 @@ cat_c_recapv1 %>% count(FY24, installation) %>% filter(FY24 == 1) %>% select(ins
   gt() %>% 
    tab_header(
     title = md("R&M Schedule for *FY24* by Installation"),
-    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
+    subtitle = md("**GoRPM* data retrieved **Dec 28, 2021**")
   ) %>%
   cols_align(
     align = c("left"),
@@ -1150,7 +1150,7 @@ inst_ICI_fy24 <- FY24_ICI_long %>%
     x = "",
     title = "Total Number of Planned ICIs FY23*",
     subtitle = "ICIs will provide the opportunity to plan, scope and estimate projects for FY24 execution",
-    caption = "*iNFADS data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date")
+    caption = "*GoRPM data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date")
 
 inst_ICI_fy24
 
@@ -1171,7 +1171,7 @@ region_ICI_fy24 <- cat_c_recapv1 %>%
        x= NULL, 
        title = "Total Number of Planned ICIs in FY23 by Activtiy*",
        subtitle = "ICIs will provide the opportunity to plan, scope and estimate projects for FY24 execution",
-         caption = "*iNFADS data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date") +
+         caption = "*GoRPM data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date") +
   scale_fill_brewer(palette = "RdBu", 
                     name = "") +
   theme_tq() +
