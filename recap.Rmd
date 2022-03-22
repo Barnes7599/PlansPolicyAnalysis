@@ -1154,7 +1154,14 @@ inst_ICI_fy24 <- FY24_ICI_long %>%
 
 inst_ICI_fy24
 
-# 
+
+```
+
+<br> 
+
+---
+
+```{r}
 region_ICI_fy24 <- cat_c_recapv1 %>%
   select(-FY29:-FY43) %>%
   pivot_longer(FY24:FY28,names_to = "year", values_to = "count") %>%
@@ -1191,16 +1198,9 @@ region_ICI_fy24 <- cat_c_recapv1 %>%
         plot.caption = element_markdown(hjust = 0))
  
 region_ICI_fy24
-
-
-
-
-
-
-
-
-
 ```
+
+
 
 ```{r}
 # CS_combined_list_2 <- df_final %>% 
