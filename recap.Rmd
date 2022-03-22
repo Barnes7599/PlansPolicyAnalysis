@@ -19,8 +19,7 @@ knitr::opts_chunk$set(message = FALSE,
                       warning = FALSE, 
                       cache = TRUE, 
                       echo = FALSE,
-                      fig.width = 10, 
-                      fig.height=5)
+                      fig.width = 10)
 
 unlink('recap', recursive = TRUE)
 ```
@@ -65,6 +64,16 @@ library(gt)
 library(tidyquant)
 library(markdown)
 library(writexl)
+library(showtext)
+library(ggtext)
+
+
+
+# Adding Google Fonts
+font_add_google(family = "patua-one", "Patua One")
+font_add_google(family = "montserrat", "Montserrat")
+# function used to tell the code below use the above fonts
+showtext_auto()
 
 ```
 
@@ -88,18 +97,7 @@ recap <- recap_plan %>%
 #Filter out facilities/utilizations that are not planned to be recapped using key word search
 recap <- 
   recap %>% 
-  
-  
   mutate(plan = case_when(
-  
-  #Adding back facilities to recap plan that were removed by plain text above
-  str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
-
-#---CLNC---
- # adding back facilities based on CLNC comments on CLNC 02_25_2022 edited in data folder
-  rpuid %in% c(1162846, 42656, 32131, 1169395, 39880) ~ "Planned ReCap", 
-  fac_num %in% c("DD30") ~"Planned ReCap",  
-
 #---Removing Facilities---   
   # Facility Description  
   str_detect(facility_desc, "Pavilion") ~ "No-Recap",
@@ -156,9 +154,7 @@ recap <-
   str_detect(asset_name, "REEFER") ~ "No-Recap",
   str_detect(asset_name, "HOSPITAL") ~ "No-Recap",
   str_detect(asset_name, "MANAGER'S RESIDENCE") ~ "No-Recap",
-  str_detect(asset_name, "RESERVATION") ~ "No-Recap",
   str_detect(asset_name, "REWORK") ~ "No-Recap", 
-  str_detect(asset_name, "MEDICAL") ~ "No-Recap",
   str_detect(asset_name, "COMPRESSOR") ~ "No-Recap",                        
   str_detect(asset_name, "SERVMART") ~ "No-Recap",   
   str_detect(asset_name, "JOINT FORCES BRIG") ~ "No-Recap", 
@@ -189,7 +185,7 @@ recap <-
 
   
   # Facility Number 
-  str_detect(fac_num, "T") ~ "No-Recap",
+  
   str_detect(use_desc, "WAREHOUSE") ~ "No-Recap",
   
 #---Removing RPUID based on installation comments---
@@ -210,6 +206,23 @@ recap <-
  # CLNC
   rpuid %in% c(37909, 37910, 37911, 37912, 37913, 37914, 37915, 37916, 31932)  ~ "No-Recap",
 
+  #Adding back facilities to recap plan that were removed by plain text above
+  str_detect(facility_desc, "Indoor Physical Fitness Facility") ~ "Planned ReCap",
+
+#---CLNC---
+ # adding back facilities based on CLNC comments on CLNC 02_25_2022 edited in data folder
+  str_detect(asset_name, "RESERVATION") & rpuid != 1162846 ~ "No-Recap",
+  str_detect(fac_num, "T") & rpuid != 42656  ~ "No-Recap",
+  str_detect(asset_name, "MEDICAL") & rpuid != 39880 ~ "No-Recap",
+  rpuid %in% c(1162846, #bld BA275
+               42656,   #bld TT2478
+               32131,   #bld 1100, Cat B in INFADS
+               1169395, #bld SAW385, Cat B in INFADS
+               39880    #bld NH100
+               ) ~ "Planned ReCap", 
+  fac_num %in% c("DD30") ~"Planned ReCap",  
+
+
   TRUE ~ "Planned ReCap"
 )) %>% 
   filter(use_code != 75040, #golf course
@@ -218,8 +231,6 @@ recap <-
    mutate(fci_dt = fci_dt %>% ymd(),
          build_dt = build_dt %>% ymd()
          )
-           
-     
     
 
 ```
@@ -749,11 +760,9 @@ cat_c_recapv1 <- cat_c_recap_7 %>%
 write_xlsx(cat_c_recapv1, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/cat_c_recapv1.xlsx")
 
 
-cat_c_recapv1 %>% filter()
-
-cat_c_recapv1 %>% count(plan_cycle_1)
-cat_c_recapv1 %>% count(FY24, installation) %>% filter(FY24 == 1) %>% select(installation, n) %>% arrange(desc(n))
-cat_c_recapv1 %>% count(installation) %>% arrange(desc(n))
+# cat_c_recapv1 %>% count(plan_cycle_1)
+# 
+# cat_c_recapv1 %>% count(installation) %>% arrange(desc(n))
 
 #------------------------------- Working Sandbox ----------------------------
   
@@ -809,7 +818,7 @@ cat_c_recapv1 %>% count(installation) %>% arrange(desc(n))
 
 
 ```{r}
-----# Buidling Alternate Planning Schedule (smoothing) ----
+# Buidling Alternate Planning Schedule (smoothing) ----
 
 # cat_c_recapv2 <- cat_c_fac_recap %>%
 #    mutate(min_cycle = if_else(min_cycle >7 & min_cycle <= 10, 10, min_cycle),
@@ -1015,14 +1024,13 @@ cat_c_recapv1 %>% count(installation) %>% arrange(desc(n))
 
 
 
-
 <br>
 
 <center>
 
-Note: The current report is based on utilization information unless otherwise noted. 
+Note: The current report is based on utilization information unless otherwise noted.
 
-Category C Facility Recapitalization Plan 
+Category C Facility Recapitalization Plan
 
 Data dictionary and assumptions are at the end of this report
 
@@ -1030,10 +1038,10 @@ Data dictionary and assumptions are at the end of this report
 Raw data pulled from GoRPM on `r params$date`
 
 
-<!-- Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q) -->
+Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q)
 
 
-<!-- Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9) -->
+Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9)
 
 </center>
 
@@ -1042,9 +1050,9 @@ Raw data pulled from GoRPM on `r params$date`
 ## Planned Recap Data Table
 
 ```{r}
-
-# fydp_plan <- fydp_recap %>% 
-#   select(installation, facility_desc, fac_use, rpuid, fac_num, fci, FY24:FY28) %>% 
+# 
+# fydp_plan <- fydp_recap %>%
+#   select(installation, facility_desc, fac_use, rpuid, fac_num, fci, FY24:FY28) %>%
 #   datatable(
 #     colnames = c("Installation", "Facility Description", "Facility Use", "RPUID", "Facility Num", "FCI", "FY24", "FY25","FY26", "FY27", "FY28"),
 #     options = list(
@@ -1055,12 +1063,37 @@ Raw data pulled from GoRPM on `r params$date`
 #         "}"
 #       )
 #     )
-#   ) 
+#   )
 # 
 # 
 # fydp_plan
 
-
+cat_c_recapv1 %>% count(FY24, installation) %>% filter(FY24 == 1) %>% select(installation, n) %>% arrange(desc(n)) %>% 
+  gt() %>% 
+   tab_header(
+    title = md("R&M Schedule for *FY24* by Installation"),
+    subtitle = md("**iNFADS* data retrieved **Dec 28, 2021**")
+  ) %>%
+  cols_align(
+    align = c("left"),
+    columns = everything()
+  ) %>%
+  tab_footnote(
+    footnote = "Number of facilities by Installation to conduct ICI for scope and estimate",
+    locations = cells_title(groups = "title")
+  ) %>%
+    grand_summary_rows(
+    columns = c(n),
+    fns = list(
+      Total = ~ sum(.)
+    ),
+    missing_text = "Installation Count",
+    # formatter = fmt_currency,
+    decimals = 0
+  ) %>%
+  cols_label(
+    n = "Count"
+  )
 
 
 ```
@@ -1077,74 +1110,94 @@ Raw data pulled from GoRPM on `r params$date`
 #Installations
 
 
-# fydp_recap_long <- fydp_recap %>% 
-#   select(-FY31:-FY37) %>% 
-#   pivot_longer(FY24:FY30,names_to = "year", values_to = "count") %>% 
-#   filter(count == 1)
+FY24_ICI_long <- cat_c_recapv1 %>%
+  select(-FY29:-FY43) %>%
+  pivot_longer(FY24:FY28,names_to = "year", values_to = "count") %>%
+  filter(count == 1, year == "FY24")
 #  
 # 
 # 
-# inst_fydp <- fydp_recap_long %>% 
-#   group_by(installation) %>% 
-#   summarise(total = sum(count)) %>% 
-#   ungroup() %>% 
-#   arrange(desc(total)) %>% 
-#   mutate(installation = as_factor(installation) %>% fct_reorder(total)) %>% 
-#   ggplot(aes(installation, total)) +
-#   geom_col(fill = "#2c3e50") +
-#   coord_flip() +
-#   theme_tq() +
-#   theme(
-#     # panel.grid.major = element_blank(),
-#     panel.grid.major.y = element_blank(),
-#     panel.grid.minor = element_blank(),
-#     panel.background = element_blank(),
-#     panel.border = element_blank(),
-#     plot.title = element_text(hjust = .5)
-#     
-#   ) +
-#   labs(
-#     y = "Total Number of Projects",
-#     x = "",
-#     title = "Total Number of Scheduled Projects FY24-FY28")
+inst_ICI_fy24 <- FY24_ICI_long %>%
+  group_by(installation) %>%
+  summarise(total = sum(count)) %>%
+  ungroup() %>%
+  arrange(desc(total)) %>%
+  mutate(installation = as_factor(installation) %>% fct_reorder(total)) %>%
+  ggplot(aes(installation, total)) +
+  geom_col(fill = "#2c3e50") +
+  coord_flip() +
+  theme_tq() +
+  theme(
+    text = element_text(family = "montserrat",
+                        size = 16),
+    # panel.grid.major = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    plot.title.position = "plot",
+    plot.caption.position = "plot",
+    axis.text.x = element_text(margin = margin(b=25)),
+    plot.title = element_text(family = "patua-one",
+                              size = 20),
+    plot.subtitle = element_text(face = "bold",
+                                 margin = margin(b=15)),
+    plot.caption = element_markdown(hjust = 0)
+    
+  ) +
+  labs(
+    y = "Count of Planned ICIs",
+    x = "",
+    title = "Total Number of Planned ICIs FY23*",
+    subtitle = "ICIs will provide the opportunity to plan, scope and estimate projects for FY24 execution",
+    caption = "*iNFADS data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date")
+
+inst_ICI_fy24
 
 # 
-# fydp_recap_plan <- cat_c_recap %>% 
-#   select(rpuid, op_activity) %>% 
-#   group_by(rpuid, op_activity) %>% 
-#   mutate(count = 1) %>%
-#   mutate(op_activity = if_else(op_activity %in% c("PCS Lodging", "TDY Lodging"), "Commercial Recreation", op_activity)) %>% 
-#   summarise(utilizations = sum(count)) %>% 
-#   pivot_wider(names_from = op_activity, values_from = utilizations) %>% 
-#   janitor::clean_names() %>% 
-#   left_join(fydp_recap) %>% 
-#   select(region, installation, rpuid, fci, fci_dt, utilizations, min_cycle, everything()) %>% 
-#   mutate(commercial_recreation = commercial_recreation %>% replace_na(0),
-#          exchange_operations = exchange_operations %>% replace_na(0),
-#          food_beverage_direct = food_beverage_direct %>% replace_na(0),
-#          clubs = clubs %>%replace_na(0),
-#          FY24 = FY24 %>% replace_na(0),
-#          FY25 = FY25 %>% replace_na(0),
-#          FY26 = FY26 %>% replace_na(0),
-#          FY27 = FY27 %>% replace_na(0),
-#          FY28 = FY28 %>% replace_na(0),
-#          FY29 = FY29 %>% replace_na(0),
-#          FY30 = FY30 %>% replace_na(0),
-#          FY31 = FY31 %>% replace_na(0),
-#          FY32 = FY32 %>% replace_na(0),
-#          FY33 = FY33 %>% replace_na(0),
-#          FY34 = FY34 %>% replace_na(0),
-#          FY35 = FY35 %>% replace_na(0),
-#          FY36 = FY36 %>% replace_na(0),
-#          FY37 = FY37 %>% replace_na(0)) %>% 
-#   left_join(cat_c_recap %>% select(rpuid, net_profit) %>% group_by(rpuid) %>% summarise(sum_profit = sum(net_profit))) # %>% 
-  # pivot_longer(FY24:FY37,names_to = "year", values_to = "count") %>% 
-  # filter(count == 1) %>% 
-  # select(region, installation, rpuid, fci, fci_dt, min_cycle, sum_profit, everything(), -count)
-
-# 
-# write_xlsx(fydp_recap_plan, "/Users/barnesj/OneDrive - USMC-MCCS.ORG/Documents/Data/Github_data/output/fydp_recap_plan")
+region_ICI_fy24 <- cat_c_recapv1 %>%
+  select(-FY29:-FY43) %>%
+  pivot_longer(FY24:FY28,names_to = "year", values_to = "count") %>%
+  filter(count == 1) %>% 
+  select(region, installation, "Commercial Rec" = comm_rec, "Exchange Operations" = exch_ops, "Food & Beverage Direct" = fb_direct, "Clubs" = clubs, year) %>% 
+  pivot_longer("Commercial Rec":"Clubs", names_to = "activity", values_to = "count") %>% 
+  filter(year == "FY24") %>% 
+  mutate(activity = factor(activity, levels = c("Exchange Operations", "Food & Beverage Direct", "Commercial Rec", "Clubs")) %>% fct_rev()) %>% 
+  ggplot(aes(activity, count)) +
+  coord_flip() +
+  geom_col() +
+  facet_wrap(~region) +
+  labs(y = "Number of Facilities",
+       x= NULL, 
+       title = "Total Number of Planned ICIs in FY23 by Activtiy*",
+       subtitle = "ICIs will provide the opportunity to plan, scope and estimate projects for FY24 execution",
+         caption = "*iNFADS data retrieved __Dec 28, 2021__ | Schedule is built on FCI and FCI date") +
+  scale_fill_brewer(palette = "RdBu", 
+                    name = "") +
+  theme_tq() +
+  theme(panel.grid.major.y = element_blank(),
+        text = element_text(family = "montserrat",
+                            size = 16),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.title.position = "plot",
+        plot.caption.position = "plot",
+        axis.text.x = element_text(margin = margin(b=25)),
+        plot.title = element_text(family = "patua-one",
+                                  size = 20),
+        plot.subtitle = element_text(face = "bold",
+                                     margin = margin(b=15)),
+        plot.caption = element_markdown(hjust = 0))
  
+region_ICI_fy24
+
+
+
+
+
+
+
 
 
 ```

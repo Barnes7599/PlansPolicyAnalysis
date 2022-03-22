@@ -640,12 +640,6 @@ category <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "Cat C - 2x iNFADS sustainment costs",
-    locations = cells_column_labels(
-      columns = total_sus
-    )
-  ) %>%
-  tab_footnote(
     footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
   ) %>%
@@ -714,12 +708,6 @@ region <- df_final %>%
     footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
-    )
-  ) %>%
-  tab_footnote(
-    footnote = "Cat C - 2x iNFADS sustainment costs",
-    locations = cells_column_labels(
-      columns = total_sus
     )
   ) %>%
   tab_footnote(
@@ -792,12 +780,6 @@ region_cat_c <- df_final %>%
     )
   ) %>%
   tab_footnote(
-    footnote = "Cat C - 2x iNFADS sustainment costs",
-    locations = cells_column_labels(
-      columns = total_sus
-    )
-  ) %>%
-  tab_footnote(
     footnote = "Nominal dollars",
     locations = cells_title(groups = "title")
   ) %>%
@@ -863,12 +845,6 @@ program <- df_final %>%
     footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
-    )
-  ) %>%
-  tab_footnote(
-    footnote = "Cat C - 2x iNFADS sustainment costs",
-    locations = cells_column_labels(
-      columns = total_sus
     )
   ) %>%
   tab_footnote(
@@ -945,12 +921,6 @@ top_10_use_Category <- df_final %>%
     footnote = "2.5% of PRV (MCICOM Metric for R&M & New Construction) inflated at 2% from FY21 to FY24",
     locations = cells_column_labels(
       columns = total_rm
-    )
-  ) %>%
-  tab_footnote(
-    footnote = "Cat C - 2x iNFADS sustainment costs",
-    locations = cells_column_labels(
-      columns = total_sus
     )
   ) %>%
   tab_footnote(

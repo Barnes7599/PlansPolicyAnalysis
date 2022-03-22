@@ -31,14 +31,6 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="site_libs/datatables-binding-0.20/datatables.js"></script>
-<link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="site_libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="site_libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script>
-<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -67,6 +59,7 @@ if (window.hljs) {
 
 
 
+
 <style type = "text/css">
 .main-container {
   max-width: 940px;
@@ -87,6 +80,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -239,7 +235,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -310,56 +306,451 @@ h5 {
 }
 
 </style>
-<pre><code>## # A tibble: 297 x 10
-##    region  installation   rpuid op_activity   fci fci_dt     build_dt   q_rating
-##    &lt;chr&gt;   &lt;chr&gt;          &lt;chr&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;   
-##  1 MCIPAC  MCB Butler     1045~ Clubs          91 2018-01-24 2009-09-09 Q1      
-##  2 SLTI    MCRD San Diego 55928 Exchange O~    85 2019-04-18 1977-07-01 Q2      
-##  3 SLTI    MCRD San Diego 55928 Exchange O~    85 2019-04-18 1977-07-01 Q2      
-##  4 MCIWEST MCAS Miramar   1139~ Exchange O~    94 2019-10-02 2012-05-25 Q1      
-##  5 MCIWEST MCB Pendleton  27435 Exchange O~    88 2019-06-18 2001-03-01 Q2      
-##  6 MCIEAST MCB Lejeune    39929 Exchange O~    86 2020-01-28 1993-09-01 Q2      
-##  7 MCIEAST MCB Lejeune    39929 Food &amp; Bev~    86 2020-01-28 1993-09-01 Q2      
-##  8 MCIEAST MCB Lejeune    39929 Exchange O~    86 2020-01-28 1993-09-01 Q2      
-##  9 MCIEAST MCB Lejeune    39929 Exchange O~    86 2020-01-28 1993-09-01 Q2      
-## 10 MCIPAC  MCB Butler     1050~ Commercial~    94 2018-01-21 2009-08-04 Q1      
-## # ... with 287 more rows, and 2 more variables: net_profit &lt;dbl&gt;, Asset &lt;dbl&gt;</code></pre>
-<pre><code>## # A tibble: 118 x 10
-##    region  installation  rpuid op_activity    fci fci_dt     build_dt   q_rating
-##    &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;   
-##  1 MCIWEST MCB Pendleton 25034 Exchange Op~    83 2019-05-21 1977-09-15 Q2      
-##  2 MCIWEST MCB Pendleton 29503 Exchange Op~    55 2019-08-21 1944-07-01 Q4      
-##  3 MCIEAST MCB Lejeune   39446 Exchange Op~    91 2019-06-06 1972-09-01 Q1      
-##  4 MCIPAC  MCB Hawaii    25984 Exchange Op~    83 2017-10-16 1973-07-01 Q2      
-##  5 SLTI    MCAGCC 29 Pa~ 5490~ Food &amp; Beve~    86 2013-11-11 1961-07-01 Q2      
-##  6 MCIWEST MCB Pendleton 25020 Exchange Op~    78 2019-05-22 1966-07-01 Q3      
-##  7 MCIWEST MCB Pendleton 28557 Exchange Op~    88 2015-12-28 1942-07-01 Q2      
-##  8 MCIPAC  MCB Hawaii    25981 Exchange Op~    89 2017-09-14 1944-07-01 Q2      
-##  9 MCIEAST MCB Lejeune   41891 Exchange Op~    79 2020-09-21 1992-11-03 Q3      
-## 10 MCIWEST MCB Pendleton 21599 Exchange Op~    88 2019-05-09 1981-07-01 Q2      
-## # ... with 108 more rows, and 2 more variables: net_profit &lt;dbl&gt;, Asset &lt;dbl&gt;</code></pre>
 <p><br></p>
 <center>
 <p>Note: The current report is based on utilization information unless otherwise noted.</p>
 <p>Category C Facility Recapitalization Plan</p>
 <p>Data dictionary and assumptions are at the end of this report</p>
 <p>Raw data pulled from GoRPM on Dec 28, 2021</p>
-<!-- Download raw data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q) -->
-<!-- Download cleaned data: [here](https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9) -->
+<p>Download raw data: <a href="https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/EQ2Kicc4IapDi0aJDUetkCUB4ObLD-WCMv8gLEdScQ2KuQ?e=erfL6q">here</a></p>
+<p>Download cleaned data: <a href="https://mccsorg-my.sharepoint.com/:x:/g/personal/jason_barnes_usmc-mccs_org/Ebjf72UBqQBBqjhUPGwIjaoBQ1IlOxjEzcai-Gw-kairFA?e=fQrtm9">here</a></p>
 </center>
 <p><br></p>
 <div id="planned-recap-data-table" class="section level2">
 <h2>Planned Recap Data Table</h2>
-<div id="htmlwidget-0d826d103d12ef805285" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0d826d103d12ef805285">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463"],["MCRD San Diego","MCRD San Diego","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCAS New River","MCAS New River","MCB Pendleton","MCAGCC 29 Palms","MCB Pendleton","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Quantico","MCB Quantico","MCB Quantico","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Lejeune","MCB Hawaii","MCB Hawaii","MCB Pendleton","MCB Hawaii","MCB Hawaii","MCB Pendleton","MCAS Cherry Point","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCRD PI","MCRD PI","MCRD PI","MCAS Miramar","MCAS Miramar","MCB Pendleton","MCB Lejeune","MCAS New River","MCAS New River","MCAS Cherry Point","MCAS Cherry Point","MCB Lejeune","MCAS Miramar","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCAGCC 29 Palms","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCAS Yuma","MCAS Yuma","MCAS Iwakuni","MCAS Iwakuni","MCAS Iwakuni","MCB Pendleton","MCB Pendleton","MCAS Miramar","MCAS New River","MCAS New River","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCAS Beaufort","MCAS Beaufort","MCAS Beaufort","MCAS Beaufort","MCAGCC 29 Palms","MCB Lejeune","MCB Hawaii","MCB Hawaii","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCAS Miramar","MCAS Miramar","MCAS Miramar","MCAS Miramar","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCAS Yuma","MCAS Yuma","MCAS Yuma","MWTC Bridgeport","MWTC Bridgeport","MCRD San Diego","MCRD San Diego","MCB Hawaii","MCB Hawaii","MCB Quantico","MCB Quantico","MCB Quantico","MCAS Iwakuni","MCB Butler","MCB Pendleton","MCAS Cherry Point","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCAGCC 29 Palms","MCAGCC 29 Palms","MCB Quantico","MCB Quantico","MCB Pendleton","MCB Pendleton","MCLB Albany","MCAGCC 29 Palms","MCAGCC 29 Palms","MCAGCC 29 Palms","MCB Pendleton","MCAS Beaufort","MCAS Beaufort","MCAGCC 29 Palms","MCB Pendleton","MCB Pendleton","MCAS Miramar","MCAS Miramar","MCB Quantico","MCB Quantico","MCRD San Diego","MCRD San Diego","MCRD San Diego","MCB Pendleton","MCRD PI","MCRD PI","MCB Pendleton","MCB Lejeune","MCAS Pendleton","MCAS Pendleton","MCAGCC 29 Palms","MCAGCC 29 Palms","MCAGCC 29 Palms","MCRD PI","MCAS Yuma","MCB Pendleton","MCB Butler","MCB Butler","MCB Pendleton","MCAS Yuma","MCAS New River","MCAGCC 29 Palms","MCB Pendleton","MCB Quantico","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Lejeune","MCRD PI","MCB Quantico","MCB Quantico","MCAS Cherry Point","MCRD San Diego","MCB Pendleton","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCLB Albany","MCAS Cherry Point","MCAS Beaufort","MCB Pendleton","MCB Pendleton","MCAS Beaufort","MCLB Albany","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCAS Miramar","MCAS Miramar","MCB Pendleton","MCB Pendleton","MCLB Barstow","MCLB Barstow","MCLB Barstow","MCLB Albany","MCAS Cherry Point","MCAGCC 29 Palms","MCAGCC 29 Palms","MCAS Yuma","MCB Lejeune","MCAS Miramar","MCAS Iwakuni","MCAS New River","MCB Hawaii","MCAS Iwakuni","MCB Hawaii","MCB Pendleton","MCB Lejeune","MCLB Albany","MCLB Albany","MCLB Albany","MCRD San Diego","MCRD San Diego","MCRD San Diego","MCRD San Diego","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCLB Barstow","MCB Pendleton","MCRD PI","MCB Lejeune","MCB Hawaii","MCLB Albany","MCAS Miramar","MCAS Miramar","MCB Lejeune","MCB Lejeune","MCB Hawaii","MCRD PI","MCB Butler","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Hawaii","MCAS Cherry Point","MCB Butler","MCB Lejeune","MCB Lejeune","MCLB Barstow","MCAGCC 29 Palms","MCAS Cherry Point","MCAS Cherry Point","MCAS Cherry Point","MCB Butler","MCLB Barstow","MCB Pendleton","MCAS Cherry Point","MCB Hawaii","MCB Butler","MCB Butler","MCRD PI","MCAS Iwakuni","MCAS Iwakuni","MCRD San Diego","MCAGCC 29 Palms","MCAGCC 29 Palms","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCRD San Diego","MCB Lejeune","MCB Pendleton","MCAGCC 29 Palms","MCB Pendleton","Camp Elmore","Camp Elmore","Camp Elmore","MCB Lejeune","MCLB Albany","MCB Pendleton","MCB Hawaii","MCB Lejeune","MCB Quantico","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCLB Albany","MCB Quantico","MCB Quantico","MCAS Miramar","MCAS Miramar","MCB Lejeune","MCB Lejeune","MCLB Albany","MCB Pendleton","MCB Quantico","MCB Hawaii","MCRD PI","MCAS Cherry Point","MCAS Cherry Point","MBW (8th &amp; I)","MBW (8th &amp; I)","MCAS Yuma","MCAS Yuma","MCAS Yuma","MCAS Yuma","MCAS Yuma","MCAS Yuma","MCB Hawaii","MCB Hawaii","MCAS Miramar","MCAS Miramar","MCAS Pendleton","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCAS Yuma","MCAS Miramar","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCRD PI","MCLB Albany","MCB Lejeune","MCAS Miramar","MCAS Miramar","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCAS Yuma","MCAS Yuma","MCAS Yuma","MCAS Miramar","MCAS Miramar","MCAS Miramar","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCAS Miramar","MCAS Miramar","MCAS Miramar","MCAS Yuma","MCAS Yuma","MWTC Bridgeport","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Hawaii","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCAS Cherry Point","MCAS Yuma","MCAS Yuma","MCB Lejeune","MCAS Miramar","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCAS New River","MCAGCC 29 Palms","MCAGCC 29 Palms","MCAGCC 29 Palms","Camp Elmore","MCAGCC 29 Palms","Camp Elmore","MCB Pendleton","MCB Pendleton","MCAS Miramar","MCB Pendleton","MCAS Beaufort","MCLB Albany","MCRD San Diego","MCB Quantico","MCB Lejeune","MCRD San Diego","MCAS Cherry Point","MCAS Cherry Point","MCB Hawaii","MCB Lejeune","MCB Pendleton","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Pendleton","MCB Lejeune","Garden City","MCB Pendleton","MCB Hawaii","MCAS Cherry Point","MCAS Cherry Point","MCB Butler","MCB Lejeune","MCB Lejeune","MCB Lejeune","MCAS Miramar","Camp Elmore","Camp Elmore","MCB Pendleton","MCB Hawaii","MCB Butler","MCB Lejeune","MCAS Miramar","MCB Lejeune","MCB Quantico","MCB Lejeune","MCB Hawaii","MCB Lejeune","MCAS Miramar","MCB Butler","MCAS Miramar","MCB Butler","MCRD PI","MCB Lejeune","MCB Lejeune","MCB Pendleton","MCB Butler","MCB Quantico","MCB Quantico","MCB Lejeune","MCAS Yuma"],["Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Recreational Lodging","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Clothing Sales Store","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Support Facility","Exchange Eating Facility","Clothing Sales Store","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Car Wash Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Automobile Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Laundry/Dry Cleaning Facility","Recreational Camp and Trailer Park","Exchange Eating Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Car Wash Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Recreational Camp and Trailer Park","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Sales Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Open Mess and Club Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Automobile Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Automobile Facility","Car Wash Structure","Exchange Sales Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Eating Facility","Car Wash Structure","Exchange Eating Facility","Open Mess and Club Facility","Open Mess and Club Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Eating Facility","Recreational Lodging","Car Wash Facility","Exchange Sales Facility","Exchange Eating Facility","Car Wash Facility","Transient And Recreational Lodging Support Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Support Facility","Miscellaneous Outdoor Recreation Facility","Exchange Eating Facility","Golf Club House and Sales","Exchange Eating Facility","Exchange Eating Facility","Exchange Eating Facility","Recreational Lodging","Exchange Sales Facility","Exchange Eating Facility","Exchange Support Facility","Exchange Eating Facility","Open Mess and Club Facility","Exchange Eating Facility","Open Mess and Club Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Bowling Center","Exchange Eating Facility","Exchange Sales Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Eating Facility","Exchange Eating Facility","Recreational Lodging","Open Mess and Club Facility","Exchange Eating Facility","Golf Club House and Sales","Exchange Eating Facility","Exchange Eating Facility","Open Mess and Club Facility","Open Mess and Club Facility","Open Mess and Club Facility","Open Mess and Club Facility","Exchange Support Facility","Exchange Eating Facility","Bowling Center","Exchange Eating Facility","Open Mess and Club Facility","Open Mess and Club Facility","Exchange Eating Facility","Exchange Eating Facility","Bowling Center","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Open Mess and Club Facility","Golf Course","Bowling Center","Exchange Support Facility","Open Mess and Club Facility","Open Mess and Club Facility","Exchange Sales Facility","Golf Club House and Sales","Exchange Eating Facility","Exchange Sales Facility","Open Mess and Club Facility","Golf Course","Golf Driving Range","Clothing Sales Store","Exchange Support Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Support Facility","Exchange Support Facility","Exchange Eating Facility","Exchange Support Facility","Exchange Eating Facility","Exchange Automobile Facility","Exchange Sales Facility","Exchange Sales Facility","Miscellaneous Outdoor Recreation Facility","Miscellaneous Outdoor Recreation Facility","Recreational Lodging","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Recreational Lodging","Recreational Lodging","Exchange Sales Facility","Exchange Sales Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Eating Facility","Exchange Eating Facility","Exchange Eating Facility","Golf Course","Golf Driving Range","Golf Course","Golf Course","Miscellaneous Outdoor Recreation Facility","Golf Course","Golf Course","Golf Course","Golf Course","Golf Driving Range","Golf Course","Exchange Sales Facility","Open Mess and Club Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Sales Facility","Exchange Eating Facility","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Recreational Lodging","Recreational Lodging","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Miscellaneous Outdoor Recreation Facility","Exchange Eating Facility","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Recreational Lodging","Vehicle Fueling Facility","Exchange Sales Facility","Exchange Eating Facility","Exchange Sales Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Car Wash Facility","Vehicle Staging Area, Surfaced","Marina","Marina","Marina","Marina","Marina","Marina","Marina","Exchange Automobile Facility","Exchange Automobile Facility","Exchange Automobile Facility","Recreational Camp and Trailer Park","Exchange Automobile Facility","Exchange Sales Facility","Open Mess and Club Facility","Open Mess and Club Facility","Open Mess and Club Facility","Laundry/Dry Cleaning Facility","Exchange Sales Facility","Laundry/Dry Cleaning Facility","Indoor Skating Rink","Car Wash Structure","Car Wash Structure","Car Wash Structure","Car Wash Structure","Exchange Support Facility","Exchange Support Facility","Exchange Support Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Support Facility","Golf Club House and Sales","Golf Club House and Sales","Clothing Sales Store","Golf Club House and Sales","Golf Club House and Sales","Exchange Support Facility","Golf Club House and Sales","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Sales Facility","Exchange Support Facility","Exchange Sales Facility","Exchange Sales Facility","Transient And Recreational Lodging Support Facility","Transient And Recreational Lodging Support Facility","Transient And Recreational Lodging Support Facility","Transient And Recreational Lodging Support Facility"],["RECRUIT EXCHGE(RSTD) (CAT C)","EXCHANGE SERV OUTLETS (CAT C)","MCX GAS STN MINI-MART ($MC)","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","EXCH RETAIL ($MC)","CAT-C","MCX SERVICE STATION ($MC)","MINI-MART ($MC)","CAT-C","CAT-C","CAT-C","BARBER SHOP","MCX OFFICE","FOOD COURT","LOC EXCH (RESTCTD) ($MC)","BARBER SHOP/MOBILE ($MC)","LOC EXCH (RESTCTD) ($MC)","MWR RENTAL ACCOMMDTN","CAT C-FOOD COURT/STARBUCKS","CAT C-EXCHANGE SERVICE OUTLETS","EXCH RETAIL STORE ($MC)","CAT C-SUBWAY","CAT C-MARINE MART","MCDONALDS RESTAURANT ($MC)","LOCATION EXCHGE / CAT-C","CAT-C","CAT-C","MCX GAS STN ($MC)","DOMINO'S PIZZA ($MC)","EXCH RETAIL STORE ($MC)","CAT-C","CAT-C","CAT-C","MCX GAS &amp; SVC STN ($MC)","CAT-C, EXCHANGE RETAIL STORE","CAT-C, BARBER SHOP","CAT-C, EXCHANGE / MWR FOOD SVC","LOCATION EXCHGE(RESTCTD)","CLASS VI PACKAGE STORE","EXCH GAS SVC STN ($MC)","CAT-C","CAT-C","CAT-C","LOCATION EXCHGE / CAT-C","BARBER SHOP / CAT-C","CAT-C","FIRESTONE","LOCATION EXCHANGE ($MC)","EXCH RETAIL STORES ($MC)","EXCH SVC OUTLETS ($MC)","EXCH FOOD SVCS ($MC)","MAINT AREAS ($MB)","CAT-C/DOMINO'S","CAT C-MIL CLOTHING STORE","CAT C-MCX ANNEX","CAT C-PAPA JOHN &amp; DAILY GRIND","CAT C- CLEANERS - TAILOR","CAT C-EXCHGE CENTRL ADMIN","CAT-C","CAT-C","CAT-C","LOC EXCH (RESTCTD) ($MC)","BARBER SHOP/LAUNDRY ($MC)","MARINE MART/GAS STATION CAT \"C","EXCHGE AUTO REPAIR STA","CAT-C","CAT-C","CAT-C","EXCH RETAIL STORE ($MC)","LOCATION EXCHANGE ($MC)","EXCHANGE CAR WASH","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","EXCH RETAIL STORE ($MC)","BARBER SHOP ($MC)","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT C-MCX","CAT C-CASH / SECURITY OFFICE","LOCATION EXCHANGE ($MC)","RETAIL FOOD SVC ($MC)","DMV SERVICE OUTLET ($MB)","MCX SERVICE STATION ($MC)","EXCHANGE RETAIL STORE","EXCHGE CENTRL ADMIN","FOOD COURT","EXCHANGE SERVICE OUTLETS","MWR ADMIN ($MA)","LOCATION EXCHANGE ($MC)","EXCHANGE SVC OUTLET ($MC)","SONIC BURGER ($MC)","EXCHANGE RETAIL STORE CAT \"C\"","EXCHGE SERVICE OUTLETS CAT \"C\"","EXCHGE/MWR FOOD SVC CAT \"C\"","CAT-C","CAT-C","CAT C","EXCHGE CENTRL ADMIN","CAT C - CHINESE GARDEN","CAT C-LAUNDROMAT, TENNIS, DIVE","CAT-C","CAT-C","CAT-C","CAT-C","ENLISTED CLUB / CAT C","SEASIDE RESTAURANT ($MC)","MINI-MART/GAS STN / CAT-C","CAT-C","CAT-C","VINEYARD ($MC)","USPS STORE ($MC)","CAT-C","CAT-C","CAT-C","CAT-C","MCX EXCHANGE ($MC)","BARBER SHOP ($MC)","CAT-C (REC CAMPGROUND RV)","CAT-C","CAT-C","CAT-C","JOHNNY ROCKETS, CBTL ($MC)","CAT-C","BREW PUB; CAT-C","CAT-C","LOCATION EXCHANGE ($MC)","EXCHANGE SVC OUTLETS ($MC)","DOMINOS-DUNKIN","ALL HANDS CLUB","CAT-C","CAT-C","EXCHGE CENTRL ADMIN (CAT A)","LOCATION EXCHGE (CAT C)","CUSTM GIFTS/GUEST SVCS (CAT C)","EXCHANGE / MWR FOOD SVC","CAT-C,LOCATION EXCHGE(RESTCTD)","CAT-C, EXCHANGE OUTLET","WENDY'S FAST FOOD ($MC)","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C, INSTALLATION REST (MWR)","AUTO REPAIR STATION","MAUI WAUI COFFEE ($MC)","SUMO BURRITO / CAT C","MCCS SCUBA LOCKER","MCX BARBER SHOP ($MC)","MARINE MART CAT \"C\"","OFFICERS CLUB/OPEN","CAT-C","MCX LUBE / OIL EXCH ($MC)","CAR WASH STRUC","CAT-C","CAT-C","LOCN EXCH, DPC/RSU ($MC)","PAPA JOHNS","CAT-C, EXCHANGE CAFE","MICRO MART","MICRO-MART","CAFE / CAT - C","CAR WASH STRUC","MC DONALDS  ($MC)","ALL HANDS CLUB ($MC)","CLUB FACILITY","ALL HANDS CLUB","INSTALLATION REST (MWR)","INSTALLATION REST (MWR)","CAT-B","CAT-C","BARBER SHOP ($MC)","MWR FOOD SVC ($MC)","CAT-C","MWR RV SUPPORT BLDG","TAILOR/ BARBER SHOP","EXCHANGE CAFETERIA","EXCHANGE RETAIL-STORE","EXCHANGE RETAIL STORE","MCCS NAIL SALON","MCX FOOD SERVICE ($MC)","BARBER SHOP ($MC)","CAT-C","CAT-C","CAT-C","CAT-C (SKEET RANGE HIGH HOUSE)","EXCH/MWR FOOD SVC / CAT-C","CAT-C","CAT-C","RESTAURANT","CAT-C","LODGE HOUSE","CAT-C","CAT-C","MCCS VISUAL","CAT-B","CAT C-SUNSET LANAI","FOOD SVC - SUBWAY ($MC)","ALL HANDS CLUB","CAT-C EXCHANGE RETAIL STORE","CAT-C (SUBWAY / EATERY)","CAT-C BARBER AND DRY CLEANING","FORMER CELLAR","TAILOR/DRYCLEAN/BARBER (CAT C)","EXCHANGE/MWR FOOD SVC (CAT C)","GNC","CAT-C","CAT-C","TOOL RENTALS ($MC)","CAT-C","SUBWAY SUB-CONTRACTOR ($MC)","CAT-C, JAVA CAFE","RESTAURANT","CAT C-MCCS BEACH CABINS","CAT-C CONSOLIDATE CLUB PINCITY","INSTALLATION REST (DENNY'S)","GOLF CLUBHOUSE","CAT-C","CAT-C","CAT C","CAT-C","OFF/SNCO CLUB / CAT C","IRON MIKE'S LOUNGE ($MC)","ADMIN, COMMON AREAS ($MA)","SEA VIEW DINING, STARBUX ($MC)","CAT C-24 LN BOWLING CENTER MWR","INST REST (MWR) / CAT - C","ALL HANDS CLUB / CAT C","ALL HANDS CLUB","CAT-C","CAT-C","CAT-C","EXCH RETAIL STORE / CAT-C","EXCH CENTRL ADMIN / CAT-C","EXCH SERV OUTLETS / CAT-C","ENLISTED CLUB / CAT C","CAT-C","BOWLING CTR, GAME ROOM ($MC)","CAT-A","CAT C-ENLISTED CLUB,E-1/E-5","ALL HANDS CLUB / CAT C","TSUNAMI GEAR/SCUBA / CAT C","CAT-C","CAT-C","CAT-C","CAT C","CAT-C","CAT-C","MCCS CLOTHING ISSUE","EXCHANGE ADMIN ($MA)","LOCATION EXCHANGE ($MC)","EXCHANGE MAINT SHOP (CAT C)","EXCHANGE MAINTENANCE SHOP","MCCS ADMIN OFFICE ($MA)","CAT-C","MWR LOGISTICS ADMIN ($MA)","MUSCLE MAKER GRILL","EXCHANGE AUTO REPAIR STATION","EXCHANGE RETAIL STORE","EXCHANGE RETAIL STORE","CAT-C (SKEET RANGE LOW HOUSE)",null,"MCCS RENTAL CABINS","LOCATION EXCHGE","EXCHANGE / MWR FOOD SVC","MCCS EXCHANGE","CAT-C","CAT-C","EXCHANGE RETAIL ($MC)","PACKAGE STORE ($MC)","CAT-C MCCS BEACH CABANAS","CAT C-MCCS BEACH CABANAS","CAT C-MCCS BEACH CABANAS","CAT C-MCCS BEACH CABANAS","CAT-C","INSTALLATION REST (MWR)","BOB MICRO MART","EXCHANGE / MWR FOOD SVC","GOLF COURSE","GOLF DRIVING RANGE","CAT-C","CAT-C","SKEET RANGE","GOLF COURSE ($MC)","CAT-C","CAT C-KLIPPER GOLF COURSE","CAT-C","CAT-C","CAT-C","MCCS - GIFT SHOP","CAT-C-MCCS - ALL HANDS CLUB","MWR RENTAL CABIN #PM8 CLS \"C\"","MWR RENTAL CABINS #PM7 CLS \"C\"","CABINS (MCCS) #PM4 CLASS C","MWR RENTAL CABIN #PM6 CLS \"C\"","MWR RENTAL CABINS #PM1 CLS \"C\"","CABINS (MCCS) PM5 CLASS \"C\"","CAT C-MCCS BEACH CABANAS","CAT C-MCCS BEACH CABANAS","MWR RENTAL ACCOMMDTN","MWR RENTAL ACCOMMDTN","CAT-C","CAT C-MCCS RENTAL CABINS","CAT C - MCCS RENTAL CABINS","CAT C-MCCS BEACH CABANAS","CAT-C","MCCS CABINS #PM3 CLASS \"C\"","MWR RENTAL CABIN","CAT C-WALK-IN REEFER/SUBWAY","CAT C-MCCS RENTAL CABINS","CAT-C","CAT-C","CAT-C","CAT-C, EXCHANGE RETAIL STORE","INSTALLATION REST (MWR)","BURGER KING ORDER BOOTH","MWR RENTAL ACCOMMDTN","MWR RENTAL CABIN","CAT C-MCCS RENTAL CABIN","CAT C-MCCS RENTAL CABINS","CAT C-MCCS RENTAL CABINS","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","CAT-C","REC LODGE ONSLOW BEACH","CAT-C","CAT-C","MCCS MANAGER'S RES CLASS \"C\"","MCCS ASST MGR RES CLASS \"C\"","MWR RENTAL CABIN #C11 CLS \"C\"","MWR RENTAL ACCOMMDTN","MWR RENTAL CABIN","MWR RENTAL CABIN","MWR RENTAL COTTAGES ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","CAT C - MCCS RENTAL CABINS","CAT C -MCCS RENTAL CABINS","CAT C-MCCS RENTAL CABINS","CAT C-MCCS RENTAL CABINS","CAT-C","CAT-C","CAT-C","LOCATION EXCHGE","EXCHANGE/MWR FOOD SVC","EXCHANGE SERVICE OUTLETS","MWR RENTAL CABINS #C9 CLS \"C\"","#PM2 CABINS (MCCS) CLASS \"C\"","CAT-C","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","CAT C-MCCS RENTAL CABIN","CAT-C","CAT-C","CAT-C","CAT-C","EXCH/ MWR FOOD SVC / CAT-C","MWR RENTAL CABIN #C12 CLS \"C\"","MWR RENTAL CABIN #C10 CLASS \"C","CAT-C","EXCHANGE / MWR FOOD SVC","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL COTTAGES ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","MWR RENTAL CABINS ($MC)","CAT-C","CAT-C","CAT-C","CAT-C / RETAIL","CAT-C / FOOD COURT","CAT-C / BARBER SHOP","EXCHGE SELF SERV CAR WASH","EXCHANGE CAR WASH","EXCHANGE CAR WASH","EXCH CAR WASH ($MC)","MCX CAR WASH BAYS ($MC)","EXCHANGE CAR WASH","POV CAR WASH ($MC)","EXCHANGE CAR WASH","AUTO HOBBY VEH STOR","MARINA BOAT DOCKS (CAT C)","CAT-C","MARINA","MARINA/BOAT RAMP","MARINA/BOAT RAMP","MARINA/BOAT RAMP","CAT C-MARINA BOAT DOCK-MWR","CAT-C","GAS STATION ($MC)","CAT-C","CAT-C","GAS STN, FIRESTONE TIRES ($MC)","CONVENIENCE STORE ($MC)","ALL HANDS CLUB","CAT-C, ALL HANDS CLUB","SNCO &amp; OFFICER CLUB","MCCS DRY CLEANERS","CAT-A WFS (SPOUSES CLUB)","FORMER DRY CLEANERS","SKATING RINK","CAR WASH STRUC","CAR WASH STRUC","CAR WASH STRUC","CAR WASH STRUC","EXCHGE CENTRL ADMIN","EXCHGE CENTRL ADMIN","POOL ADMIN OFFICE ($MA)","CAT C-MCCS CARPENTER SHOP","VENDING MACHINE FACILITY","EXCHANGE MAINTENANCE SHOP","GOLF CLUBHOUSE","CAT-C","MCCS CAT-A","CAT-C","CAT C-GOLF COURSE MAINTENANCE","EXCHANGE MAINTENANCE SHOP","GOLF CLUBHOUSE","CHUBB CAR INSURANCE","EXCHANGE SERVICE OUTLETS","MEDIATTI","CAT-C,EXCHANGE SERVICE OUTLETS","EXCHANGE SERVICE OUTLETS","EXCHANGE MAINTENANCE SHOP","STARBUCKS COFFEE ($MC)","CAR INSURANCE","MWR RV SUPPORT BLDG","MWR RV SUPPORT BLDG","BATH HOUSE/LAUNDRY","MWR RV SUPPORT BLDG"],["55928","55928","27435","39929","39929","39929","39929","43234","43234","31024","44869","26424","26424","37171","37171","47757","26331","26331","26331","31023","31023","27072","1162846","18955","18955","34994","24700","24700","23036","19803","31988","31988","23122","24104","30066","39432","39432","39432","30071","987340","987340","987340","55438","55438","27095","39223","40138","40138","21073","21073","47783","55207","29073","27438","27438","27438","27438","42675","25482","25482","25482","25482","25482","31932","31932","31932","23130","23130","35377","35377","35328","35328","35328","27156","30529","1139511","43236","43236","39930","39930","35399","27382","27382","625024","625024","625024","625024","47883","625295","22530","22530","25343","25343","25343","26889","56548","56548","56548","56548","28984","28984","28984","29391","1033816","1033816","1033816","33304","33304","52611","52611","26728","26728","20824","20824","20824","35331","52965","30070","21500","45944","45944","25342","25342","45643","45643","21052","21052","31264","31264","46591","48183","48183","48183","25344","34781","34781","39559","23501","23501","56394","56394","26184","26184","52630","52630","52630","28322","21412","21412","25022","32001","22740","22740","46738","46738","46738","22306","35371","29388","51620","50942","27686","32415","43717","48372","24105","20826","43644","43644","30496","31888","22792","20822","19746","19266","55950","31362","30928","37271","35518","35518","45063","19144","34792","34510","34510","32912","40602","21927","21927","21927","56970","56970","31021","31021","33483","33483","33483","42246","21134","45848","45848","39532","1027349","49360","35325","43233","24793","27562","21940","27101","39426","48249","48249","48249","52610","52610","52610","52610","39445","39445","26420","35699","35005","20968","42324","26734","48247","1013680","1013680","39926","32121","547876","24899","49900","28369","28369","28369","24950","17523","52089","38899","37861","33482","42240","19298","19298","19298","50028","32957","21377","20650","26634","45249","46683","20979","35266","35266","52619","45846","45846","29626","25341","25341","52625","41891","25020","549079","29503","69807","69806","69806","47782","42247","26688","26609","42327","18107","24393","39463","39452","29387","29387","24770","26628","25976","25977","1101691","41434","18289","26312","56027","54475","44490","43364","40569","30938","25789","24415","20755","18310","18309","48350","48350","36341","36342","38480","36343","36340","36338","24771","24769","49367","49576","29658","26617","26631","24938","925427","38479","49363","26271","26615","40087","925425","39451","17836","45067","1158456","49366","49362","26608","26620","26614","40090","40088","40086","40084","40083","40082","40081","40080","40079","40076","40066","37927","37916","37909","554760","1150925","1006331","38471","38472","36349","49365","49364","49361","30784","29169","27554","26619","26618","26612","26611","40089","37912","1150927","56131","56131","56131","36347","38478","33309","29174","29172","29170","29168","28953","30782","30781","25379","553765","37915","1006328","39462","18355","36352","36348","1156603","1008469","30783","30785","29175","29164","27555","27549","27548","29171","29173","40085","1101692","1006491","1086138","1086138","1086138","69802",null,"118401","27437","24973","55234","30410","624370","1010528","53268","25157","38565","1368915","43025","43021","23665","35398","29520","35400","41528","29386","29386","36210","45599","32631","26052","20784","20784","157034","43647","41883","38591","56543","69804","69810","1296139","23552","52674","32135","49412","31579","22937","31577","26749","41890","49410","50026","54611","45387","25692","43175","32106","30068","50915","1448577","1448575","39474","1322730"],["597","597","20842","1231","1231","1231","1231","AS4040","AS4040","520410","5400","1327","1327","FC425","FC425","M424","3500","3500","3500","520409","520409","62407","BA275","6477","6477","53319","3071","3071","22026","4505","BB245","BB245","43286","13030","210600","84","84","84","210620","409","409","409","2499","2499","62507","820","AS257","AS257","293","293","M604","6214","201015","20845","20845","20845","20845","1532","1090","1090","1090","1090","1090","H1","H1","H1","43301","43301","570","570","1350","1350","1350","31000","330360","2663","AS4044","AS4044","1232","1232","1611","22196","22196","1283","1283","1283","1283","691","HP89","6109","6109","15102","15102","15102","13026","2660","2660","2660","2660","31604","31604","31604","51095","965","965","965","4044","4044","11","11","1255","1255","3048","3048","3048","1353","4334","210619","4472","M19","M19","15101","15101","1517","1517","24005","24005","1482","1482","9100","1863","1863","1863","15103","1617","1617","1082","24026","24026","5305","5305","26142","26142","16","16","16","32877","940","940","1101","BB27","2398","2398","1531","1531","1531","203","564","51093","5676","2377","1160","3224","AS710","1145","13031","3056","LCH4034","LCH4034","64331","62","700","3044","2077","298","604","430314","1795","730","425","425","2243","4431","2012","41359","41359","1284","9251AB","4","4","4","2257","2257","520407","520407","319","319","319","11221","4389","3811","3811","153","RR400","BB310","1345","AS4038","206","1002","500","62527","825","7500","7500","7500","10","10","10","10","89","89","13191","38","53341","283","RR10","1270","7450","3750","3750","1220","1057","502","79","201","202850","202850","202850","1666","3542","4218","2615","257","301","1584","3918","3918","3918","402","S-244","1339","1672","1629","4100","1010","299","410","410","132","3810","3810","2261","15100","15100","148","HP1017","1100","1024","2662","MCE225","MCE224","MCE224","M603","11222","R107","1603","RR10A","2200","2C","BA147","BA120","51092","51092","1370","1621","1394","1395","BA267","2200","2048","3259","201331","280744","SPP400","SPP500","11220","1875040","201480","201497","201656","3238","3237","20","20","4022","4024","4014","4026","4018","4015","1371","1369","BB317","BB318","23122","1610","1624","1651","BA258","4013","BB313","4082","1609","BA82","BA257","BA119","406","2248","1225","BB316","BB312","1602","1613","1608","BA85","BA83","BA81","BA79","BA78","BA77","BA76","BA75","BA74","BA71","BA61","BA60","BA247","BA240","BA260","BA269","BA261","4000","4001","4037","BB315","BB314","BB311","2100595","2100613","2100603","1612","1611","1606","1605","BA84","BA243","BA268","8600","8600","8600","4034","4012","4051","2100618","2100616","2100614","2100612","2100607","2100593","2100592","6171","BA259","BA246","BA256","BA146","4210","4041","4036","SSAW373","2748","2100594","2100596","2100619","2100608","2100604","2100598","2100597","2100615","2100617","BA80","BA265","SAS4045","1502","1502","1502","MCE3","1075R1","397","20843","13079","2484","520172","1174","5595","375","1737","S713","376","8520","8508","1299","1610","22124","1612","UN591","51091","51091","538","2","41377","1","3452","3452","5014","LCH4038","S983","SFC419","2608","MCE2","MCE73","14116B1","175","2349-A","1106","3426","1916","2011","1903","1295","HP1016","3333","401","5638","107","737","S93","1015","210602","4319","27537A","27537B","BA188","4062"],[85,85,88,86,86,86,86,86,86,85,88,80,80,84,84,76,79,79,79,88,88,87,88,87,87,86,83,83,81,85,87,87,39,90,76,78,78,78,82,90,90,90,84,84,39,78,83,83,83,83,65,70,85,88,88,88,88,62,76,76,76,76,76,81,81,81,85,85,85,85,82,82,82,81,81,96,88,88,88,88,76,81,81,87,87,87,87,70,76,86,86,90,90,90,86,86,86,86,86,75,75,75,85,88,88,88,89,89,85,85,76,76,90,90,90,87,78,74,78,90,90,86,86,88,88,82,82,83,83,80,86,86,86,88,90,90,90,84,84,79,79,82,82,83,83,83,83,81,81,76,78,85,85,83,83,83,79,85,79,84,74,76,83,70,87,86,86,85,85,76,78,82,85,73,66,84,86,66,78,65,65,88,89,89,81,81,94,73,70,70,70,63,63,85,85,86,86,86,84,85,86,86,80,89,77,89,83,73,82,78,83,83,85,85,85,84,84,84,84,74,74,80,72,88,76,70,68,75,90,90,72,79,76,67,78,68,68,68,85,65,82,70,86,81,81,79,79,79,79,80,83,67,79,75,80,76,77,77,76,80,80,68,80,80,64,79,78,86,55,0,0,0,55,57,60,72,73,75,77,77,77,78,78,78,79,79,79,79,79,79,80,80,80,80,80,80,80,80,80,80,80,80,80,80,82,83,83,83,83,83,83,84,85,85,85,85,85,85,85,86,86,86,86,86,86,86,86,86,86,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,87,88,88,88,88,88,88,88,88,88,88,88,88,88,88,88,88,88,88,88,89,89,89,89,89,89,89,89,89,89,89,89,89,89,89,89,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,91,91,91,91,0,59,78,84,84,85,86,94,98,60,60,75,79,80,80,80,63,66,73,80,87,87,51,64,76,78,79,79,82,72,84,84,86,0,0,40,48,53,64,66,67,69,73,74,75,76,77,79,79,79,80,80,81,81,50,50,78,80],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,0,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,0,0,0,1,1,0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],[1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Installation<\/th>\n      <th>Facility Description<\/th>\n      <th>Facility Use<\/th>\n      <th>RPUID<\/th>\n      <th>Facility Num<\/th>\n      <th>FCI<\/th>\n      <th>FY24<\/th>\n      <th>FY25<\/th>\n      <th>FY26<\/th>\n      <th>FY27<\/th>\n      <th>FY28<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-center","targets":[0,1,2,3,4,5,6,7,8,9,10,11]},{"orderable":false,"targets":0}],"initComplete":"function(settings, json) {\n$(this.api().table().header()).css({'background-color': '#2c3e50', 'color': '#fff'});\n}","order":[],"autoWidth":false,"orderClasses":false}},"evals":["options.initComplete"],"jsHooks":[]}</script>
+<div id="tfccvuzmdj" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#tfccvuzmdj .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tfccvuzmdj .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tfccvuzmdj .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tfccvuzmdj .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tfccvuzmdj .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tfccvuzmdj .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tfccvuzmdj .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tfccvuzmdj .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tfccvuzmdj .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tfccvuzmdj .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tfccvuzmdj .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tfccvuzmdj .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tfccvuzmdj .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#tfccvuzmdj .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfccvuzmdj .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfccvuzmdj .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tfccvuzmdj .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tfccvuzmdj .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tfccvuzmdj .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tfccvuzmdj .gt_left {
+  text-align: left;
+}
+
+#tfccvuzmdj .gt_center {
+  text-align: center;
+}
+
+#tfccvuzmdj .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tfccvuzmdj .gt_font_normal {
+  font-weight: normal;
+}
+
+#tfccvuzmdj .gt_font_bold {
+  font-weight: bold;
+}
+
+#tfccvuzmdj .gt_font_italic {
+  font-style: italic;
+}
+
+#tfccvuzmdj .gt_super {
+  font-size: 65%;
+}
+
+#tfccvuzmdj .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="3" class="gt_heading gt_title gt_font_normal" style>R&amp;M Schedule for <em>FY24</em> by Installation<sup class="gt_footnote_marks">1</sup></th>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>*<em>iNFADS</em> data retrieved <strong>Dec 28, 2021</strong></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">installation</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">Count</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Lejeune</td>
+<td class="gt_row gt_left">16</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Pendleton</td>
+<td class="gt_row gt_left">15</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Hawaii</td>
+<td class="gt_row gt_left">9</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Yuma</td>
+<td class="gt_row gt_left">5</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Quantico</td>
+<td class="gt_row gt_left">5</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Camp Elmore</td>
+<td class="gt_row gt_left">4</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Cherry Point</td>
+<td class="gt_row gt_left">3</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Iwakuni</td>
+<td class="gt_row gt_left">3</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS Miramar</td>
+<td class="gt_row gt_left">3</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCRD PI</td>
+<td class="gt_row gt_left">3</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAS New River</td>
+<td class="gt_row gt_left">2</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCLB Barstow</td>
+<td class="gt_row gt_left">2</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">Garden City</td>
+<td class="gt_row gt_left">1</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MBW (8th &amp; I)</td>
+<td class="gt_row gt_left">1</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCAGCC 29 Palms</td>
+<td class="gt_row gt_left">1</td></tr>
+    <tr><td class="gt_row gt_left gt_stub"></td>
+<td class="gt_row gt_left">MCB Butler</td>
+<td class="gt_row gt_left">1</td></tr>
+    <tr>
+      <td class="gt_row gt_stub gt_right gt_grand_summary_row gt_first_grand_summary_row">Total</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">Installation Count</td>
+      <td class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row">74</td>
+    </tr>
+  </tbody>
+  
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td colspan="3">
+        <p class="gt_footnote">
+          <sup class="gt_footnote_marks">
+            <em>1</em>
+          </sup>
+           
+          Number of facilities by Installation to conduct ICI for scope and estimate
+          <br />
+        </p>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+</div>
 <p><br></p>
 <hr />
 </div>
 <div id="projects" class="section level2">
 <h2>Projects</h2>
 <p><br></p>
-<p><img src="recap_files/figure-html/unnamed-chunk-4-1.png" width="960" /></p>
-<p><img src="recap_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+<p><img src="recap_files/figure-html/unnamed-chunk-3-1.png" width="960" /><img src="recap_files/figure-html/unnamed-chunk-3-2.png" width="960" /></p>
 </div>
 
 
